@@ -1,0 +1,1371 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Worktrees: 30-Minute Hands-On Workshop</title>
+  <style>
+    /* Token system */
+    :root {
+      /* Colors */
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --bg-tertiary: #e8ecf1;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --accent-light: #dbeafe;
+      --danger: #dc2626;
+      --code-bg: #f3f4f6;
+      --code-text: #374151;
+      --success: #16a34a;
+
+      /* Typography */
+      --font-display: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --font-body: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      --font-mono: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+
+      /* Type scale */
+      --text-xs: 0.75rem;
+      --text-sm: 0.875rem;
+      --text-base: 1rem;
+      --text-lg: 1.125rem;
+      --text-xl: 1.25rem;
+      --text-2xl: 1.5rem;
+      --text-3xl: 2rem;
+      --text-4xl: 2.5rem;
+
+      /* Spacing */
+      --space-xs: 0.25rem;
+      --space-sm: 0.5rem;
+      --space-md: 1rem;
+      --space-lg: 1.5rem;
+      --space-xl: 2rem;
+      --space-2xl: 3rem;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a202c;
+        --bg-tertiary: #2d3748;
+        --text-primary: #e8e8e8;
+        --text-secondary: #cbd5e1;
+        --border-color: #404854;
+        --accent-light: #1e3a8a;
+        --code-bg: #1f2937;
+        --code-text: #d1d5db;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --bg-tertiary: #2d3748;
+      --text-primary: #e8e8e8;
+      --text-secondary: #cbd5e1;
+      --border-color: #404854;
+      --accent-light: #1e3a8a;
+      --code-bg: #1f2937;
+      --code-text: #d1d5db;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-body);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      overflow: hidden;
+    }
+
+    .presentation {
+      display: flex;
+      height: 100vh;
+      flex-direction: column;
+    }
+
+    .slides-container {
+      flex: 1;
+      position: relative;
+      background: var(--bg-primary);
+    }
+
+    .slide {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      top: 0;
+      left: 0;
+      opacity: 0;
+      transition: opacity 0.4s ease-in-out;
+      overflow-y: auto;
+      padding: var(--space-2xl);
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+    }
+
+    .slide.active {
+      opacity: 1;
+      position: relative;
+    }
+
+    .slide-content {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    /* Slide types */
+    .slide.title-slide {
+      background: linear-gradient(135deg, var(--bg-secondary) 0%, var(--bg-tertiary) 100%);
+      justify-content: center;
+      align-items: center;
+      text-align: center;
+    }
+
+    .slide.title-slide h1 {
+      font-size: var(--text-4xl);
+      font-weight: 700;
+      margin-bottom: var(--space-md);
+      color: var(--accent);
+    }
+
+    .slide.title-slide p {
+      font-size: var(--text-xl);
+      color: var(--text-secondary);
+      margin-bottom: var(--space-lg);
+    }
+
+    /* Typography */
+    h1 {
+      font-size: var(--text-3xl);
+      font-weight: 700;
+      margin-bottom: var(--space-lg);
+      color: var(--text-primary);
+    }
+
+    h2 {
+      font-size: var(--text-2xl);
+      font-weight: 600;
+      margin-bottom: var(--space-lg);
+      color: var(--accent);
+      text-wrap: balance;
+    }
+
+    h3 {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+      color: var(--text-primary);
+      text-wrap: balance;
+    }
+
+    p {
+      font-size: var(--text-lg);
+      margin-bottom: var(--space-md);
+      color: var(--text-primary);
+      line-height: 1.8;
+    }
+
+    .eyebrow {
+      font-size: var(--text-sm);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--accent);
+      margin-bottom: var(--space-md);
+    }
+
+    /* Code blocks */
+    .code-block {
+      background: var(--code-bg);
+      border-left: 4px solid var(--accent);
+      border-radius: 0;
+      padding: var(--space-lg);
+      margin: var(--space-lg) 0;
+      font-family: var(--font-mono);
+      font-size: var(--text-sm);
+      color: var(--code-text);
+      overflow-x: auto;
+      line-height: 1.5;
+      white-space: pre-wrap;
+    }
+
+    .code-label {
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      color: var(--text-secondary);
+      margin-bottom: var(--space-sm);
+      display: block;
+    }
+
+    /* Content containers */
+    .concept-box {
+      background: var(--accent-light);
+      border-left: 4px solid var(--accent);
+      padding: var(--space-lg);
+      margin: var(--space-lg) 0;
+      border-radius: 0;
+    }
+
+    .concept-box h3 {
+      color: var(--accent);
+      margin-bottom: var(--space-md);
+    }
+
+    .gotcha {
+      background: rgba(220, 38, 38, 0.1);
+      border-left: 4px solid var(--danger);
+      padding: var(--space-lg);
+      margin: var(--space-lg) 0;
+      border-radius: 0;
+    }
+
+    .gotcha strong {
+      color: var(--danger);
+    }
+
+    /* Comparisons */
+    .comparison {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: var(--space-xl);
+      margin: var(--space-xl) 0;
+    }
+
+    .comparison-item {
+      padding: var(--space-lg);
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+    }
+
+    .comparison-item.primary {
+      border: 2px solid var(--accent);
+      background: var(--accent-light);
+    }
+
+    .comparison-item h4 {
+      font-size: var(--text-lg);
+      font-weight: 600;
+      margin-bottom: var(--space-md);
+      color: var(--accent);
+    }
+
+    .comparison-item.primary h4 {
+      color: var(--accent);
+    }
+
+    .comparison-item p {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+    }
+
+    /* Lists */
+    ul, ol {
+      margin: var(--space-lg) 0 var(--space-lg) var(--space-xl);
+      font-size: var(--text-lg);
+    }
+
+    li {
+      margin-bottom: var(--space-md);
+      line-height: 1.8;
+    }
+
+    /* Navigation */
+    .nav-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: var(--space-lg) var(--space-2xl);
+      background: var(--bg-secondary);
+      border-top: 1px solid var(--border-color);
+    }
+
+    .nav-button {
+      background: var(--accent);
+      color: white;
+      border: none;
+      padding: var(--space-md) var(--space-lg);
+      font-size: var(--text-base);
+      cursor: pointer;
+      border-radius: 0;
+      font-weight: 600;
+      transition: background 0.2s;
+    }
+
+    .nav-button:hover {
+      background: #1d4ed8;
+    }
+
+    .nav-button:disabled {
+      background: var(--border-color);
+      cursor: not-allowed;
+    }
+
+    .slide-counter {
+      font-size: var(--text-base);
+      color: var(--text-secondary);
+      font-weight: 600;
+    }
+
+    /* Supplemental badges */
+    .badge {
+      display: inline-block;
+      background: var(--bg-tertiary);
+      color: var(--text-secondary);
+      padding: var(--space-xs) var(--space-sm);
+      font-size: var(--text-xs);
+      font-weight: 600;
+      text-transform: uppercase;
+      letter-spacing: 0.05em;
+      margin-bottom: var(--space-md);
+      border-radius: 0;
+    }
+
+    .badge.supplemental {
+      background: rgba(100, 116, 139, 0.2);
+      color: var(--text-secondary);
+    }
+
+    /* Table */
+    table {
+      width: 100%;
+      margin: var(--space-lg) 0;
+      border-collapse: collapse;
+      font-size: var(--text-base);
+    }
+
+    th {
+      text-align: left;
+      padding: var(--space-md);
+      border-bottom: 2px solid var(--accent);
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    td {
+      padding: var(--space-md);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    /* Responsive */
+    @media (max-width: 1024px) {
+      .comparison {
+        grid-template-columns: 1fr;
+      }
+
+      .slide {
+        padding: var(--space-xl);
+      }
+
+      h1 { font-size: var(--text-2xl); }
+      h2 { font-size: var(--text-xl); }
+      p { font-size: var(--text-base); }
+    }
+
+    /* Presentation controls and workshop layouts */
+    a {
+      color: var(--accent);
+      text-underline-offset: 0.18em;
+    }
+
+    code {
+      font-family: var(--font-mono);
+      font-size: 0.92em;
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 0.1em 0.3em;
+    }
+
+    .slides-container {
+      min-height: 0;
+    }
+
+    .slide {
+      visibility: hidden;
+      pointer-events: none;
+      padding-top: calc(var(--space-2xl) + 1rem);
+      padding-bottom: calc(var(--space-2xl) + 1rem);
+    }
+
+    .slide.active {
+      position: absolute;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    .slide-content {
+      width: min(100%, 1000px);
+    }
+
+    .top-nav {
+      min-height: 3.5rem;
+      display: grid;
+      grid-template-columns: auto minmax(12rem, 1fr) auto auto;
+      gap: var(--space-md);
+      align-items: center;
+      padding: var(--space-sm) var(--space-xl);
+      background: var(--bg-secondary);
+      border-bottom: 1px solid var(--border-color);
+      z-index: 10;
+    }
+
+    .nav-title {
+      font-size: var(--text-sm);
+      font-weight: 700;
+      white-space: nowrap;
+    }
+
+    .section-label {
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+      color: var(--text-secondary);
+      font-size: var(--text-sm);
+    }
+
+    .utility-button,
+    .icon-button {
+      border: 1px solid var(--border-color);
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      cursor: pointer;
+      font: inherit;
+      font-weight: 600;
+      padding: var(--space-sm) var(--space-md);
+    }
+
+    .utility-button:hover,
+    .icon-button:hover {
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    .utility-button:focus-visible,
+    .icon-button:focus-visible,
+    .nav-button:focus-visible,
+    .toc-link:focus-visible {
+      outline: 3px solid var(--accent);
+      outline-offset: 2px;
+    }
+
+    .progress-track {
+      height: 4px;
+      background: var(--bg-tertiary);
+    }
+
+    .progress-bar {
+      height: 100%;
+      width: 0;
+      background: var(--accent);
+      transition: width 0.25s ease;
+    }
+
+    .nav-footer {
+      padding: var(--space-md) var(--space-xl);
+    }
+
+    .footer-status {
+      display: flex;
+      align-items: center;
+      gap: var(--space-md);
+    }
+
+    .keyboard-hint {
+      color: var(--text-secondary);
+      font-size: var(--text-xs);
+    }
+
+    .two-column,
+    .three-column {
+      display: grid;
+      gap: var(--space-lg);
+      margin: var(--space-lg) 0;
+    }
+
+    .two-column {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+
+    .three-column {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+
+    .card {
+      background: var(--bg-secondary);
+      border: 1px solid var(--border-color);
+      padding: var(--space-lg);
+    }
+
+    .card h3,
+    .card h4 {
+      margin-bottom: var(--space-sm);
+    }
+
+    .card p,
+    .card li {
+      font-size: var(--text-base);
+    }
+
+    .card ul {
+      font-size: var(--text-base);
+      margin: var(--space-md) 0 0 var(--space-lg);
+    }
+
+    .time-pill {
+      display: inline-block;
+      background: var(--accent);
+      color: #fff;
+      font-size: var(--text-xs);
+      font-weight: 700;
+      letter-spacing: 0.04em;
+      padding: var(--space-xs) var(--space-sm);
+      margin-bottom: var(--space-sm);
+      text-transform: uppercase;
+    }
+
+    .lab-slide {
+      background:
+        linear-gradient(90deg, var(--accent-light) 0, var(--accent-light) 0.5rem, transparent 0.5rem),
+        var(--bg-primary);
+    }
+
+    .lab-check {
+      background: rgba(22, 163, 74, 0.1);
+      border-left: 4px solid var(--success);
+      padding: var(--space-md) var(--space-lg);
+      margin-top: var(--space-lg);
+    }
+
+    .lab-check strong {
+      color: var(--success);
+    }
+
+    .small {
+      font-size: var(--text-sm);
+      color: var(--text-secondary);
+    }
+
+    .toc-dialog {
+      width: min(92vw, 760px);
+      max-height: 82vh;
+      color: var(--text-primary);
+      background: var(--bg-primary);
+      border: 1px solid var(--border-color);
+      padding: 0;
+    }
+
+    .toc-dialog::backdrop {
+      background: rgba(0, 0, 0, 0.55);
+    }
+
+    .toc-header {
+      position: sticky;
+      top: 0;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: var(--space-md);
+      padding: var(--space-lg);
+      background: var(--bg-primary);
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    .toc-header h2 {
+      margin: 0;
+      font-size: var(--text-xl);
+    }
+
+    .toc-list {
+      list-style: none;
+      margin: 0;
+      padding: var(--space-md);
+    }
+
+    .toc-link {
+      width: 100%;
+      display: grid;
+      grid-template-columns: 2.5rem minmax(0, 1fr) auto;
+      gap: var(--space-md);
+      align-items: center;
+      text-align: left;
+      padding: var(--space-md);
+      color: var(--text-primary);
+      background: transparent;
+      border: 0;
+      border-bottom: 1px solid var(--border-color);
+      cursor: pointer;
+      font: inherit;
+    }
+
+    .toc-link:hover,
+    .toc-link[aria-current="true"] {
+      background: var(--accent-light);
+    }
+
+    .toc-section {
+      color: var(--text-secondary);
+      font-size: var(--text-xs);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    @media (max-width: 760px) {
+      .top-nav {
+        grid-template-columns: auto 1fr auto;
+        padding-inline: var(--space-md);
+      }
+
+      .nav-title {
+        display: none;
+      }
+
+      .section-label {
+        text-align: center;
+      }
+
+      .two-column,
+      .three-column {
+        grid-template-columns: 1fr;
+      }
+
+      .keyboard-hint {
+        display: none;
+      }
+
+      .slide {
+        padding: var(--space-xl) var(--space-lg);
+      }
+    }
+
+    @media print {
+      body {
+        overflow: visible;
+      }
+
+      .presentation {
+        height: auto;
+      }
+
+      .top-nav,
+      .progress-track,
+      .nav-footer,
+      .toc-dialog {
+        display: none;
+      }
+
+      .slides-container {
+        display: block;
+      }
+
+      .slide,
+      .slide.active {
+        position: relative;
+        visibility: visible;
+        pointer-events: auto;
+        opacity: 1;
+        min-height: 100vh;
+        break-after: page;
+      }
+    }
+  </style>
+</head>
+<body>
+  <div class="presentation">
+    <header class="top-nav">
+      <button class="utility-button" id="tocBtn" type="button" aria-haspopup="dialog" aria-controls="tocDialog">Contents</button>
+      <span class="nav-title">Git Worktrees</span>
+      <span class="section-label" id="sectionLabel" aria-live="polite">Start · Git Worktrees</span>
+      <button class="utility-button" id="themeBtn" type="button" aria-label="Switch color theme">Theme</button>
+    </header>
+    <div class="progress-track" role="progressbar" aria-label="Presentation progress" aria-valuemin="1" aria-valuemax="1" aria-valuenow="1" id="progressTrack">
+      <div class="progress-bar" id="progressBar"></div>
+    </div>
+    <div class="slides-container" id="slidesContainer">
+      <section class="slide active title-slide" id="start" data-title="Git Worktrees" data-section="Start" aria-hidden="false">
+        <div class="slide-content">
+          <div class="eyebrow">Nuuly Engineering workshop</div>
+          <h1>Git Worktrees</h1>
+          <p>Safe parallel development with AI coding agents</p>
+          <p class="small" style="margin-top: var(--space-xl);">One repository · separate checkouts · shared Git history</p>
+        </div>
+      </section>
+
+      <section class="slide" id="outcomes" data-title="Outcomes and agenda" data-section="Start" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Start</div>
+          <h2>What you will do today</h2>
+          <p class="small">This workshop emphasizes the hands-on lab. You will learn the concepts, practice with real Git commands, and understand when to use worktrees in your own work.</p>
+          <div class="three-column">
+            <div class="card">
+              <h3>Set up</h3>
+              <p>Learn what each worktree keeps separate, what Git shares, and the rules that prevent mistakes.</p>
+            </div>
+            <div class="card">
+              <h3>Hands-on lab</h3>
+              <p>Create, inspect, trigger a safe failure, and remove a linked worktree. This is the majority of the session.</p>
+            </div>
+            <div class="card">
+              <h3>Apply and close</h3>
+              <p>Map worktrees to Claude Code and Cursor, then choose the right tool for a real task.</p>
+            </div>
+          </div>
+          <div class="lab-check">
+            <strong>Success:</strong> You can create, list, and remove a worktree, and you can determine when a multi-root workspace is the correct tool.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="foundation" data-title="What a worktree is and its rules" data-section="Foundation" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Foundation</div>
+          <h2>One repository, multiple working trees</h2>
+          <p>A linked worktree is another checkout of the same repository. It lets you work on separate branches at the same time without switching or stashing.</p>
+          <div class="two-column">
+            <div class="card">
+              <h3>Separate per worktree</h3>
+              <ul>
+                <li>Working files and generated output</li>
+                <li>Staged changes and index</li>
+                <li>Checked-out branch and <code>HEAD</code></li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Shared across worktrees</h3>
+              <ul>
+                <li>Commits and Git objects</li>
+                <li>Branches, tags, and remotes</li>
+                <li>Most repository configuration</li>
+              </ul>
+            </div>
+          </div>
+          <div class="two-column">
+            <div class="card">
+              <h3>Three rules</h3>
+              <ul>
+                <li><strong>One branch per worktree.</strong> Git blocks the same branch in two worktrees; use another branch or a detached <code>HEAD</code>.</li>
+                <li><strong>List before creating.</strong> Run <code>git worktree list</code>.</li>
+                <li><strong>Remove with Git.</strong> Use <code>git worktree remove</code>; run <code>git worktree prune</code> for stale metadata.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Not a full playground</h3>
+              <p>Worktrees separate files, not processes. Two apps can still compete for the same port, database, simulator, or device.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="get-started" data-title="Get the playground repository" data-section="Setup" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Setup</div>
+          <h2>Clone the playground repository</h2>
+          <p>Before you start the lab, clone the playground repository. Your facilitator will give you the URL and run this command for you.</p>
+          <div class="code-block"><span class="code-label">Clone the repository</span>git clone https://github.com/urbn/ai_enablement_workshops.git worktrees-playground
+cd worktrees-playground</div>
+          <div class="two-column">
+            <div class="card">
+              <h3>Verify the playground</h3>
+              <p>Check that your playground is clean and ready:</p>
+              <div class="code-block" style="margin-top: 0.5rem; font-size: 0.85em;">git status --short
+git worktree list</div>
+              <p class="small" style="margin-top: 0.5rem;">Both should print nothing or only the main worktree.</p>
+            </div>
+            <div class="card">
+              <h3>You're ready</h3>
+              <p>If both commands print nothing, your playground is clean and ready for the lab. You now have a fresh Git repository with one commit and a clean working tree.</p>
+            </div>
+          </div>
+          <div class="lab-check">
+            <strong>Next:</strong> When everyone has a clean playground, the facilitator will move to the lab steps.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="commands" data-title="Core Git commands" data-section="Git commands" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Git commands</div>
+          <h2>The commands you need</h2>
+          <div class="code-block"><span class="code-label">Create, inspect, and remove</span>git worktree list
+git worktree add -b feature/foo ../repo-foo origin/dev
+git worktree add ../repo-hotfix hotfix/bar
+git worktree add --detach ../repo-scratch HEAD
+git worktree remove ../repo-foo
+git worktree prune</div>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Claude Code</summary>
+            <div class="code-block" style="margin: 0.5rem 0;"><span class="code-label">Create and use a worktree</span>claude --worktree feature-foo
+claude --worktree "#42"</div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Claude Code handles creation and branch setup automatically.</p>
+          </details>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Cursor</summary>
+            <div class="code-block" style="margin: 0.5rem 0;"><span class="code-label">In the IDE</span>/worktree feature-foo</div>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Use <code>/worktree</code> to create and enter a worktree.</p>
+          </details>
+          <div class="two-column">
+            <div class="card">
+              <h3><code>add -b</code></h3>
+              <p>Create a new branch and check it out in a new path.</p>
+            </div>
+            <div class="card">
+              <h3><code>--detach</code></h3>
+              <p>Create a throwaway checkout without claiming a branch.</p>
+            </div>
+          </div>
+          <p class="small">Use <code>git worktree lock</code> only when a worktree should not be pruned, such as one stored on a removable drive.</p>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="lab-setup" data-title="Lab setup" data-section="Hands-on lab" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Hands-on lab</div>
+          <h2>Lab: create, inspect, trigger a safe failure, clean up</h2>
+          <div class="two-column">
+            <div class="card">
+              <h3>Use</h3>
+              <ul>
+                <li>A clone of <code style="word-break: break-all;">https://github.com/urbn/ai_enablement_workshops.git</code></li>
+                <li>A clean working tree</li>
+                <li>A unique branch name using your initials</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Do not use</h3>
+              <ul>
+                <li>Your current feature checkout</li>
+                <li>A repository with uncommitted work</li>
+                <li><code>--force</code> during the lab</li>
+              </ul>
+            </div>
+          </div>
+          <div class="code-block"><span class="code-label">Before starting</span>git status --short
+git worktree list</div>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Claude Code</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Ask Claude Code directly: "Check if the working tree is clean" or "Show me the current worktrees." Claude Code can run these commands and show you the results.</p>
+          </details>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Cursor</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Ask Cursor directly: "Check if the working tree is clean" or "Show me the current worktrees." Cursor can run these commands and show you the results.</p>
+          </details>
+          <div class="lab-check"><strong>Checkpoint:</strong> <code>git status --short</code> prints nothing. Ask for a playground if it prints any path.</div>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="lab-create" data-title="Lab step 1: create" data-section="Hands-on lab" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Hands-on lab · step 1</div>
+          <h2>Create a linked worktree</h2>
+          <p>Replace both placeholders. Run this from the playground repository root.</p>
+          <div class="code-block"><span class="code-label">Create a new branch from the current commit</span>git worktree add -b workshop/&lt;initials&gt; ../&lt;repo&gt;-wt-demo HEAD
+git worktree list</div>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Claude Code</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Ask "Create a worktree for workshop/[my initials]" and Claude Code will run the commands and show you the result.</p>
+          </details>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Cursor</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Use <code>/worktree workshop/initials</code> to create and enter a worktree in one command.</p>
+          </details>
+          <div class="lab-check">
+            <strong>Checkpoint:</strong> The list shows two paths and two branches. The new row points to <code>workshop/&lt;initials&gt;</code>.
+          </div>
+          <p class="small">A worktree begins from a commit. Uncommitted files in the main checkout are not copied.</p>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="lab-inspect" data-title="Lab step 2: inspect" data-section="Hands-on lab" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Hands-on lab · step 2</div>
+          <h2>Change the linked checkout</h2>
+          <div class="code-block"><span class="code-label">Run inside the linked worktree</span>cd ../&lt;repo&gt;-wt-demo
+printf "created in the linked worktree\n" &gt; worktree-lab.txt
+git status --short
+git branch --show-current
+git worktree list</div>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Claude Code</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Ask "Create a file in the worktree and show me the status." Claude Code automatically runs commands in the correct worktree directory.</p>
+          </details>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Cursor</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Ask "Make a file in this worktree" and Cursor will create it in the current worktree context.</p>
+          </details>
+          <div class="lab-check">
+            <strong>Checkpoint:</strong> The new file exists only in the linked worktree. Verify that the main checkout does not contain it.
+          </div>
+          <p class="small">The new branch is visible from both checkouts because branch refs are shared. The untracked file is not shared because working files are separate.</p>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="lab-fail" data-title="Lab step 3: observe Git's guardrail" data-section="Hands-on lab" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Hands-on lab · step 3</div>
+          <h2>Observe the one-branch guardrail</h2>
+          <p>While <code>workshop/&lt;initials&gt;</code> is checked out in the demo worktree, try to check out that same branch in another worktree:</p>
+          <div class="code-block"><span class="code-label">This command should fail</span>git worktree add ../&lt;repo&gt;-wt-duplicate workshop/&lt;initials&gt;</div>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Claude Code</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Ask "Try to create another worktree on the same branch" and Claude Code will attempt it, then explain why Git refused.</p>
+          </details>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Cursor</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Try <code>/worktree duplicate workshop/initials</code> and Cursor will show you Git's refusal and suggest alternatives.</p>
+          </details>
+          <div class="gotcha">
+            <strong>Expected result:</strong> Git reports that the branch is already checked out. This refusal protects both working trees from sharing one branch checkout.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="lab-challenge" data-title="Challenge: Temporary second checkout" data-section="Hands-on lab" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Hands-on lab</div>
+          <h2>Challenge</h2>
+          <p style="margin: 2rem 0; font-size: 1.1rem; font-weight: 500;">What could you use instead for a temporary second checkout of the same commit?</p>
+          <details class="expandable" style="margin-top: 2rem;">
+            <summary style="cursor: pointer; font-weight: 600; padding: 0.75rem; background: var(--bg-secondary); border-radius: 4px; user-select: none;">Show answer</summary>
+            <div style="padding: 1rem; margin-top: 0.5rem; background: var(--bg-secondary); border-radius: 4px;">
+              <p style="margin: 0;">A different branch or <code>git worktree add --detach &lt;path&gt; HEAD</code></p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="lab-cleanup" data-title="Lab step 4: clean up" data-section="Hands-on lab" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Hands-on lab · step 4</div>
+          <h2>Let Git protect the untracked file, then clean up</h2>
+          <div class="code-block"><span class="code-label">Return to the main checkout</span>cd ../&lt;repo&gt;
+git worktree remove ../&lt;repo&gt;-wt-demo</div>
+          <p>The first removal should fail because <code>worktree-lab.txt</code> would be lost.</p>
+          <div class="code-block"><span class="code-label">Remove only the lab file, then remove the worktree</span>rm ../&lt;repo&gt;-wt-demo/worktree-lab.txt
+git worktree remove ../&lt;repo&gt;-wt-demo
+git branch -d workshop/&lt;initials&gt;
+git worktree list</div>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Claude Code</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Ask "Clean up this worktree and delete the branch" and Claude Code will remove untracked files, remove the worktree, and delete the branch.</p>
+          </details>
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent);">In Cursor</summary>
+            <p style="font-size: 0.9rem; color: var(--text-secondary); margin: 0.5rem 0;">Use <code>/delete-worktree</code> and Cursor will prompt you about untracked files before removal.</p>
+          </details>
+          <div class="lab-check">
+            <strong>Done:</strong> Only the main checkout remains. Do not use <code>--force</code> unless you have deliberately decided to discard work.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="lab-debrief" data-title="Common mistakes and recovery" data-section="Hands-on lab" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Hands-on lab</div>
+          <h2>Common mistakes and recovery</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 4px;">
+              <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--danger);">❌ Delete directory manually</h3>
+              <div class="code-block" style="font-size: 0.85rem;">rm -rf ../repo-wt-feature</div>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">Git metadata left behind, worktree list shows it as prunable.</p>
+            </div>
+            <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 4px;">
+              <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--success);">✓ Use git to remove</h3>
+              <div class="code-block" style="font-size: 0.85rem;">git worktree remove ../repo-wt-feature
+git worktree prune</div>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">Clean removal. Git cleans up both files and metadata.</p>
+            </div>
+            <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 4px;">
+              <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--danger);">❌ Same branch in two worktrees</h3>
+              <div class="code-block" style="font-size: 0.85rem;">git worktree add ../wt2 feature/auth
+# Already checked out in ../wt1</div>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">Git refuses. One branch per worktree only.</p>
+            </div>
+            <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 4px;">
+              <h3 style="font-size: 0.95rem; margin-bottom: 0.75rem; color: var(--success);">✓ Use a different branch</h3>
+              <div class="code-block" style="font-size: 0.85rem;">git worktree add -b feature/auth-v2 ../wt2 origin/main</div>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">Or use <code>--detach</code> for temporary checkouts.</p>
+            </div>
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="tools" data-title="Worktrees in Claude Code and Cursor" data-section="Apply" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Apply · AI coding agents</div>
+          <h2>Both tools use the same Git primitive</h2>
+          <div class="two-column">
+            <div class="card">
+              <h3>Claude Code</h3>
+              <div class="code-block"><span class="code-label">One terminal per task</span>claude --worktree feature-auth
+claude --worktree "#42"</div>
+              <ul>
+                <li>Creates <code>.claude/worktrees/&lt;name&gt;/</code> and branch <code>worktree-&lt;name&gt;</code>.</li>
+                <li><code>baseRef</code> in <code>.claude/settings.json</code>: <code>"fresh"</code> starts from the remote default branch, <code>"head"</code> from your current commits. Committed state only.</li>
+                <li>Use <code>.worktreeinclude</code> to copy chosen gitignored files such as <code>.env</code>.</li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Cursor</h3>
+              <ul>
+                <li><code>/worktree &lt;task&gt;</code> runs the rest of the chat in a worktree.</li>
+                <li><code>/best-of-n model1,model2 &lt;task&gt;</code> runs parallel candidates; it compares, it does not merge.</li>
+                <li><code>/apply-worktree</code> brings changes into the main checkout; <code>/delete-worktree</code> removes it.</li>
+                <li>Automate setup in <code>.cursor/worktrees.json</code>; watch the machine-wide cap, default 25.</li>
+              </ul>
+            </div>
+          </div>
+          <div class="gotcha">
+            <strong>Inside a Claude Code worktree session</strong>, edits and commands that target the main checkout are blocked, including for subagents. Do not assume every agent tool enforces the same boundary.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="parallel-vs-sequential" data-title="Parallel or sequential: choose your workflow" data-section="Apply" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Apply · Workflow patterns</div>
+          <h2>Parallel or sequential: tips for both</h2>
+          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1.5rem;">
+            <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 4px;">
+              <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Parallel: different tasks</h3>
+              <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>When:</strong> Two independent features or one writes code while another fixes bugs.</p>
+              <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>Example:</strong> Claude Code builds a new API endpoint in one worktree while Cursor refactors the database schema in another. Both commit their work; changes merge cleanly.</p>
+              <p style="font-size: 0.9rem;"><strong>Setup:</strong> Each tool gets its own worktree on a different branch. Use `git worktree list` to verify before creating.</p>
+            </div>
+            <div style="padding: 1rem; background: var(--bg-secondary); border-radius: 4px;">
+              <h3 style="font-size: 1rem; margin-bottom: 0.75rem;">Sequential: same task</h3>
+              <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>When:</strong> One IDE implements, the other reviews or refines. Handoff model.</p>
+              <p style="font-size: 0.9rem; margin-bottom: 1rem;"><strong>Example:</strong> Claude Code writes a feature and pushes to a PR branch. Cursor checks out that branch in a new worktree, runs tests, writes a PR review, and applies improvements. Single branch, sequential edits.</p>
+              <p style="font-size: 0.9rem;"><strong>Setup:</strong> First tool commits and pushes. Second tool pulls and creates a worktree on the same branch. Use `/apply-worktree` to merge changes back.</p>
+            </div>
+          </div>
+          <div class="gotcha" style="margin-top: 1rem;">
+            <strong>Key rule:</strong> One branch per worktree. If both IDEs work on the same branch, use the same worktree (sequential only). If they work in parallel, use different branches or different checkouts.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="fleet-view" data-title="Fleet view: many agents, many PRs" data-section="Apply" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Apply · Advanced pattern</div>
+          <h2>Fleet view: many agents, many PRs</h2>
+          <p style="margin-bottom: 1rem; font-size: 0.95rem;">Launch multiple agents in parallel, each in its own worktree and branch. Each commits and opens a PR. Track all PRs by branch and CI status.</p>
+
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent); user-select: none;">Claude Code (IDE)</summary>
+            <div style="padding-top: 0.75rem;">
+              <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">In the chat, spawn multiple agents in one message with `isolation: "worktree"` on each, or use Workflow tool with `agent(prompt, {isolation: 'worktree'})` inside `parallel()`.</p>
+              <div class="code-block" style="font-size: 0.8rem; margin-bottom: 0.75rem;">Agent(prompt, {isolation: "worktree"})
+Agent(prompt, {isolation: "worktree"})
+Agent(prompt, {isolation: "worktree"})</div>
+              <p style="font-size: 0.9rem;">Each agent runs in parallel, creates its own worktree under `.claude/worktrees/`, commits, and pushes a PR. Track with `gh pr list`.</p>
+            </div>
+          </details>
+
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent); user-select: none;">Claude CLI</summary>
+            <div style="padding-top: 0.75rem;">
+              <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Spawn multiple `claude` processes in the background, each creating a worktree with `--worktree` flag and running independent tasks.</p>
+              <div class="code-block" style="font-size: 0.8rem; margin-bottom: 0.75rem;">claude --worktree task-1 "task prompt 1" &amp;
+claude --worktree task-2 "task prompt 2" &amp;
+claude --worktree task-3 "task prompt 3" &amp;
+wait</div>
+              <p style="font-size: 0.9rem;">Each process runs in parallel. Instruct each to commit and push. Track with `gh pr list`.</p>
+            </div>
+          </details>
+
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent); user-select: none;">Cursor</summary>
+            <div style="padding-top: 0.75rem;">
+              <p style="font-size: 0.9rem; margin-bottom: 0.75rem;">Sequential in one chat: use `/worktree task-1`, do work, `/apply-worktree`, then `/worktree task-2`, do work, `/apply-worktree`. One chat session, worktrees switch sequentially.</p>
+              <div class="code-block" style="font-size: 0.8rem; margin-bottom: 0.75rem;">/worktree task-1
+(do work, commit)
+/apply-worktree
+
+/worktree task-2
+(do work, commit)
+/apply-worktree</div>
+              <p style="font-size: 0.9rem;">Track with `gh pr list` or git log.</p>
+            </div>
+          </details>
+        </div>
+      </section>
+
+      <section class="slide lab-slide" id="fleet-challenge" data-title="Fleet view challenge" data-section="Apply" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Apply</div>
+          <h2>Try fleet view in your preferred tool</h2>
+
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent); user-select: none;">Claude Code (IDE)</summary>
+            <div style="padding-top: 0.75rem;">
+              <ol style="font-size: 0.9rem; margin-left: 1rem; margin-bottom: 1rem;">
+                <li>Open the playground repo in Claude Code.</li>
+                <li>In one message, spawn 2–3 agents with `isolation: "worktree"` on each.</li>
+                <li>Give each agent a simple, independent task (e.g., add comments to different files).</li>
+                <li>Instruct each to commit and push to a branch named after the task.</li>
+              </ol>
+              <p style="font-size: 0.9rem;"><strong>Track:</strong> Run <code>gh pr list</code> to see the PRs. Agents run in parallel.</p>
+            </div>
+          </details>
+
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent); user-select: none;">Claude CLI</summary>
+            <div style="padding-top: 0.75rem;">
+              <ol style="font-size: 0.9rem; margin-left: 1rem; margin-bottom: 1rem;">
+                <li>Open a terminal in the playground repo.</li>
+                <li>Spawn 2–3 `claude` processes in parallel, each with `--worktree` and a task.</li>
+                <li>Each process creates its own worktree, does independent work, commits, and pushes.</li>
+              </ol>
+              <div class="code-block" style="font-size: 0.8rem;">claude --worktree task-1 "prompt for task 1" &amp;
+claude --worktree task-2 "prompt for task 2" &amp;
+wait</div>
+              <p style="font-size: 0.9rem;"><strong>Track:</strong> Run <code>gh pr list</code>. Processes run in parallel.</p>
+            </div>
+          </details>
+
+          <details style="margin: 1rem 0; padding: 1rem; background: var(--bg-secondary); border-left: 4px solid var(--accent);">
+            <summary style="cursor: pointer; font-weight: 600; color: var(--accent); user-select: none;">Cursor</summary>
+            <div style="padding-top: 0.75rem;">
+              <ol style="font-size: 0.9rem; margin-left: 1rem; margin-bottom: 1rem;">
+                <li>Open the playground repo in Cursor.</li>
+                <li>Use <code>/worktree task-1</code>, make a change, <code>/apply-worktree</code>.</li>
+                <li>Repeat with <code>/worktree task-2</code>, make a change, <code>/apply-worktree</code>.</li>
+              </ol>
+              <p style="font-size: 0.9rem;"><strong>One chat session.</strong> Worktrees switch sequentially, not in parallel.</p>
+              <p style="font-size: 0.9rem;"><strong>Track:</strong> Run <code>gh pr list</code> or check git log.</p>
+            </div>
+          </details>
+
+          <div class="gotcha" style="margin-top: 1rem;">
+            <strong>Key difference:</strong> Claude Code and Claude CLI run agents in parallel (multiple at once). Cursor runs sequentially in one chat. All three produce separate branches and PRs.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="nuuly" data-title="Nuuly conventions" data-section="Nuuly use" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Nuuly use</div>
+          <h2>Repository-specific conventions</h2>
+          <div style="font-size: 0.85rem; overflow-x: auto;">
+            <table>
+              <thead>
+                <tr><th>Repository</th><th>Branch naming</th><th>Path</th><th>Setup notes</th></tr>
+              </thead>
+              <tbody>
+                <tr><td><a href="setup-r15-cx-web.html" target="_blank" style="color: var(--accent); text-decoration: none;"><strong>r15-cx-web</strong></a></td><td><code>am/TYP-XXXXX</code> or <code>am/no-ticket/&lt;kebab&gt;</code></td><td>Sibling: <code>r15-web-cx-wt-&lt;short-name&gt;</code></td><td><code>npm install</code> per worktree; <code>.env</code> tracked (copied automatically)</td></tr>
+                <tr><td><a href="setup-r15-services-customer.html" target="_blank" style="color: var(--accent); text-decoration: none;"><strong>r15-services-customer</strong></a></td><td><code>&lt;username&gt;/TYP-XXXXX-&lt;desc&gt;</code></td><td>Sibling, <code>.claude/worktrees/</code>, or <code>/private/tmp</code></td><td>Domain builds independent (<code>./gradlew -p cx build</code>); copy <code>.env</code>, <code>docker-compose.override.yaml</code>, sample app configs where needed (varies per service)</td></tr>
+                <tr><td><a href="setup-r15-android-rms-handheld.html" target="_blank" style="color: var(--accent); text-decoration: none;"><strong>r15-android-rms-handheld</strong></a></td><td><code>&lt;initials&gt;/ticket/topic</code></td><td><code>/private/tmp/&lt;name&gt;</code> or <code>.claude/worktrees/</code></td><td><code>local.properties</code> git-ignored (copy or recreate); keystores tracked (come free)</td></tr>
+                <tr><td><a href="setup-r15-rms-kiosk-launcher.html" target="_blank" style="color: var(--accent); text-decoration: none;"><strong>r15-rms-kiosk-launcher</strong></a></td><td><code>&lt;initials&gt;/ticket-id/topic</code></td><td><code>.claude/worktrees/&lt;slug&gt;</code></td><td>No written convention; API URLs and configs likely needed per variant</td></tr>
+                <tr><td><a href="setup-r15-ios-cx.html" target="_blank" style="color: var(--accent); text-decoration: none;"><strong>iOS (r15-ios-cx)</strong></a></td><td>Same as web: <code>&lt;username&gt;/TYP-XXXXX</code></td><td>Sibling or <code>.claude/worktrees/</code></td><td>Spec-driven: <code>.spec/work/&lt;TICKET&gt;/</code> local to worktree. Use <code>--no-track</code> from <code>origin/dev</code></td></tr>
+              </tbody>
+            </table>
+          </div>
+          <div class="gotcha" style="margin-top: 1rem; font-size: 0.9rem;">
+            <strong>⚠️ Before creating a worktree:</strong> check the repo's <code>CONTRIBUTING.md</code> or <code>AGENTS.md</code> for setup steps. Run <code>git worktree list</code> to see existing naming patterns.
+          </div>
+        </div>
+      </section>
+
+      <section class="slide" id="decision" data-title="Choose the correct tool" data-section="Close" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Close</div>
+          <h2>Choose by the isolation you need</h2>
+          <table>
+            <thead>
+              <tr><th>Situation</th><th>Use</th></tr>
+            </thead>
+            <tbody>
+              <tr><td>Feature and bug fix on one repository</td><td>Two worktrees on two branches</td></tr>
+              <tr><td>Hotfix while feature work is unfinished</td><td><code>git worktree add -b …</code></td></tr>
+              <tr><td>Claude Code review of pull request 42</td><td><code>claude --worktree "#42"</code></td></tr>
+              <tr><td>Compare model attempts in Cursor</td><td><code>/best-of-n model1,model2 &lt;task&gt;</code>; compares outputs, select one</td></tr>
+              <tr><td>iOS, web, and services in one task</td><td>Multi-root workspace; worktrees only where one repository needs parallel branches</td></tr>
+              <tr><td>One task with no parallel work</td><td>Normal checkout; a worktree may add no value</td></tr>
+            </tbody>
+          </table>
+        </div>
+      </section>
+
+      <section class="slide" id="resources" data-title="Resources and next step" data-section="Close" aria-hidden="true">
+        <div class="slide-content">
+          <div class="eyebrow">Close</div>
+          <h2>Three-line playbook</h2>
+          <ol>
+            <li><strong>One branch per worktree.</strong></li>
+            <li><strong>List before you create.</strong></li>
+            <li><strong>Remove with Git; prune stale metadata.</strong></li>
+          </ol>
+          <div class="two-column">
+            <div class="card">
+              <h3>Workshop references</h3>
+              <ul>
+                <li><a href="cheat-sheet.html">Cheat sheet</a></li>
+                <li><a href="sources.html">Sources and findings</a></li>
+              </ul>
+            </div>
+            <div class="card">
+              <h3>Primary documentation</h3>
+              <ul>
+                <li><a href="https://git-scm.com/docs/git-worktree" target="_blank" rel="noreferrer">Git worktree</a></li>
+                <li><a href="https://code.claude.com/docs/en/worktrees.md" target="_blank" rel="noreferrer">Claude Code worktrees</a></li>
+                <li><a href="https://cursor.com/docs/configuration/worktrees" target="_blank" rel="noreferrer">Cursor worktrees</a></li>
+              </ul>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <footer class="nav-footer">
+      <button class="nav-button" id="prevBtn" type="button">← Previous</button>
+      <div class="footer-status">
+        <span class="keyboard-hint">← → or Space · Home/End · M contents · T theme</span>
+        <span class="slide-counter"><span id="currentSlide">1</span> / <span id="totalSlides">1</span></span>
+      </div>
+      <button class="nav-button" id="nextBtn" type="button">Next →</button>
+    </footer>
+  </div>
+
+  <dialog class="toc-dialog" id="tocDialog" aria-labelledby="tocTitle">
+    <div class="toc-header">
+      <h2 id="tocTitle">Workshop contents</h2>
+      <button class="icon-button" id="closeTocBtn" type="button" aria-label="Close contents">Close</button>
+    </div>
+    <ol class="toc-list" id="tocList"></ol>
+  </dialog>
+
+  <script>
+    const slides = Array.from(document.querySelectorAll('.slide'));
+    const totalSlides = slides.length;
+    const tocDialog = document.getElementById('tocDialog');
+    const tocList = document.getElementById('tocList');
+    const progressTrack = document.getElementById('progressTrack');
+    let currentSlide = 1;
+
+    document.getElementById('totalSlides').textContent = totalSlides;
+    progressTrack.setAttribute('aria-valuemax', totalSlides);
+
+    slides.forEach((slide, index) => {
+      const item = document.createElement('li');
+      const button = document.createElement('button');
+      button.type = 'button';
+      button.className = 'toc-link';
+      button.dataset.slideIndex = index + 1;
+      button.innerHTML = `
+        <span>${index + 1}</span>
+        <span>${slide.dataset.title}</span>
+        <span class="toc-section">${slide.dataset.section}</span>
+      `;
+      button.addEventListener('click', () => {
+        showSlide(index + 1);
+        tocDialog.close();
+      });
+      item.appendChild(button);
+      tocList.appendChild(item);
+    });
+
+    function showSlide(requestedSlide, updateHash = true) {
+      currentSlide = Math.min(Math.max(requestedSlide, 1), totalSlides);
+
+      slides.forEach((slide, index) => {
+        const isActive = index === currentSlide - 1;
+        slide.classList.toggle('active', isActive);
+        slide.setAttribute('aria-hidden', String(!isActive));
+        if (isActive) slide.scrollTop = 0;
+      });
+
+      const activeSlide = slides[currentSlide - 1];
+      document.getElementById('currentSlide').textContent = currentSlide;
+      document.getElementById('sectionLabel').textContent =
+        `${activeSlide.dataset.section} · ${activeSlide.dataset.title}`;
+      document.getElementById('prevBtn').disabled = currentSlide === 1;
+      document.getElementById('nextBtn').disabled = currentSlide === totalSlides;
+      document.getElementById('progressBar').style.width =
+        `${(currentSlide / totalSlides) * 100}%`;
+      progressTrack.setAttribute('aria-valuenow', currentSlide);
+
+      document.querySelectorAll('.toc-link').forEach((button, index) => {
+        button.setAttribute('aria-current', String(index === currentSlide - 1));
+      });
+
+      if (updateHash) {
+        history.replaceState(null, '', `#${activeSlide.id}`);
+      }
+    }
+
+    function showSlideFromHash() {
+      const id = window.location.hash.slice(1);
+      const index = slides.findIndex(slide => slide.id === id);
+      showSlide(index >= 0 ? index + 1 : 1, false);
+    }
+
+    function toggleTheme() {
+      const root = document.documentElement;
+      const current = root.dataset.theme;
+      const isDark = current
+        ? current === 'dark'
+        : window.matchMedia('(prefers-color-scheme: dark)').matches;
+      const next = isDark ? 'light' : 'dark';
+      root.dataset.theme = next;
+      localStorage.setItem('worktrees-presentation-theme', next);
+    }
+
+    document.getElementById('prevBtn').addEventListener('click', () => showSlide(currentSlide - 1));
+    document.getElementById('nextBtn').addEventListener('click', () => showSlide(currentSlide + 1));
+    document.getElementById('tocBtn').addEventListener('click', () => tocDialog.showModal());
+    document.getElementById('closeTocBtn').addEventListener('click', () => tocDialog.close());
+    document.getElementById('themeBtn').addEventListener('click', toggleTheme);
+
+    tocDialog.addEventListener('click', event => {
+      if (event.target === tocDialog) tocDialog.close();
+    });
+
+    document.addEventListener('keydown', event => {
+      if (tocDialog.open) return;
+      const activeTag = document.activeElement?.tagName;
+      if (['INPUT', 'SELECT', 'TEXTAREA'].includes(activeTag)) return;
+      if ((activeTag === 'A' || activeTag === 'BUTTON') && event.key === ' ') return;
+
+      if (event.key === 'ArrowRight' || event.key === 'PageDown' || event.key === ' ') {
+        event.preventDefault();
+        showSlide(currentSlide + 1);
+      } else if (event.key === 'ArrowLeft' || event.key === 'PageUp') {
+        event.preventDefault();
+        showSlide(currentSlide - 1);
+      } else if (event.key === 'Home') {
+        event.preventDefault();
+        showSlide(1);
+      } else if (event.key === 'End') {
+        event.preventDefault();
+        showSlide(totalSlides);
+      } else if (event.key.toLowerCase() === 'm') {
+        tocDialog.showModal();
+      } else if (event.key.toLowerCase() === 't') {
+        toggleTheme();
+      }
+    });
+
+    window.addEventListener('hashchange', showSlideFromHash);
+
+    const savedTheme = localStorage.getItem('worktrees-presentation-theme');
+    if (savedTheme === 'light' || savedTheme === 'dark') {
+      document.documentElement.dataset.theme = savedTheme;
+    }
+    showSlideFromHash();
+  </script>
+</body>
+</html>

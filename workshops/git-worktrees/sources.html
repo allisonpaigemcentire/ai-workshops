@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Worktrees Workshop — Sources and Findings</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --code-bg: #f3f4f6;
+      --code-text: #374151;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a202c;
+        --text-primary: #e8e8e8;
+        --text-secondary: #cbd5e1;
+        --border-color: #404854;
+        --code-bg: #1f2937;
+        --code-text: #d1d5db;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --text-primary: #e8e8e8;
+      --text-secondary: #cbd5e1;
+      --border-color: #404854;
+      --code-bg: #1f2937;
+      --code-text: #d1d5db;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+
+    h3 {
+      font-size: 1.1rem;
+      margin-top: 1.5rem;
+      margin-bottom: 0.75rem;
+      color: var(--text-primary);
+    }
+
+    a {
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    a:hover {
+      text-decoration: underline;
+    }
+
+    ul {
+      margin-left: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    p {
+      margin-bottom: 1rem;
+      color: var(--text-secondary);
+    }
+
+    .source-item {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 2px;
+    }
+
+    .source-item h3 {
+      margin-top: 0;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="worktrees-presentation.html" class="back-link">← Back to presentation</a>
+
+    <h1>Git Worktrees Workshop — Sources and Findings</h1>
+
+    <h2>Primary Documentation</h2>
+
+    <div class="source-item">
+      <h3>Git Worktree</h3>
+      <p>Official Git documentation for the <code>git worktree</code> command, including all subcommands and options.</p>
+      <p><a href="https://git-scm.com/docs/git-worktree" target="_blank" rel="noreferrer">git-scm.com/docs/git-worktree</a></p>
+    </div>
+
+    <div class="source-item">
+      <h3>Claude Code Worktrees</h3>
+      <p>Claude Code documentation for creating and managing worktrees via the CLI, including <code>--worktree</code> flag options and <code>.claude/settings.json</code> configuration.</p>
+      <p><a href="https://code.claude.com/docs/en/worktrees.md" target="_blank" rel="noreferrer">code.claude.com/docs</a></p>
+    </div>
+
+    <div class="source-item">
+      <h3>Cursor Worktrees</h3>
+      <p>Cursor documentation for worktrees in the IDE, including <code>/worktree</code>, <code>/best-of-n</code>, and <code>/apply-worktree</code> commands, plus <code>.cursor/worktrees.json</code> setup.</p>
+      <p><a href="https://cursor.com/docs/configuration/worktrees" target="_blank" rel="noreferrer">cursor.com/docs/configuration/worktrees</a></p>
+    </div>
+
+    <h2>Key Practices</h2>
+
+    <h3>Worktree Adoption Patterns</h3>
+    <ul>
+      <li>Worktrees are most useful for parallel work on separate branches of the same repository.</li>
+      <li>Teams using AI coding agents benefit most when each agent gets its own checked-out branch.</li>
+      <li>Directory structure matters: sibling paths (<code>../repo-name</code>) or tool-managed paths (<code>.claude/worktrees/name</code>) both work.</li>
+    </ul>
+
+    <h3>Common Gotchas</h3>
+    <ul>
+      <li>One branch cannot be checked out in two worktrees at the same time. Git enforces this automatically.</li>
+      <li>Worktrees share Git objects and refs but keep working files separate. Dependencies and generated files must be managed per-checkout.</li>
+      <li>Worktrees are not process isolation. Two apps can still compete for the same port, database, or device.</li>
+      <li>If a worktree directory is deleted outside of Git, <code>git worktree prune</code> cleans up stale metadata.</li>
+    </ul>
+
+    <h3>Best Practices</h3>
+    <ul>
+      <li>Always run <code>git worktree list</code> before creating a new worktree.</li>
+      <li>Always remove worktrees with <code>git worktree remove</code>, not manual directory deletion.</li>
+      <li>Use <code>--detach</code> for temporary, throwaway checkouts.</li>
+      <li>In Claude Code, use <code>.worktreeinclude</code> to copy environment files and secrets into worktrees.</li>
+      <li>In Cursor, automate setup in <code>.cursor/worktrees.json</code> and watch the machine-wide worktree cap.</li>
+    </ul>
+
+  </div>
+</body>
+</html>

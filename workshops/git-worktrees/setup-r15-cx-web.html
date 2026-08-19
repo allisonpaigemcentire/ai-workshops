@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup: r15-cx-web Fleet View</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --code-bg: #f3f4f6;
+      --code-text: #374151;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a202c;
+        --text-primary: #e8e8e8;
+        --text-secondary: #cbd5e1;
+        --border-color: #404854;
+        --code-bg: #1f2937;
+        --code-text: #d1d5db;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --text-primary: #e8e8e8;
+      --text-secondary: #cbd5e1;
+      --border-color: #404854;
+      --code-bg: #1f2937;
+      --code-text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 1rem; color: var(--accent); }
+    h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+
+    .code-block {
+      background: var(--code-bg);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+      font-size: 0.9em;
+      color: var(--code-text);
+      line-height: 1.5;
+    }
+
+    .step {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 2px;
+    }
+
+    .step strong { color: var(--accent); }
+    ol { margin-left: 2rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.5rem; }
+    p { margin-bottom: 1rem; color: var(--text-secondary); }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="worktrees-presentation.html" class="back-link">← Back to presentation</a>
+
+    <h1>r15-cx-web: Fleet View Setup</h1>
+
+    <h2>Quick reference</h2>
+    <p><strong>Repo:</strong> r15-cx-web (Next.js web app)</p>
+    <p><strong>Branch naming:</strong> <code>am/TYP-XXXXX</code> or <code>am/no-ticket/&lt;kebab&gt;</code></p>
+    <p><strong>Per-worktree setup:</strong> <code>npm install</code> (node_modules not shared)</p>
+    <p><strong>.env:</strong> Tracked in git (comes automatically)</p>
+
+    <h2>Exact steps: Claude CLI</h2>
+
+    <div class="step">
+      <strong>1. Start in the main checkout</strong>
+      <div class="code-block">cd /Users/amcentire/r15-web-cx</div>
+    </div>
+
+    <div class="step">
+      <strong>2. Pre-setup: Run npm install in each worktree</strong>
+      <div class="code-block">cd /Users/amcentire/.claude/worktrees/task-1 && npm install
+cd /Users/amcentire/.claude/worktrees/task-2 && npm install
+cd /Users/amcentire/.claude/worktrees/task-3 && npm install</div>
+      <p style="margin-top: 0.5rem;"><em>OR skip this and embed "run npm install" in each prompt (step 3).</em></p>
+    </div>
+
+    <div class="step">
+      <strong>3. Launch three claude processes in parallel</strong>
+      <div class="code-block">claude --worktree task-1 "Run npm install. Then [your task 1]. Commit to branch am/no-ticket/task-1-xxx. Push and open a PR." &amp;
+claude --worktree task-2 "Run npm install. Then [your task 2]. Commit to branch am/no-ticket/task-2-xxx. Push and open a PR." &amp;
+claude --worktree task-3 "Run npm install. Then [your task 3]. Commit to branch am/no-ticket/task-3-xxx. Push and open a PR." &amp;
+wait</div>
+    </div>
+
+    <div class="step">
+      <strong>4. Track the results</strong>
+      <div class="code-block">gh pr list --author=@me
+gh pr checks &lt;pr-number&gt;
+git worktree list</div>
+    </div>
+
+    <h2>Exact steps: Claude Code (IDE)</h2>
+
+    <ol>
+      <li>Open the repo in Claude Code.</li>
+      <li>In the chat, spawn 3 agents in one message with <code>isolation: "worktree"</code> on each.</li>
+      <li>Give each agent a task and instructions to: run <code>npm install</code> first, then complete the task, then commit and push to a named branch.</li>
+      <li>Agents run in parallel; track with <code>gh pr list</code>.</li>
+    </ol>
+
+    <h2>Exact steps: Cursor</h2>
+
+    <ol>
+      <li>Open the repo in Cursor.</li>
+      <li>Use <code>/worktree task-1 "prompt"</code>. The prompt should include: run npm install, do the task, commit and push.</li>
+      <li>When complete, use <code>/apply-worktree</code> to bring changes to main.</li>
+      <li>Repeat with <code>/worktree task-2</code> and <code>/worktree task-3</code>.</li>
+      <li>Track with <code>gh pr list</code>.</li>
+    </ol>
+
+    <h2>Notes</h2>
+    <ul>
+      <li><code>.env</code> is tracked in git, so it comes automatically in each worktree.</li>
+      <li><code>node_modules/</code> is NOT shared — <code>npm install</code> must run in each worktree.</li>
+      <li>If you skip pre-setup in step 2, instruct Claude/Cursor to run <code>npm install</code> as the first step of their task.</li>
+    </ul>
+  </div>
+</body>
+</html>

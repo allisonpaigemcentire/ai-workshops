@@ -1,0 +1,141 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup: r15-android-rms-handheld Fleet View</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --code-bg: #f3f4f6;
+      --code-text: #374151;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a202c;
+        --text-primary: #e8e8e8;
+        --text-secondary: #cbd5e1;
+        --border-color: #404854;
+        --code-bg: #1f2937;
+        --code-text: #d1d5db;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --text-primary: #e8e8e8;
+      --text-secondary: #cbd5e1;
+      --border-color: #404854;
+      --code-bg: #1f2937;
+      --code-text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 1rem; color: var(--accent); }
+    h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+
+    .code-block {
+      background: var(--code-bg);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+      font-size: 0.9em;
+      color: var(--code-text);
+      line-height: 1.5;
+    }
+
+    .step {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 2px;
+    }
+
+    .step strong { color: var(--accent); }
+    ol { margin-left: 2rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.5rem; }
+    p { margin-bottom: 1rem; color: var(--text-secondary); }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="worktrees-presentation.html" class="back-link">← Back to presentation</a>
+
+    <h1>r15-android-rms-handheld: Fleet View Setup</h1>
+
+    <h2>Quick reference</h2>
+    <p><strong>Repo:</strong> r15-android-rms-handheld (Android app, Kotlin)</p>
+    <p><strong>Branch naming:</strong> <code>&lt;initials&gt;/ticket/topic</code></p>
+    <p><strong>Per-worktree setup:</strong> Create <code>local.properties</code>; keystores are tracked (come automatically)</p>
+    <p><strong>Prerequisites:</strong> Java 17 (SDKMan), Android SDK</p>
+
+    <h2>Per-worktree setup checklist</h2>
+
+    <div class="step">
+      <strong>Create local.properties (git-ignored):</strong>
+      <div class="code-block">sdk.dir=/Users/amcentire/Library/Android/sdk</div>
+      <p style="margin-top: 0.5rem;">Adjust the path based on your Android SDK location. Or copy from main checkout if it exists.</p>
+    </div>
+
+    <div class="step">
+      <strong>Keystores (already tracked in git):</strong>
+      <p>These come automatically. No copying needed:</p>
+      <ul style="margin-left: 2rem;">
+        <li><code>app/handheldDebug.keystore</code></li>
+        <li><code>app/handheldRelease.keystore</code></li>
+        <li><code>watch/watchDebug.keystore</code></li>
+        <li><code>watch/watch-rms.keystore</code></li>
+      </ul>
+    </div>
+
+    <h2>Exact steps: Claude CLI</h2>
+
+    <div class="code-block">claude --worktree task-1 "Create local.properties with sdk.dir=/Users/amcentire/Library/Android/sdk. Then [task 1 on handheld or watch code]. Commit and push to am/task-1-xxx." &amp;
+claude --worktree task-2 "Create local.properties with sdk.dir=/Users/amcentire/Library/Android/sdk. Then [task 2]. Commit and push to am/task-2-xxx." &amp;
+claude --worktree task-3 "Create local.properties with sdk.dir=/Users/amcentire/Library/Android/sdk. Then [task 3]. Commit and push to am/task-3-xxx." &amp;
+wait</div>
+
+    <h2>Track results</h2>
+    <div class="code-block">gh pr list --author=@me
+git worktree list</div>
+
+    <h2>Notes</h2>
+    <ul>
+      <li><code>local.properties</code> is not tracked — you must create it in each worktree or copy from main.</li>
+      <li>Keystores are committed to the repo, so they come automatically.</li>
+      <li>Android Studio and Gradle sync are optional for pure code edits; not required for all tasks.</li>
+      <li>Java 17 must be active: <code>sdk use java 17.0.1-temurin</code> (or your Java version).</li>
+    </ul>
+  </div>
+</body>
+</html>

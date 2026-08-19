@@ -1,0 +1,145 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup: r15-rms-kiosk-launcher Fleet View</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --code-bg: #f3f4f6;
+      --code-text: #374151;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a202c;
+        --text-primary: #e8e8e8;
+        --text-secondary: #cbd5e1;
+        --border-color: #404854;
+        --code-bg: #1f2937;
+        --code-text: #d1d5db;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --text-primary: #e8e8e8;
+      --text-secondary: #cbd5e1;
+      --border-color: #404854;
+      --code-bg: #1f2937;
+      --code-text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 1rem; color: var(--accent); }
+    h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+
+    .code-block {
+      background: var(--code-bg);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+      font-size: 0.9em;
+      color: var(--code-text);
+      line-height: 1.5;
+    }
+
+    .step {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 2px;
+    }
+
+    .step strong { color: var(--accent); }
+    ol { margin-left: 2rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.5rem; }
+    p { margin-bottom: 1rem; color: var(--text-secondary); }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="worktrees-presentation.html" class="back-link">← Back to presentation</a>
+
+    <h1>r15-rms-kiosk-launcher: Fleet View Setup</h1>
+
+    <h2>Quick reference</h2>
+    <p><strong>Repo:</strong> r15-rms-kiosk-launcher (kiosk launcher app)</p>
+    <p><strong>Branch naming:</strong> <code>&lt;initials&gt;/ticket-id/topic</code></p>
+    <p><strong>Per-worktree setup:</strong> No written convention; API URLs and configs likely needed per variant</p>
+    <p><strong>Note:</strong> This repo currently lacks documented worktree conventions. Coordinate with the team on setup requirements per task.</p>
+
+    <h2>Typical setup (verify with team)</h2>
+
+    <div class="step">
+      <strong>Files to check:</strong>
+      <ol>
+        <li>Check if there's a <code>local.properties</code>, <code>.env</code>, or variant config (git-ignored)</li>
+        <li>Copy or create per-worktree variants</li>
+        <li>Verify API endpoint URLs match the task's scope (staging vs. production)</li>
+      </ol>
+    </div>
+
+    <div class="step">
+      <strong>Build/run commands:</strong>
+      <p>Check the repo's <code>README.md</code> or <code>AGENTS.md</code> for:</p>
+      <ul style="margin-left: 2rem;">
+        <li>Gradle build command</li>
+        <li>APK signing or deployment steps</li>
+        <li>Device or emulator setup</li>
+      </ul>
+    </div>
+
+    <h2>Exact steps: Claude CLI (template)</h2>
+
+    <p><strong>Note:</strong> Since this repo lacks conventions, adjust the prompts based on actual task requirements.</p>
+
+    <div class="code-block">claude --worktree task-1 "Set up config for task 1 (check README). Then [task 1]. Commit and push to am/task-1-xxx." &amp;
+claude --worktree task-2 "Set up config for task 2. Then [task 2]. Commit and push to am/task-2-xxx." &amp;
+wait</div>
+
+    <h2>Before you start</h2>
+
+    <ol>
+      <li>Check the repo's <code>CONTRIBUTING.md</code> and <code>AGENTS.md</code> for setup guidance.</li>
+      <li>Ask the team if there's a standard setup checklist for kiosk worktrees.</li>
+      <li>Identify git-ignored files that vary per variant or task.</li>
+      <li>Confirm API endpoints (dev, staging, prod) for your task scope.</li>
+    </ol>
+
+    <h2>Track results</h2>
+    <div class="code-block">gh pr list --author=@me
+git worktree list</div>
+  </div>
+</body>
+</html>

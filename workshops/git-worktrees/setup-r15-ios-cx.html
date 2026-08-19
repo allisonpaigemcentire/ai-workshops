@@ -1,0 +1,133 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Setup: r15-ios-cx Fleet View</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --code-bg: #f3f4f6;
+      --code-text: #374151;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a202c;
+        --text-primary: #e8e8e8;
+        --text-secondary: #cbd5e1;
+        --border-color: #404854;
+        --code-bg: #1f2937;
+        --code-text: #d1d5db;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --text-primary: #e8e8e8;
+      --text-secondary: #cbd5e1;
+      --border-color: #404854;
+      --code-bg: #1f2937;
+      --code-text: #d1d5db;
+    }
+
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container { max-width: 900px; margin: 0 auto; }
+    h1 { font-size: 2rem; margin-bottom: 1rem; color: var(--accent); }
+    h2 { font-size: 1.5rem; margin-top: 2rem; margin-bottom: 1rem; color: var(--accent); border-bottom: 2px solid var(--accent); padding-bottom: 0.5rem; }
+    h3 { font-size: 1.1rem; margin-top: 1.5rem; margin-bottom: 0.75rem; }
+
+    .code-block {
+      background: var(--code-bg);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+      font-size: 0.9em;
+      color: var(--code-text);
+      line-height: 1.5;
+    }
+
+    .step {
+      background: var(--bg-secondary);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      border-radius: 2px;
+    }
+
+    .step strong { color: var(--accent); }
+    ol { margin-left: 2rem; margin-bottom: 1rem; }
+    li { margin-bottom: 0.5rem; }
+    p { margin-bottom: 1rem; color: var(--text-secondary); }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link:hover { text-decoration: underline; }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="worktrees-presentation.html" class="back-link">← Back to presentation</a>
+
+    <h1>r15-ios-cx: Fleet View Setup</h1>
+
+    <h2>Quick reference</h2>
+    <p><strong>Repo:</strong> r15-ios-cx (iOS app, Swift/SwiftUI)</p>
+    <p><strong>Branch naming:</strong> <code>&lt;username&gt;/TYP-XXXXX</code> (same as web)</p>
+    <p><strong>Worktree pattern:</strong> Spec-driven. <code>.spec/work/&lt;TICKET&gt;/</code> directory is worktree-local (not shared)</p>
+    <p><strong>Important:</strong> Create branch from <code>origin/dev</code> with <code>--no-track</code></p>
+
+    <h2>Standard worktree (outside spec flow)</h2>
+
+    <div class="step">
+      <strong>1. Create branch from origin/dev</strong>
+      <div class="code-block">git worktree add -b am/TYP-12345/feature-name \
+  ../r15-ios-cx-TYP-12345 origin/dev</div>
+      <p style="margin-top: 0.5rem;"><em>Omit <code>--no-track</code> if you want the branch tied to local dev state. Include it if you want a fresh checkout.</em></p>
+    </div>
+
+    <div class="step">
+      <strong>2. Verify Xcode and dependencies</strong>
+      <p>No special files to copy. Xcode project (.xcworkspace) and Pod dependencies come automatically.</p>
+    </div>
+
+    <h2>Exact steps: Claude CLI (standard flow)</h2>
+
+    <div class="code-block">claude --worktree task-1 "Create branch am/TYP-12345-a from origin/dev. Then [task 1 on feature]. Commit and push." &amp;
+claude --worktree task-2 "Create branch am/TYP-12346-b from origin/dev. Then [task 2 on feature]. Commit and push." &amp;
+wait</div>
+
+    <h2>Track results</h2>
+    <div class="code-block">gh pr list --author=@me
+git worktree list</div>
+
+    <h2>Notes</h2>
+    <ul>
+      <li><strong>Sibling paths:</strong> Worktrees live as siblings: <code>../r15-ios-cx-TYP-12345</code>, not under <code>.claude/worktrees/</code>.</li>
+      <li><strong>Xcode:</strong> .xcworkspace and Pod dependencies are tracked; they come automatically in each worktree.</li>
+    </ul>
+  </div>
+</body>
+</html>

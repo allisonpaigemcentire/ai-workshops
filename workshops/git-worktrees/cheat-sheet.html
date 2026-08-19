@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Git Worktrees Cheat Sheet</title>
+  <style>
+    :root {
+      --bg-primary: #ffffff;
+      --bg-secondary: #f5f7fa;
+      --text-primary: #1a1a1a;
+      --text-secondary: #4b5563;
+      --border-color: #d1d5db;
+      --accent: #2563eb;
+      --code-bg: #f3f4f6;
+      --code-text: #374151;
+    }
+
+    @media (prefers-color-scheme: dark) {
+      :root:not([data-theme="light"]) {
+        --bg-primary: #0f1419;
+        --bg-secondary: #1a202c;
+        --text-primary: #e8e8e8;
+        --text-secondary: #cbd5e1;
+        --border-color: #404854;
+        --code-bg: #1f2937;
+        --code-text: #d1d5db;
+      }
+    }
+
+    :root[data-theme="dark"] {
+      --bg-primary: #0f1419;
+      --bg-secondary: #1a202c;
+      --text-primary: #e8e8e8;
+      --text-secondary: #cbd5e1;
+      --border-color: #404854;
+      --code-bg: #1f2937;
+      --code-text: #d1d5db;
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Helvetica, Arial, sans-serif;
+      background: var(--bg-primary);
+      color: var(--text-primary);
+      line-height: 1.6;
+      padding: 2rem;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+    }
+
+    h1 {
+      font-size: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+    }
+
+    h2 {
+      font-size: 1.5rem;
+      margin-top: 2rem;
+      margin-bottom: 1rem;
+      color: var(--accent);
+      border-bottom: 2px solid var(--accent);
+      padding-bottom: 0.5rem;
+    }
+
+    code {
+      background: var(--code-bg);
+      color: var(--code-text);
+      padding: 0.2em 0.4em;
+      border-radius: 2px;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+      font-size: 0.9em;
+    }
+
+    .code-block {
+      background: var(--code-bg);
+      border-left: 4px solid var(--accent);
+      padding: 1rem;
+      margin: 1rem 0;
+      overflow-x: auto;
+      font-family: "SF Mono", Monaco, "Cascadia Code", "Courier New", monospace;
+      font-size: 0.9em;
+      color: var(--code-text);
+      line-height: 1.5;
+    }
+
+    ul {
+      margin-left: 2rem;
+      margin-bottom: 1rem;
+    }
+
+    li {
+      margin-bottom: 0.5rem;
+    }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 1rem 0;
+      font-size: 0.95em;
+    }
+
+    th {
+      text-align: left;
+      padding: 0.75rem;
+      background: var(--bg-secondary);
+      border-bottom: 2px solid var(--accent);
+      font-weight: 600;
+      color: var(--accent);
+    }
+
+    td {
+      padding: 0.75rem;
+      border-bottom: 1px solid var(--border-color);
+    }
+
+    tr:last-child td {
+      border-bottom: none;
+    }
+
+    .back-link {
+      display: inline-block;
+      margin-bottom: 2rem;
+      color: var(--accent);
+      text-decoration: none;
+    }
+
+    .back-link:hover {
+      text-decoration: underline;
+    }
+  </style>
+</head>
+<body>
+  <div class="container">
+    <a href="worktrees-presentation.html" class="back-link">← Back to presentation</a>
+
+    <h1>Git Worktrees Cheat Sheet</h1>
+
+    <h2>Essential Commands</h2>
+    <div class="code-block">git worktree list
+git worktree add -b &lt;branch&gt; &lt;path&gt; &lt;commit-or-branch&gt;
+git worktree add &lt;path&gt; &lt;branch&gt;
+git worktree add --detach &lt;path&gt; &lt;commit&gt;
+git worktree remove &lt;path&gt;
+git worktree prune</div>
+
+    <h2>Common Tasks</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Task</th>
+          <th>Command</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Create and check out a new branch</td>
+          <td><code>git worktree add -b feature/foo ../repo-foo origin/dev</code></td>
+        </tr>
+        <tr>
+          <td>Create from an existing branch</td>
+          <td><code>git worktree add ../repo-feature feature/bar</code></td>
+        </tr>
+        <tr>
+          <td>Create a detached (throwaway) checkout</td>
+          <td><code>git worktree add --detach ../repo-scratch HEAD</code></td>
+        </tr>
+        <tr>
+          <td>List all worktrees</td>
+          <td><code>git worktree list</code></td>
+        </tr>
+        <tr>
+          <td>Remove a worktree</td>
+          <td><code>git worktree remove ../repo-foo</code></td>
+        </tr>
+        <tr>
+          <td>Remove stale metadata</td>
+          <td><code>git worktree prune</code></td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h2>Key Rules</h2>
+    <ul>
+      <li><strong>One branch per worktree.</strong> Git blocks the same branch from being checked out in two worktrees.</li>
+      <li><strong>List before you create.</strong> Run <code>git worktree list</code> to see what paths and branches already exist.</li>
+      <li><strong>Remove with Git.</strong> Use <code>git worktree remove</code>, not manual directory deletion. If a directory was deleted by hand, run <code>git worktree prune</code>.</li>
+    </ul>
+
+    <h2>Claude Code</h2>
+    <div class="code-block">claude --worktree feature-auth
+claude --worktree "#42"
+claude --worktree "https://github.com/org/repo/pull/42"</div>
+    <p>Claude Code creates <code>.claude/worktrees/&lt;name&gt;/</code> and branch <code>worktree-&lt;name&gt;</code>. Use <code>.worktreeinclude</code> to copy chosen gitignored files like <code>.env</code>.</p>
+
+    <h2>Cursor</h2>
+    <ul>
+      <li><code>/worktree &lt;task&gt;</code> — run the rest of the chat in a worktree</li>
+      <li><code>/best-of-n model1,model2 &lt;task&gt;</code> — parallel candidates; compares, does not merge</li>
+      <li><code>/apply-worktree</code> — bring selected worktree changes into the main checkout</li>
+      <li><code>/delete-worktree</code> — remove the isolated checkout</li>
+    </ul>
+  </div>
+</body>
+</html>
