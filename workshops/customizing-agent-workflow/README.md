@@ -18,18 +18,14 @@ application repos.
 |------|----------|----------|
 | [handout.md](handout.md) | Participant | Full guide: precedence, per-tool loading, verify steps, Cloud promotion |
 | [lab/](lab/) | **Participant clone target** | Templates, `sync-personal-rules.sh`, verify checklist |
-| [agenda-60min.md](agenda-60min.md) | Facilitator | Run-of-show |
-| [facilitator-guide.md](facilitator-guide.md) | Facilitator only | Timed labs, exit checks, dry-run checklist |
 | [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Both | 33-slide deck with speaker notes |
 | [pr-author-packet-rule.md](pr-author-packet-rule.md) | Both | Goal / Ran / Doubt PR example and Cursor Cloud workaround |
 
 ## Running this workshop
 
 1. Participants clone the lab folder (see [lab/README.md](lab/README.md)).
-2. Facilitator opens [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) in a browser.
-3. Follow [agenda-60min.md](agenda-60min.md) and [facilitator-guide.md](facilitator-guide.md).
-4. Lab A: write personal prefs. Lab B: wire and verify. Lab C: smoke test that
-   repo `AGENTS.md` wins on commits.
+2. Open [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) in a browser.
+3. Follow [handout.md](handout.md) and [lab/README.md](lab/README.md) for setup and verify steps.
 
 ## Takeaway line
 
