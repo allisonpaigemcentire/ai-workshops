@@ -657,6 +657,7 @@ NOT for…”). Auto-routing from description alone is inconsistent.
 | Doc | What it is |
 |-----|------------|
 | [lab/README.md](lab/README.md) | Participant setup: templates, sync script, verify steps |
+| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Slide deck for this workshop |
 | [lab/sync-personal-rules.sh](lab/sync-personal-rules.sh) | Cursor `~/.cursor/rules` → Claude `~/.claude/rules` sync |
 | [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PRs; Cursor Cloud promotion example |
 | [lab/verify-checklist.md](lab/verify-checklist.md) | Exit checklist for the 60-minute session |
