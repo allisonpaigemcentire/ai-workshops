@@ -104,7 +104,7 @@ Fill in [verify-checklist.md](verify-checklist.md). Keep a copy for yourself.
 ## Reference
 
 - [Handout](../handout.md) — full guide (precedence, Cloud Agents, skills)
-- [Slides](../customizing-your-agent-workflow-slides.html) — open in a browser (40 slides; lab walkthrough on slides 27–33)
+- [Slides](../customizing-your-agent-workflow-slides.html) — open in a browser (41 slides; lab walkthrough on slides 27–33; references on slide 40)
 - [PR author packet](../pr-author-packet-rule.md) — Goal / Ran / Doubt example
 
 ## Script source
