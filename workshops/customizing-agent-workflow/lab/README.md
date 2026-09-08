@@ -3,18 +3,12 @@
 Participant-facing starter kit. Copy templates into your home directory, run the
 sync script for Claude Code, then verify each product you use.
 
-Facilitator material lives one level up — do not put facilitator notes in this
-folder.
-
 ## Clone this lab
 
 ```bash
 git clone https://github.com/allisonpaigemcentire/ai-workshops.git
 cd ai-workshops/workshops/customizing-agent-workflow/lab
 ```
-
-You can also download only this `lab/` folder from the repo if your facilitator
-shares a zip.
 
 ## Before you start
 

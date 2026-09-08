@@ -14,16 +14,16 @@ application repos.
 
 ## Contents of this folder
 
-| File | Audience | Contents |
-|------|----------|----------|
-| [handout.md](handout.md) | Participant | Full guide: precedence, per-tool loading, verify steps, Cloud promotion |
-| [lab/](lab/) | **Participant clone target** | Templates, `sync-personal-rules.sh`, verify checklist |
-| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Both | 33-slide deck with speaker notes |
-| [pr-author-packet-rule.md](pr-author-packet-rule.md) | Both | Goal / Ran / Doubt PR example and Cursor Cloud workaround |
+| File | Contents |
+|------|----------|
+| [handout.md](handout.md) | Full guide: precedence, per-tool loading, verify steps, Cloud promotion |
+| [lab/](lab/) | Templates, `sync-personal-rules.sh`, verify checklist |
+| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | 33-slide deck with speaker notes |
+| [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PR example and Cursor Cloud workaround |
 
-## Running this workshop
+## Getting started
 
-1. Participants clone the lab folder (see [lab/README.md](lab/README.md)).
+1. Clone the lab folder (see [lab/README.md](lab/README.md)).
 2. Open [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) in a browser.
 3. Follow [handout.md](handout.md) and [lab/README.md](lab/README.md) for setup and verify steps.
 
