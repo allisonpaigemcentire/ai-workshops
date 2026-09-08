@@ -18,7 +18,7 @@ application repos.
 |------|----------|
 | [handout.md](handout.md) | Full guide: precedence, per-tool loading, verify steps, Cloud promotion |
 | [lab/](lab/) | Templates, `sync-personal-rules.sh`, verify checklist |
-| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | **Canonical** 33-slide deck with speaker notes (self-contained in this folder) |
+| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | **Canonical** 40-slide deck with speaker notes; lab walkthrough on slides 27–33 (self-contained in this folder) |
 | [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PR example and Cursor Cloud workaround |
 
 All participant and presenter files for this workshop live in this folder. There

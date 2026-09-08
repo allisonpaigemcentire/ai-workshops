@@ -460,6 +460,94 @@
         }
 
         /* ===========================================
+           LAB INSTRUCTION SLIDES
+           =========================================== */
+        .lab-slide .lab-meta {
+            position: absolute;
+            top: 48px;
+            right: 80px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .slide.dark.lab-slide .lab-meta { color: #ff6644; }
+        .lab-slide h2 { top: 160px; font-size: 72px; }
+        .lab-slide .lab-lede {
+            position: absolute;
+            left: 80px;
+            top: 280px;
+            right: 80px;
+            font-size: 26px;
+            font-weight: 600;
+            color: var(--muted);
+            line-height: 1.35;
+        }
+        .slide.dark.lab-slide .lab-lede { color: #c8c8c8; }
+        .lab-steps {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 340px;
+            bottom: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 20px;
+        }
+        .lab-steps li {
+            list-style: none;
+            display: flex;
+            gap: 20px;
+            align-items: flex-start;
+            font-size: 26px;
+            font-weight: 600;
+            line-height: 1.25;
+        }
+        .lab-steps .step-num {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 28px;
+            color: var(--accent);
+            width: 44px;
+            flex: none;
+        }
+        .lab-steps code {
+            font-family: ui-monospace, monospace;
+            font-size: 22px;
+            font-weight: 600;
+            background: rgba(0,0,0,0.06);
+            padding: 2px 8px;
+        }
+        .slide.dark .lab-steps code { background: rgba(255,255,255,0.12); }
+        .lab-steps.compact { gap: 14px; top: 320px; }
+        .lab-steps.compact li { font-size: 24px; }
+        .lab-prompt {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 400px;
+            border: 4px solid var(--ink);
+            padding: 28px 36px;
+            font-family: ui-monospace, monospace;
+            font-size: 28px;
+            font-weight: 600;
+            line-height: 1.35;
+        }
+        .slide.dark .lab-prompt { border-color: #fff; background: #111; }
+        .lab-prompt + .lab-prompt { top: 620px; }
+        .lab-prompt .label {
+            display: block;
+            font-family: var(--font-display);
+            font-size: 18px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--accent);
+            margin-bottom: 12px;
+        }
+
+        /* ===========================================
            PROGRESS + EDIT CHROME (outside the stage)
            =========================================== */
         .deck-controls {
@@ -626,9 +714,7 @@
     <button class="edit-toggle" id="editToggle" type="button" title="Edit mode (E)">Edit</button>
 
     <div class="deck-viewport">
-        <main class="deck-stage" id="deckStage">
-
-            <!-- === SLIDE 01 TITLE === -->
+        <main class="deck-stage" id="deckStage"><!-- === SLIDE 01 TITLE === -->
             <section class="slide title-slide" data-slide="1">
                 <p class="meta-top reveal" data-ed="s01-meta">Nuuly Engineering workshop</p>
                 <div class="signal-sq block-in" aria-hidden="true"></div>
@@ -636,38 +722,38 @@
                 <div class="rule reveal"></div>
                 <p class="sub reveal" data-ed="s01-sub">Personal prefs fill gaps. Repo files stay first.</p>
                 <p class="byline reveal" data-ed="s01-by">AI Adoption Initiative</p>
-                <p class="slide-num">01 / 33</p>
-                <div class="speaker-notes">Open with the one rule. Personal config is allowed. It does not override AGENTS.md, repo skills, repo hooks, or repo rules.</div>
-            </section>
-
-            <!-- === SLIDE 02 WHAT THIS IS === -->
+                <p class="slide-num">01 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:00, Frame] Good morning. Welcome to Customizing Your Agent Workflow. I am [your name]. Personal prefs fill gaps on your machine. Repo files stay first. That is the one rule for today. If a personal rule and a repo file disagree, follow the repo file. Open handout.md or the lab kit if you have not already. You need a laptop and an application repo that already has AGENTS.md.</div>
+            </section><!-- === SLIDE 02 WHAT THIS IS === -->
             <section class="slide" data-slide="2">
                 <p class="kicker reveal"><span class="num">02</span> Purpose</p>
                 <h2 class="reveal" data-ed="s02-h2">A setup session,<br>not a new harness.</h2>
                 <p class="lede reveal" data-ed="s02-lede">You will write personal prefs so Cursor, Claude Code, Gemini, Antigravity, and Firebender work the way you work.</p>
-                <p class="slide-num">02 / 33</p>
-                <div class="speaker-notes">This is for Nuuly engineers. The repo already has a harness. Today is about the machine-local layer only.</div>
-            </section>
-
-            <!-- === SLIDE 03 THESIS === -->
+                <p class="slide-num">02 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:02, Frame] This is a setup session, not a new harness. Your application repos already ship AGENTS.md, skills, hooks, and rules. Today we only work on the machine-local layer — how Cursor, Claude Code, Gemini CLI, Antigravity, and Firebender behave on your laptop. We will talk for about eighteen minutes, then you will write prefs and verify each tool you use.</div>
+            </section><!-- === SLIDE 03 THESIS === -->
             <section class="slide dark" data-slide="3">
                 <p class="kicker reveal"><span class="num">03</span> The rule</p>
                 <h2 class="speak-lg reveal" data-ed="s03-h2">Repo files win.</h2>
                 <p class="lede under-lg reveal" data-ed="s03-lede">If a personal rule and a repo file disagree, follow the repo file.</p>
-                <p class="slide-num">03 / 33</p>
-                <div class="speaker-notes">Repeat this. It is the only rule that matters if people remember nothing else.</div>
-            </section>
+                <p class="slide-num">03 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:05, Frame] Say this with me: Repo files win. If a personal rule and a repo file disagree, follow the repo file. That is the only rule you need to remember if you forget everything else today. Personal config is allowed. It does not override AGENTS.md, repo skills, repo hooks, or repo rules.
 
-            <!-- === SLIDE 04 SECTION PRECEDENCE === -->
+Nothing automatically enforces that for markdown instructions. Repo hooks stop specific tool calls — push, deny lists, sandbox blocks. Markdown only advises. Both your personal file and the repo file load into the same context. The model can still follow the wrong one if your personal rule repeats or contradicts the repo.
+
+That is why every personal file starts with a Precedence block. In Lab A you will paste this at the top of your file — it is in section ten of handout.md and in lab/templates/personal-workflow.mdc. Read it to the room:
+
+Repo AGENTS.md, repo skills, repo hooks, and repo rules win. These lines are personal prefs for this machine. On conflict, follow the repo.
+
+The Precedence block tells the agent where personal prefs sit in the stack. It does not replace repo instructions. Do not copy branch rules, commit flags, or PR workflow from the repo into a personal file if the repo already owns them. Personal prefs should fill gaps — writing style, tool habits — not fight the harness. If your personal create-PR rule conflicts with repo AGENTS.md or a repo skill, remove the duplicate from personal or promote the team requirement into the repo. We verify with a smoke test in Lab C: ask what AGENTS.md says about commits and confirm the repo answer wins.</div>
+            </section><!-- === SLIDE 04 SECTION PRECEDENCE === -->
             <section class="slide dark section-slide" data-slide="4">
                 <p class="sec-num reveal" data-ed="s04-n">01</p>
                 <h2 class="reveal" data-ed="s04-h2">Precedence</h2>
                 <p class="sec-note reveal" data-ed="s04-note">Agents load more than one instruction source. Treat them as a stack.</p>
-                <p class="slide-num">04 / 33</p>
-                <div class="speaker-notes">Walk the stack top to bottom. Higher wins.</div>
-            </section>
-
-            <!-- === SLIDE 05 FIVE LAYERS === -->
+                <p class="slide-num">04 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A — not on the 60-minute live path] Agents load more than one instruction source. Treat them as a stack. Walk the stack from top to bottom. Higher wins over lower. Only show this slide if someone asks how precedence works in general.</div>
+            </section><!-- === SLIDE 05 FIVE LAYERS === -->
             <section class="slide" data-slide="5">
                 <p class="kicker reveal"><span class="num">05</span> The stack</p>
                 <div class="stack tight">
@@ -677,47 +763,37 @@
                     <div class="row reveal"><span class="idx" data-ed="s05-i4">04</span><span class="name" data-ed="s05-n4">Personal / machine-local</span><span class="hint" data-ed="s05-h4">~/.cursor, ~/.claude, ~/.gemini, ~/.firebender</span></div>
                     <div class="row reveal"><span class="idx" data-ed="s05-i5">05</span><span class="name" data-ed="s05-n5">Model defaults</span><span class="hint" data-ed="s05-h5">What the product does with no files</span></div>
                 </div>
-                <p class="slide-num">05 / 33</p>
-                <div class="speaker-notes">Nearest AGENTS.md to the edited file wins. The typed prompt still overrides everything for that turn.</div>
-            </section>
-
-            <!-- === SLIDE 06 THIS CHAT === -->
+                <p class="slide-num">05 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:08, Map the stack] Here is the stack, top to bottom. Layer one: what you type in this chat turn wins for that turn only. Layer two: the repo harness — AGENTS.md, skills, hooks, and rules. The nearest AGENTS.md to the file you are editing wins. Layer three: thin tool adapters — CLAUDE.md and GEMINI.md in the repo. Layer four: personal, machine-local files in your home directory. Layer five: model defaults. Personal prefs sit in layer four. They advise. They do not beat the repo.</div>
+            </section><!-- === SLIDE 06 THIS CHAT === -->
             <section class="slide" data-slide="6">
                 <p class="kicker reveal"><span class="num">06</span> Layer 01</p>
                 <h2 class="reveal" data-ed="s06-h2">This chat turn<br>overrides files.</h2>
                 <p class="lede reveal" data-ed="s06-lede">The request you typed wins for that turn. Instruction files do not block an explicit ask.</p>
-                <p class="slide-num">06 / 33</p>
-                <div class="speaker-notes">Example: a personal rule says be short. You can still ask for a long walkthrough in that chat.</div>
-            </section>
-
-            <!-- === SLIDE 07 REPO === -->
+                <p class="slide-num">06 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] This chat turn overrides files. The request you typed wins for that turn. Instruction files do not block an explicit ask. Example: your personal rule says be short. You can still ask for a long walkthrough in that chat.</div>
+            </section><!-- === SLIDE 07 REPO === -->
             <section class="slide" data-slide="7">
                 <p class="kicker reveal"><span class="num">07</span> Layer 02</p>
                 <h2 class="reveal" data-ed="s07-h2">The repo is the<br>team contract.</h2>
                 <p class="lede reveal" data-ed="s07-lede">AGENTS.md, .agents/skills, repo hooks, and repo rules. The nearest AGENTS.md to the code you are editing wins.</p>
-                <p class="slide-num">07 / 33</p>
-                <div class="speaker-notes">Monorepos have nested AGENTS.md files. CX vs RMS is a real example. Do not duplicate the same engineering rule in CLAUDE.md and GEMINI.md.</div>
-            </section>
-
-            <!-- === SLIDE 08 PERSONAL === -->
+                <p class="slide-num">07 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] The repo is the team contract. AGENTS.md, .agents/skills, repo hooks, and repo rules live there. In a monorepo, nested AGENTS.md files exist — for example CX versus RMS. Do not duplicate the same engineering rule in CLAUDE.md and GEMINI.md. Keep shared rules in AGENTS.md.</div>
+            </section><!-- === SLIDE 08 PERSONAL === -->
             <section class="slide" data-slide="8">
                 <p class="kicker reveal"><span class="num">08</span> Layer 04</p>
                 <h2 class="reveal" data-ed="s08-h2">Personal files<br>fill gaps.</h2>
                 <p class="lede reveal" data-ed="s08-lede">How you like answers. Which local tools you use. Cost habits. They apply on this machine. They do not commit with the app repo.</p>
-                <p class="slide-num">08 / 33</p>
-                <div class="speaker-notes">Layer 03 is thin adapters: CLAUDE.md points at AGENTS.md. GEMINI.md in a repo is Antigravity-only overrides. Keep shared rules in AGENTS.md.</div>
-            </section>
-
-            <!-- === SLIDE 09 CONFLICT === -->
+                <p class="slide-num">08 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Personal files fill gaps — how you like answers, which local tools you use, cost habits. They apply on this machine. They do not commit with the app repo. Layer three is thin adapters: CLAUDE.md points at AGENTS.md. GEMINI.md in a repo is for Antigravity-only overrides.</div>
+            </section><!-- === SLIDE 09 CONFLICT === -->
             <section class="slide dark" data-slide="9">
                 <p class="kicker reveal"><span class="num">09</span> Conflict</p>
                 <h2 class="speak-lg reveal" data-ed="s09-h2">Closest file wins.</h2>
                 <p class="lede under-lg reveal" data-ed="s09-lede">The closest AGENTS.md to the edited file wins. Your typed prompt still overrides everything.</p>
-                <p class="slide-num">09 / 33</p>
-                <div class="speaker-notes">From agents.md. Use this when someone asks which instruction the agent will follow.</div>
-            </section>
-
-            <!-- === SLIDE 10 DO NOT COPY === -->
+                <p class="slide-num">09 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] On conflict between repo files: the closest AGENTS.md to the edited file wins. Your typed prompt still overrides everything for that turn. Use this when someone asks which instruction the agent will follow.</div>
+            </section><!-- === SLIDE 10 DO NOT COPY === -->
             <section class="slide" data-slide="10">
                 <p class="kicker reveal"><span class="num">10</span> Do not</p>
                 <h2 class="reveal" data-ed="s10-h2">Do not copy repo<br>engineering into personal files.</h2>
@@ -726,74 +802,58 @@
                     <li class="reveal"><span class="mark">—</span><span data-ed="s10-p2">Commit flags and package managers</span></li>
                     <li class="reveal"><span class="mark">—</span><span data-ed="s10-p3">Generate-client commands</span></li>
                 </ul>
-                <p class="slide-num">10 / 33</p>
-                <div class="speaker-notes">Those belong in the repo. A personal copy drifts and then fights the harness.</div>
-            </section>
-
-            <!-- === SLIDE 11 NO VERIFY === -->
+                <p class="slide-num">10 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A — show only if someone asks what not to put in personal files] Do not copy repo engineering into personal files. Branch-name rules, commit flags, package managers, and generate-client commands belong in the repo. A personal copy drifts and then fights the harness.</div>
+            </section><!-- === SLIDE 11 NO VERIFY === -->
             <section class="slide" data-slide="11">
                 <p class="kicker reveal"><span class="num">11</span> Do not</p>
                 <h2 class="reveal" data-ed="s11-h2">Do not write a global<br>--no-verify rule.</h2>
                 <p class="lede reveal" data-ed="s11-lede">Some Nuuly repos require --no-verify for a known hook problem. Others forbid skipping hooks for new lint. Follow that repo.</p>
-                <p class="slide-num">11 / 33</p>
-                <div class="speaker-notes">Some repos always use --no-verify for a known hook problem. Others do not. A personal always/never rule will be wrong half the time.</div>
-            </section>
-
-            <!-- === SLIDE 12 NO FORK === -->
+                <p class="slide-num">11 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Do not write a global always-use or never-use --no-verify rule. Some Nuuly repos require --no-verify for a known hook problem. Others forbid skipping hooks for new lint. Follow the repo you have open.</div>
+            </section><!-- === SLIDE 12 NO FORK === -->
             <section class="slide" data-slide="12">
                 <p class="kicker reveal"><span class="num">12</span> Do not</p>
                 <h2 class="reveal" data-ed="s12-h2">Do not re-author<br>a repo skill.</h2>
                 <p class="lede reveal" data-ed="s12-lede">Repo .agents/skills is canonical. Personal skills are for tasks that are yours, not the team’s.</p>
-                <p class="slide-num">12 / 33</p>
-                <div class="speaker-notes">Same name in ~/.agents/skills or ~/.cursor/skills will confuse discovery. Use /nuuly-create-skill only after you decide repo vs personal.</div>
-            </section>
-
-            <!-- === SLIDE 13 HOOKS === -->
+                <p class="slide-num">12 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Do not re-author a repo skill under a personal skills folder. Repo .agents/skills is canonical. Personal skills are for tasks that are yours, not the team's. Same name in ~/.agents/skills or ~/.cursor/skills will confuse discovery.</div>
+            </section><!-- === SLIDE 13 HOOKS === -->
             <section class="slide dark" data-slide="13">
                 <p class="kicker reveal"><span class="num">13</span> Enforcement</p>
                 <h2 class="speak-lg reveal" data-ed="s13-h2">Hooks stop.<br>Markdown advises.</h2>
                 <p class="lede under-lg reveal" data-ed="s13-lede">A personal rule cannot disable a repo hook. AGENTS.md will not return deny.</p>
-                <p class="slide-num">13 / 33</p>
-                <div class="speaker-notes">Cursor: .cursor/hooks.json. Claude: deny / ask / allow. Gemini CLI: sandbox. Studio Gemini: IDE permissions. Firebender: .firebender/hooks.json. If the repo already asks on git push, a personal confirm-before-push rule is extra advice, not a replacement.</div>
-            </section>
-
-            <!-- === SLIDE 14 SECTION REPO === -->
+                <p class="slide-num">13 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:06, Frame] Hooks stop. Markdown advises. A repo hook can block a git push or deny a tool call. A personal rule in markdown cannot turn that off. AGENTS.md will not return deny. Cursor uses .cursor/hooks.json. Claude uses deny, ask, and allow lists. Gemini CLI uses sandbox settings. Android Studio Gemini uses IDE permissions. Firebender uses .firebender/hooks.json. If the repo already asks before git push, a personal confirm-before-push rule is extra advice, not a replacement.</div>
+            </section><!-- === SLIDE 14 SECTION REPO === -->
             <section class="slide dark section-slide" data-slide="14">
                 <p class="sec-num reveal" data-ed="s14-n">02</p>
                 <h2 class="reveal" data-ed="s14-h2">What the repo<br>already gives you</h2>
                 <p class="sec-note reveal" data-ed="s14-note">Learn the harness before you add personal files.</p>
-                <p class="slide-num">14 / 33</p>
-                <div class="speaker-notes">Most frontend and services repos already ship AGENTS.md, skills, and hooks.</div>
-            </section>
-
-            <!-- === SLIDE 15 AGENTS MD === -->
+                <p class="slide-num">14 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Most frontend and services repos already ship AGENTS.md, skills, and hooks. Learn the harness before you add personal files.</div>
+            </section><!-- === SLIDE 15 AGENTS MD === -->
             <section class="slide" data-slide="15">
                 <p class="kicker reveal"><span class="num">15</span> Instruction file</p>
                 <h2 class="reveal" data-ed="s15-h2">AGENTS.md is the<br>cross-tool briefing.</h2>
                 <p class="lede reveal" data-ed="s15-lede">Cursor, Android Studio Gemini, and Antigravity read it natively. Claude loads it through CLAUDE.md. Gemini CLI is pointed at it in .gemini/settings.json.</p>
-                <p class="slide-num">15 / 33</p>
-                <div class="speaker-notes">Antigravity exception: if GEMINI.md and AGENTS.md exist in the same directory, GEMINI.md wins. Keep shared rules in AGENTS.md. Put only Antigravity-specific overrides in GEMINI.md.</div>
-            </section>
-
-            <!-- === SLIDE 16 SKILLS === -->
+                <p class="slide-num">15 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:10, Map the stack] AGENTS.md is the cross-tool briefing. Cursor, Android Studio Gemini, and Antigravity read it natively. Claude loads it through CLAUDE.md. Gemini CLI is pointed at it in .gemini/settings.json. One exception: if GEMINI.md and AGENTS.md exist in the same directory, GEMINI.md wins for Antigravity. Keep shared rules in AGENTS.md. Put only Antigravity-specific overrides in repo GEMINI.md.</div>
+            </section><!-- === SLIDE 16 SKILLS === -->
             <section class="slide" data-slide="16">
                 <p class="kicker reveal"><span class="num">16</span> Skills</p>
                 <h2 class="reveal" data-ed="s16-h2">One copy.<br>.agents/skills</h2>
                 <p class="lede reveal" data-ed="s16-lede">Cursor and Gemini discover that tree. Claude uses a symlink at .claude/skills. Do not make a second real copy under .cursor/skills.</p>
-                <p class="slide-num">16 / 33</p>
-                <div class="speaker-notes">Use /nuuly-create-skill in r15-tech-skills when you need a new skill. Decide repo vs personal first.</div>
-            </section>
-
-            <!-- === SLIDE 17 SECTION TOOLS === -->
+                <p class="slide-num">16 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Skills live in one copy at .agents/skills. Cursor and Gemini discover that tree. Claude uses a symlink at .claude/skills. Do not make a second real copy under .cursor/skills.</div>
+            </section><!-- === SLIDE 17 SECTION TOOLS === -->
             <section class="slide dark section-slide" data-slide="17">
                 <p class="sec-num reveal" data-ed="s17-n">03</p>
                 <h2 class="reveal" data-ed="s17-h2">What each<br>tool loads</h2>
                 <p class="sec-note reveal" data-ed="s17-note">Use this when you decide where to put a preference.</p>
-                <p class="slide-num">17 / 33</p>
-                <div class="speaker-notes">Do not dump the full table. Hit the gaps that surprise people.</div>
-            </section>
-
-            <!-- === SLIDE 18 CURSOR === -->
+                <p class="slide-num">17 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] This section covers what each tool loads. Do not dump the full table from the handout. Hit only the gaps that surprise people.</div>
+            </section><!-- === SLIDE 18 CURSOR === -->
             <section class="slide" data-slide="18">
                 <p class="kicker reveal"><span class="num">18</span> Cursor</p>
                 <div class="tiles two">
@@ -808,20 +868,16 @@
                         <p data-ed="s18-p2">The VM clones the repo. It never sees ~/.cursor/rules.</p>
                     </div>
                 </div>
-                <p class="slide-num">18 / 33</p>
-                <div class="speaker-notes">This is not a bug. Desktop and Cloud are different runtimes. Must-have Cloud prefs go in the repo or Team Rules.</div>
-            </section>
-
-            <!-- === SLIDE 19 CLAUDE === -->
+                <p class="slide-num">18 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:12, Map the stack] Cursor Desktop Agent loads personal rules from ~/.cursor/rules and merges them with project rules. Team Rules sit above both. Cursor Cloud Agents do not load ~/.cursor/rules. The Cloud VM clones the repo. It never sees your laptop rules. That is not a bug. Desktop and Cloud are different runtimes. If a pref must apply on Cloud, put it in the repo harness or Team Rules before you start a Cloud run.</div>
+            </section><!-- === SLIDE 19 CLAUDE === -->
             <section class="slide" data-slide="19">
                 <p class="kicker reveal"><span class="num">19</span> Claude Code</p>
                 <h2 class="reveal" data-ed="s19-h2">It loads every file<br>in ~/.claude/rules.</h2>
                 <p class="lede reveal" data-ed="s19-lede">Claude ignores alwaysApply: false. List Cursor-only stems in ~/.cursor/rules/.claude-exclude.</p>
-                <p class="slide-num">19 / 33</p>
-                <div class="speaker-notes">Chat-only Desktop Projects do not auto-load ~/.claude/rules. After exclude edits, re-run the sync script.</div>
-            </section>
-
-            <!-- === SLIDE 20 OTHER TOOLS === -->
+                <p class="slide-num">19 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:14, Map the stack] Claude Code loads every file in ~/.claude/rules. Claude ignores alwaysApply false. Put Cursor-only rule stems in ~/.cursor/rules/.claude-exclude and re-run the sync script. Chat-only Desktop Projects do not auto-load ~/.claude/rules. We will mirror Cursor rules into Claude during Lab B with sync-personal-rules.sh.</div>
+            </section><!-- === SLIDE 20 OTHER TOOLS === -->
             <section class="slide" data-slide="20">
                 <p class="kicker reveal"><span class="num">20</span> Other products</p>
                 <div class="tiles three">
@@ -841,20 +897,16 @@
                         <p data-ed="s20-p3">Verify: ls ~/.firebender/rules, then quote test in chat.</p>
                     </div>
                 </div>
-                <p class="slide-num">20 / 33</p>
-                <div class="speaker-notes">Android pairing: Firebender is the Cursor job. Claude Code CLI with cwd = the Android repo owns plan and multi-file work. Git is the handoff. Studio Gemini is not Gemini CLI.</div>
-            </section>
-
-            <!-- === SLIDE 21 SECTION PERSONAL === -->
+                <p class="slide-num">20 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:16, Map the stack] Gemini CLI and Antigravity both read ~/.gemini/GEMINI.md. Verify with /memory refresh, then /memory show. Firebender reads ~/.firebender/rules. Verify with ls on that folder, then a quote test in chat. The sync script does not cover Gemini or Firebender — you copy the same text manually. Android Studio Gemini is not Gemini CLI. Do not score Studio against /memory show.</div>
+            </section><!-- === SLIDE 21 SECTION PERSONAL === -->
             <section class="slide dark section-slide" data-slide="21">
                 <p class="sec-num reveal" data-ed="s21-n">04</p>
                 <h2 class="reveal" data-ed="s21-h2">Personal settings</h2>
                 <p class="sec-note reveal" data-ed="s21-note">What belongs at home. What does not.</p>
-                <p class="slide-num">21 / 33</p>
-                <div class="speaker-notes">You stop re-explaining be short and only commit when I ask. The repo still teaches the codebase.</div>
-            </section>
-
-            <!-- === SLIDE 22 PUT / NOT === -->
+                <p class="slide-num">21 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Personal settings stop you from re-explaining be short and only commit when I ask. The repo still teaches the codebase.</div>
+            </section><!-- === SLIDE 22 PUT / NOT === -->
             <section class="slide" data-slide="22">
                 <p class="kicker reveal"><span class="num">22</span> Scope</p>
                 <div class="tiles two">
@@ -869,11 +921,9 @@
                         <p data-ed="s22-p2">How to build or generate clients. A second copy of a repo skill. Tokens or internal URLs in a synced dotfiles repo.</p>
                     </div>
                 </div>
-                <p class="slide-num">22 / 33</p>
-                <div class="speaker-notes">Username prefix for branches can be a reminder. Still obey that repo CONTRIBUTING.md. Services-customer no-ticket names are hyphen-only.</div>
-            </section>
-
-            <!-- === SLIDE 23 LEAN === -->
+                <p class="slide-num">22 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Put writing style, tool prefs, and cost habits in personal files. Do not put build commands, test commands, secrets, or a second copy of a repo skill there. A username prefix for branches can be a reminder — still obey that repo's CONTRIBUTING.md.</div>
+            </section><!-- === SLIDE 23 LEAN === -->
             <section class="slide" data-slide="23">
                 <p class="kicker reveal"><span class="num">23</span> Context</p>
                 <h2 class="reveal" data-ed="s23-h2">Keep files lean.</h2>
@@ -882,29 +932,23 @@
                     <li class="reveal"><span class="mark">02</span><span data-ed="s23-p2">alwaysApply true only for prefs that must load every session.</span></li>
                     <li class="reveal"><span class="mark">03</span><span data-ed="s23-p3">Skills for multi-step jobs. Put the important lines at the top.</span></li>
                 </ul>
-                <p class="slide-num">23 / 33</p>
-                <div class="speaker-notes">Several short always-on rules still add up. If Claude feels heavy, remember it loads every file in ~/.claude/rules.</div>
-            </section>
-
-            <!-- === SLIDE 24 SECTION BRIDGE === -->
+                <p class="slide-num">23 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Keep personal files lean — under about five hundred lines. Use alwaysApply true only for prefs that must load every session. If Claude feels heavy, remember it loads every file in ~/.claude/rules.</div>
+            </section><!-- === SLIDE 24 SECTION BRIDGE === -->
             <section class="slide dark section-slide" data-slide="24">
                 <p class="sec-num reveal" data-ed="s24-n">05</p>
                 <h2 class="reveal" data-ed="s24-h2">One source.<br>Several tools.</h2>
                 <p class="sec-note reveal" data-ed="s24-note">Edit once in Cursor. Mirror into Claude. Copy the same prefs to Gemini and Firebender.</p>
-                <p class="slide-num">24 / 33</p>
-                <div class="speaker-notes">If you paste the same paragraph into three files, they drift.</div>
-            </section>
-
-            <!-- === SLIDE 25 SYNC === -->
+                <p class="slide-num">24 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Edit once in Cursor. Mirror into Claude with the sync script. Copy the same prefs to Gemini and Firebender. If you paste the same paragraph into three files by hand, they drift.</div>
+            </section><!-- === SLIDE 25 SYNC === -->
             <section class="slide" data-slide="25">
                 <p class="kicker reveal"><span class="num">25</span> Cursor ↔ Claude</p>
                 <h2 class="reveal" data-ed="s25-h2">Edit ~/.cursor/rules.<br>Then run the sync script.</h2>
                 <p class="lede reveal" data-ed="s25-lede">lab/sync-personal-rules.sh in this workshop folder. Re-run after add, rename, remove, or exclude edits. Not after editing the body of an existing file.</p>
-                <p class="slide-num">25 / 33</p>
-                <div class="speaker-notes">Check with --check. The script does not sync Gemini, Antigravity, or Firebender. It does not overwrite a real file at ~/.claude/rules that is not a symlink.</div>
-            </section>
-
-            <!-- === SLIDE 26 VERIFY === -->
+                <p class="slide-num">25 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A — covered in Lab B] Edit ~/.cursor/rules, then run lab/sync-personal-rules.sh from the cloned ai-workshops lab folder. Re-run after you add, rename, remove, or change exclude lists. You do not need to re-run after editing the body of an existing file. Check with --check. The script does not sync Gemini, Antigravity, or Firebender.</div>
+            </section><!-- === SLIDE 26 VERIFY === -->
             <section class="slide" data-slide="26">
                 <p class="kicker reveal"><span class="num">26</span> Verify</p>
                 <h2 class="reveal" data-ed="s26-h2">Same three steps<br>for every product.</h2>
@@ -925,52 +969,130 @@
                         <p data-ed="s26-p3">01 ls ~/.firebender/rules. 02 Chat quotes Precedence. 03 Smoke test.</p>
                     </div>
                 </div>
-                <p class="slide-num">26 / 33</p>
-                <div class="speaker-notes">Lab B steps are in lab/README.md. Smoke test: draft a PR body, then ask what AGENTS.md says about commits. Repo rule must win. Android Studio Gemini is not Gemini CLI.</div>
-            </section>
-
-            <!-- === SLIDE 27 CLOUD === -->
-            <section class="slide" data-slide="27">
-                <p class="kicker reveal"><span class="num">27</span> Cloud Agents</p>
+                <p class="slide-num">26 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:17, Map the stack] Same three steps for every product you use. Step one: file on disk. Step two: the product lists loaded files. Step three: smoke test in Lab C. Cursor uses a new Agent chat. Claude uses sync --check and /memory. Gemini CLI uses /memory show. Firebender uses ls and a quote test. Android Studio Gemini is not Gemini CLI. Advance to slide twenty-seven to start the labs. Lab walkthrough slides are twenty-eight through thirty-three.</div>
+            </section><!-- === SLIDE 27 SECTION LABS === -->
+            <section class="slide dark section-slide lab-slide" data-slide="27">
+                <p class="sec-num reveal" data-ed="s27lab-n">07</p>
+                <h2 class="reveal" data-ed="s27lab-h2">Labs</h2>
+                <p class="sec-note reveal" data-ed="s27lab-note">Open an app repo with AGENTS.md. Clone lab/ for templates. Run only the products you use.</p>
+                <p class="slide-num">27 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:18, Lab A starts] Advance to the next slide. Labs A, B, and C are on slides twenty-eight through thirty-two. Exit checklist is slide thirty-three. Tell the room: open the application repo you use daily. Clone the lab folder if you need templates — git clone ai-workshops, then cd to workshops/customizing-agent-workflow/lab. Keep handout.md open. Run only the steps for products you actually use.</div>
+            </section><!-- === SLIDE 28 LAB A === -->
+            <section class="slide lab-slide" data-slide="28">
+                <p class="kicker reveal"><span class="num">28</span> Lab A</p>
+                <p class="lab-meta reveal" data-ed="s28lab-time">10 minutes</p>
+                <h2 class="reveal" data-ed="s28lab-h2">Write personal prefs</h2>
+                <ol class="lab-steps compact reveal">
+                    <li><span class="step-num">01</span><span data-ed="s28lab-s1">Copy a starter from <code>lab/templates/</code> — or write from scratch.</span></li>
+                    <li><span class="step-num">02</span><span data-ed="s28lab-s2">Keep the <strong>Precedence</strong> block at the top (handout section 10).</span></li>
+                    <li><span class="step-num">03</span><span data-ed="s28lab-s3">Write five to ten personal lines. Do not copy repo engineering rules. Add one test line.</span></li>
+                    <li><span class="step-num">04</span><span data-ed="s28lab-s4">Save: Cursor <code>~/.cursor/rules/personal-workflow.mdc</code> · Claude <code>~/.claude/rules/</code> · Gemini <code>~/.gemini/GEMINI.md</code> · Firebender <code>~/.firebender/rules/</code></span></li>
+                </ol>
+                <p class="slide-num">28 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:18–0:28, Lab A] Read the slide steps. Then say: Write five to ten personal lines that do not repeat your repo AGENTS.md. Start with the Precedence block from section ten of handout.md. Add one distinctive line you can test in Lab B — for example: End every reply with what happens next. Templates are in lab/templates. Cursor users: alwaysApply true in frontmatter. Work silently for ten minutes. Raise your hand if you are stuck on paths or frontmatter. Done when your file exists on disk and starts with the Precedence block.</div>
+            </section><!-- === SLIDE 29 LAB B INTRO === -->
+            <section class="slide dark lab-slide" data-slide="29">
+                <p class="kicker reveal"><span class="num">29</span> Lab B</p>
+                <p class="lab-meta reveal" data-ed="s29lab-time">17 minutes</p>
+                <h2 class="reveal" data-ed="s29lab-h2">Wire and verify</h2>
+                <p class="lab-lede reveal" data-ed="s29lab-lede">Same three steps for every product you use. Smoke test is Lab C (slide 32).</p>
+                <ol class="lab-steps compact reveal">
+                    <li><span class="step-num">01</span><span data-ed="s29lab-s1"><strong>File check</strong> — personal file on disk; Precedence block first.</span></li>
+                    <li><span class="step-num">02</span><span data-ed="s29lab-s2"><strong>Product lists files</strong> — tool shows your rules loaded (next slides).</span></li>
+                    <li><span class="step-num">03</span><span data-ed="s29lab-s3"><strong>Smoke test</strong> — Lab C, slide 32.</span></li>
+                </ol>
+                <p class="slide-num">29 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:28, Lab B intro] Lab B: wire and verify. Run only the products you use. Same three steps every time: file on disk, product lists loaded files, smoke test in Lab C. Open the ai-workshops lab folder if you have not cloned it. Advance to slides thirty and thirty-one for product-specific commands. I will demo any tool the room lacks.</div>
+            </section><!-- === SLIDE 30 LAB B CURSOR CLAUDE === -->
+            <section class="slide lab-slide" data-slide="30">
+                <p class="kicker reveal"><span class="num">30</span> Lab B</p>
+                <p class="lab-meta reveal" data-ed="s30lab-time">Cursor · Claude</p>
+                <h2 class="reveal" data-ed="s30lab-h2">File check + loaded</h2>
+                <ol class="lab-steps compact reveal">
+                    <li><span class="step-num">C1</span><span data-ed="s30lab-c1"><strong>Cursor file:</strong> <code>ls ~/.cursor/rules/*.mdc</code></span></li>
+                    <li><span class="step-num">C2</span><span data-ed="s30lab-c2"><strong>Cursor loaded:</strong> new Agent chat — ask what rules from ~/.cursor/rules are loaded, or check your test line.</span></li>
+                    <li><span class="step-num">D1</span><span data-ed="s30lab-d1"><strong>Claude sync:</strong> from <code>lab/</code> run <code>bash sync-personal-rules.sh</code> then <code>--check</code>. Expect: bridge ok.</span></li>
+                    <li><span class="step-num">D2</span><span data-ed="s30lab-d2"><strong>Claude loaded:</strong> new session — <code>/memory</code> or <code>/context</code> lists ~/.claude/rules.</span></li>
+                </ol>
+                <p class="slide-num">30 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:28–0:38, Lab B Cursor and Claude] Walk the four steps on screen. Cursor Cloud Agents do not load ~/.cursor/rules — handout section seven if someone asks. Claude-only users skip sync if they wrote directly to ~/.claude/rules in Lab A. Re-run sync after add, rename, or remove a Cursor rule file — not after editing body text. Optional: ~/.cursor/rules/.claude-exclude for Cursor-only rules.</div>
+            </section><!-- === SLIDE 31 LAB B GEMINI FIREBENDER === -->
+            <section class="slide lab-slide" data-slide="31">
+                <p class="kicker reveal"><span class="num">31</span> Lab B</p>
+                <p class="lab-meta reveal" data-ed="s31lab-time">Gemini · Firebender</p>
+                <h2 class="reveal" data-ed="s31lab-h2">File check + loaded</h2>
+                <ol class="lab-steps compact reveal">
+                    <li><span class="step-num">G1</span><span data-ed="s31lab-g1"><strong>Gemini file:</strong> <code>~/.gemini/GEMINI.md</code> with Precedence block.</span></li>
+                    <li><span class="step-num">G2</span><span data-ed="s31lab-g2"><strong>Gemini loaded:</strong> <code>/memory refresh</code> then <code>/memory show</code> — GEMINI.md and AGENTS.md listed.</span></li>
+                    <li><span class="step-num">F1</span><span data-ed="s31lab-f1"><strong>Firebender file:</strong> <code>ls -l ~/.firebender/rules/*.mdc</code> (file or symlink from Cursor).</span></li>
+                    <li><span class="step-num">F2</span><span data-ed="s31lab-f2"><strong>Firebender loaded:</strong> new chat — name files under ~/.firebender/rules and quote your Precedence line.</span></li>
+                </ol>
+                <p class="slide-num">31 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:38–0:45, Lab B Gemini and Firebender] Android Studio Gemini is not Gemini CLI — do not use /memory show for Studio. Firebender: project .cursor/rules in the app repo is not ~/.cursor/rules. Optional symlink: ln -sfn ~/.cursor/rules/personal-workflow.mdc ~/.firebender/rules/personal-workflow.mdc. Lab B done when each product you use passes file check and loaded check.</div>
+            </section><!-- === SLIDE 32 LAB C === -->
+            <section class="slide dark lab-slide" data-slide="32">
+                <p class="kicker reveal"><span class="num">32</span> Lab C</p>
+                <p class="lab-meta reveal" data-ed="s32lab-time">7 minutes</p>
+                <h2 class="reveal" data-ed="s32lab-h2">Smoke test</h2>
+                <p class="lab-lede reveal" data-ed="s32lab-lede">Same two prompts in each product you verified. Open your app repo first. Repo rule must win on prompt 2.</p>
+                <div class="lab-prompt reveal">
+                    <span class="label">Prompt 1 — personal habit</span>
+                    Draft a PR body for my current branch.
+                </div>
+                <div class="lab-prompt reveal">
+                    <span class="label">Prompt 2 — repo must win</span>
+                    What does AGENTS.md say about commits? Should you commit without me asking?
+                </div>
+                <p class="slide-num">32 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:45–0:52, Lab C] Read both prompts. Pass on prompt two means the agent cites the repo rule — for example do not commit unless explicitly asked. Fail means it follows only your personal habit. If you fail, remove duplicate commit lines from your personal file. Personal prefs advise. The repo harness wins. Seven minutes. Then advance to slide thirty-three for exit checklist.</div>
+            </section><!-- === SLIDE 33 EXIT CHECKS === -->
+            <section class="slide lab-slide" data-slide="33">
+                <p class="kicker reveal"><span class="num">33</span> Exit</p>
+                <p class="lab-meta reveal" data-ed="s33lab-time">8 minutes</p>
+                <h2 class="reveal" data-ed="s33lab-h2">Fill the checklist</h2>
+                <ol class="lab-steps compact reveal">
+                    <li><span class="step-num">01</span><span data-ed="s33lab-s1">Open <code>lab/verify-checklist.md</code></span></li>
+                    <li><span class="step-num">02</span><span data-ed="s33lab-s2">Mark Yes / No / N/A for each product you use</span></li>
+                    <li><span class="step-num">03</span><span data-ed="s33lab-s3">Precedence · Cursor · Claude · Gemini CLI · Firebender · smoke test · products verified</span></li>
+                    <li><span class="step-num">04</span><span data-ed="s33lab-s4">Keep a copy. Fix any No rows using lab/README.md and handout.md</span></li>
+                </ol>
+                <p class="slide-num">33 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:52–0:58, Exit checks] Welcome back if you were heads-down. Open lab/verify-checklist.md. Fill every row. Mark N/A for tools you do not use. Success: you leave with a personal file on disk and a completed verify row for each product you use — not tip notes alone. Cloud users: promote must-have prefs before your next Cloud run — handout section seven. Advance to slide forty for close.</div>
+            </section><!-- === SLIDE 34 CLOUD === -->
+            <section class="slide" data-slide="34">
+                <p class="kicker reveal"><span class="num">34</span> Cloud Agents</p>
                 <h2 class="reveal" data-ed="s27-h2">Ask: is this<br>instruction in the clone?</h2>
                 <p class="lede reveal" data-ed="s27-lede">If it must apply on Cloud, put it in the repo harness or Team Rules before you start the run. Do not symlink ~/.cursor/rules into a repo.</p>
-                <p class="slide-num">27 / 33</p>
-                <div class="speaker-notes">Promote team requirements: PR body format, commit policy, build commands. Keep writing style and cost prefs personal unless the whole team adopts them. Skill sync is for personal skills, not personal rules. See pr-author-packet-rule.md.</div>
-            </section>
-
-            <!-- === SLIDE 28 SECTION PREFS === -->
-            <section class="slide dark section-slide" data-slide="28">
+                <p class="slide-num">34 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A — mention in close if Cloud users present] Cursor Cloud Agents only see what is in the repo clone. If a pref must apply on Cloud, put it in the repo harness or Team Rules before you start the run. Do not symlink ~/.cursor/rules into a repo. Promote team requirements like PR body format and commit policy. Keep writing style and cost prefs personal unless the whole team adopts them. See pr-author-packet-rule.md and handout section seven.</div>
+            </section><!-- === SLIDE 28 SECTION PREFS === -->
+            <section class="slide dark section-slide" data-slide="35">
                 <p class="sec-num reveal" data-ed="s28-n">06</p>
                 <h2 class="reveal" data-ed="s28-h2">Highest-leverage<br>prefs</h2>
                 <p class="sec-note reveal" data-ed="s28-note">Steal these. Keep them short. Drop any line that fights a repo file.</p>
-                <p class="slide-num">28 / 33</p>
-                <div class="speaker-notes">Section 10 of the handout has a paste-ready starter file. Do not paste it as a second AGENTS.md.</div>
-            </section>
-
-            <!-- === SLIDE 29 COMM + SAFETY === -->
-            <section class="slide" data-slide="29">
-                <p class="kicker reveal"><span class="num">29</span> Defaults</p>
+                <p class="slide-num">35 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Section ten of handout.md has a paste-ready starter file. Do not paste it as a second AGENTS.md. Drop any line that fights a repo file.</div>
+            </section><!-- === SLIDE 29 COMM + SAFETY === -->
+            <section class="slide" data-slide="36">
+                <p class="kicker reveal"><span class="num">36</span> Defaults</p>
                 <ul class="points" style="top: 200px;">
                     <li class="reveal"><span class="mark">01</span><span data-ed="s29-p1">Be short. No preamble. Name a tradeoff. You decide.</span></li>
                     <li class="reveal"><span class="mark">02</span><span data-ed="s29-p2">Commit or open a PR only when you ask. A commit is not a push.</span></li>
                     <li class="reveal"><span class="mark">03</span><span data-ed="s29-p3">Never force-push to main. Follow the open repo’s hook rules.</span></li>
                 </ul>
-                <p class="slide-num">29 / 33</p>
-                <div class="speaker-notes">Do not ask permission for read-only git, gh, or acli. Confirm before push, PR open or close, branch delete, or force-push unless a repo hook already asks.</div>
-            </section>
-
-            <!-- === SLIDE 30 COST === -->
-            <section class="slide" data-slide="30">
-                <p class="kicker reveal"><span class="num">30</span> Cost</p>
+                <p class="slide-num">36 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] Good defaults for personal files: be short, no preamble, name a tradeoff, you decide. Commit or open a PR only when I ask — a commit is not a push. Never force-push to main. Follow the open repo's hook rules. Do not ask permission for read-only git, gh, or acli.</div>
+            </section><!-- === SLIDE 30 COST === -->
+            <section class="slide" data-slide="37">
+                <p class="kicker reveal"><span class="num">37</span> Cost</p>
                 <h2 class="reveal" data-ed="s30-h2">One chat per task.</h2>
                 <p class="lede reveal" data-ed="s30-lede">New Cursor chat or Claude /clear between unrelated work. Cheaper model for scaffolding. Several short sessions cost less than one huge thread.</p>
-                <p class="slide-num">30 / 33</p>
-                <div class="speaker-notes">Prefer the repo context-efficiency skill when it exists. Do not dump directories into chat. If you do not specify a time range, the agent should ask.</div>
-            </section>
-
-            <!-- === SLIDE 31 SKILLS === -->
-            <section class="slide" data-slide="31">
-                <p class="kicker reveal"><span class="num">31</span> Skills and subagents</p>
+                <p class="slide-num">37 / 40</p>
+                <div class="speaker-notes">[SKIP unless Q&amp;A] One chat per task. New Cursor chat or Claude /clear between unrelated work. Prefer the repo context-efficiency skill when it exists. Do not dump whole directories into chat.</div>
+            </section><!-- === SLIDE 31 SKILLS === -->
+            <section class="slide" data-slide="38">
+                <p class="kicker reveal"><span class="num">38</span> Skills and subagents</p>
                 <div class="tiles two">
                     <div class="tile reveal">
                         <span class="tag" data-ed="s31-t1">Skill</span>
@@ -983,32 +1105,36 @@
                         <p data-ed="s31-p2">Own context. Returns a summary. Start with one reviewer if you actually use that product that way.</p>
                     </div>
                 </div>
-                <p class="slide-num">31 / 33</p>
-                <div class="speaker-notes">Take-home only — not in the 60-minute live path. Put the deterministic part in a script. Do not start from a nine-agent roster. Claude agent YAML does not load in Cursor.</div>
-            </section>
-
-            <!-- === SLIDE 32 START === -->
-            <section class="slide" data-slide="32">
-                <p class="kicker reveal"><span class="num">32</span> Getting started</p>
+                <p class="slide-num">38 / 40</p>
+                <div class="speaker-notes">[SKIP — take-home only, not in the 60-minute live path] Skills and subagents are take-home reading in handout sections eleven and twelve. A skill is a recipe for one job. A subagent is a worker with its own context. Put the deterministic part in a script. Do not start from a nine-agent roster. Claude agent YAML does not load in Cursor.</div>
+            </section><!-- === SLIDE 39 RECAP (skip) === -->
+            <section class="slide" data-slide="39">
+                <p class="kicker reveal"><span class="num">39</span> Recap</p>
                 <ul class="points" style="top: 200px;">
-                    <li class="reveal"><span class="mark">01</span><span data-ed="s32-p1">Read root AGENTS.md in the repo you use most.</span></li>
-                    <li class="reveal"><span class="mark">02</span><span data-ed="s32-p2">Write five to ten personal lines. Sync for Claude. Copy for Gemini and Firebender.</span></li>
-                    <li class="reveal"><span class="mark">03</span><span data-ed="s32-p3">Verify each tool: sync --check, /memory show, or ls + quote test. Then smoke test.</span></li>
+                    <li class="reveal"><span class="mark">01</span><span data-ed="s39-p1">Read root AGENTS.md in the repo you use most.</span></li>
+                    <li class="reveal"><span class="mark">02</span><span data-ed="s39-p2">Write five to ten personal lines. Sync for Claude. Copy for Gemini and Firebender.</span></li>
+                    <li class="reveal"><span class="mark">03</span><span data-ed="s39-p3">Verify each tool: sync --check, /memory show, or ls + quote test. Then smoke test.</span></li>
                 </ul>
-                <p class="slide-num">32 / 33</p>
-                <div class="speaker-notes">Confirm the repo rule is what the agent follows on the commit smoke test. If you use Cloud, promote must-have prefs first. See lab/README.md for verify steps.</div>
-            </section>
-
-            <!-- === SLIDE 33 CLOSE === -->
-            <section class="slide dark close-slide" data-slide="33">
-                <p class="meta-top reveal" data-ed="s33-meta">You stop re-explaining the same prefs</p>
+                <p class="slide-num">39 / 40</p>
+                <div class="speaker-notes">[SKIP — covered on lab slides 28–33] Optional recap only if someone joined late. Otherwise advance to slide forty for close.</div>
+            </section><!-- === SLIDE 40 CLOSE === -->
+            <section class="slide dark close-slide" data-slide="40">
+                <p class="meta-top reveal" data-ed="s40-meta">You stop re-explaining the same prefs</p>
                 <div class="signal-sq block-in" aria-hidden="true"></div>
-                <h1 class="reveal" data-ed="s33-h1" style="position:absolute;left:80px;top:280px;width:1600px;font-size:96px;">The repo still<br>teaches the codebase.</h1>
+                <h1 class="reveal" data-ed="s40-h1" style="position:absolute;left:80px;top:280px;width:1600px;font-size:96px;">The repo still<br>teaches the codebase.</h1>
                 <div class="rule reveal"></div>
-                <p class="sub reveal" data-ed="s33-sub">Handout: handout.md · Lab: lab/README.md</p>
-                <p class="byline reveal" data-ed="s33-by">Nuuly Engineering</p>
-                <p class="slide-num">33 / 33</p>
-                <div class="speaker-notes">Point people at handout.md, lab/README.md, and pr-author-packet-rule.md. Offer live setup time if the room has laptops.</div>
+                <p class="sub reveal" data-ed="s40-sub">handout.md · lab/README.md · lab/verify-checklist.md · pr-author-packet-rule.md</p>
+                <p class="byline reveal" data-ed="s40-by">Nuuly Engineering</p>
+                <p class="slide-num">40 / 40</p>
+                <div class="speaker-notes">[LIVE PATH — 0:58, Close] You wrote personal prefs that apply on this machine. The repo still teaches the codebase. If a personal rule and AGENTS.md disagree, follow the repo.
+
+Cursor and Claude share one source through the sync script in the lab folder. Gemini and Firebender need the same text in their home folders — and the same three-step verify: file on disk, product shows it loaded, smoke test confirms the repo wins.
+
+If you use Cursor Cloud Agents, promote must-have prefs into the repo or Team Rules before you start a Cloud run. Handout section seven and pr-author-packet-rule.md walk through that.
+
+Skills and subagents are in handout.md for take-home. Start with prefs that load everywhere you actually work.
+
+Your materials: handout.md, lab/README.md, lab/lab-walkthrough.md, lab/verify-checklist.md, and pr-author-packet-rule.md. I am available for a few minutes if you want live setup help. Thank you.</div>
             </section>
 
         </main>
@@ -1024,7 +1150,7 @@
 
     <nav class="deck-controls" aria-label="Slide progress">
         <div id="dots"></div>
-        <span class="counter" id="counter">1 / 33</span>
+        <span class="counter" id="counter">1 / 40</span>
         <button class="notes-btn" id="notesToggle" type="button" aria-pressed="false" title="Speaker notes (N)">N</button>
     </nav>
 

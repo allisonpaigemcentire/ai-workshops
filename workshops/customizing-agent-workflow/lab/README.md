@@ -3,6 +3,9 @@
 Participant-facing starter kit. Copy templates into your home directory, run the
 sync script for Claude Code, then verify each product you use.
 
+**Step-by-step walkthrough:** [lab-walkthrough.md](lab-walkthrough.md) (Labs A,
+B, C, and exit checks with time boxes).
+
 ## Clone this lab
 
 ```bash
@@ -101,7 +104,7 @@ Fill in [verify-checklist.md](verify-checklist.md). Keep a copy for yourself.
 ## Reference
 
 - [Handout](../handout.md) — full guide (precedence, Cloud Agents, skills)
-- [Slides](../customizing-your-agent-workflow-slides.html) — open in a browser
+- [Slides](../customizing-your-agent-workflow-slides.html) — open in a browser (40 slides; lab walkthrough on slides 27–33)
 - [PR author packet](../pr-author-packet-rule.md) — Goal / Ran / Doubt example
 
 ## Script source
