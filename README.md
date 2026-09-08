@@ -18,11 +18,10 @@ ai-workshops/
 
 ## Index of workshops
 
-No workshops have been added yet. Each workshop gets a row here once it exists,
-with a one-line description, audience, and duration:
-
 | Workshop | Audience | Duration | Status |
 |---|---|---|---|
+| [customizing-agent-workflow](workshops/customizing-agent-workflow/) | Engineers using Cursor, Claude, Gemini, Firebender | 60 min | Draft |
+| [git-worktrees](workshops/git-worktrees/) | Engineers using AI agents who need parallel branches | Hands-on | Available |
 
 ## Adding a new workshop
 

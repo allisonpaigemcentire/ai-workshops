@@ -1,0 +1,7 @@
+# Cursor-only stems — not mirrored into ~/.claude/rules/
+# Copy to ~/.cursor/rules/.claude-exclude (one stem per line, # comments ok)
+#
+# Examples (rename to match your situational rules):
+# creating-pull-requests
+# cody-review-before-commit
+# context-baseline-html-report
