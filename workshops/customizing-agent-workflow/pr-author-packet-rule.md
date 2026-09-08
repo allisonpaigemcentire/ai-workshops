@@ -4,8 +4,7 @@ How to make agents use **Goal / Ran / Doubt** (plus optional **Test plan**) in
 every pull request description on your machine, and what to do when the agent
 runs in **Cursor Cloud** instead of local desktop chat.
 
-Related: [lab/README.md](lab/README.md),
-[pr-review-ai deck](../../presentations/pr-review-ai/pr-review-ai-slides.html).
+Related: [lab/README.md](lab/README.md).
 
 ---
 
