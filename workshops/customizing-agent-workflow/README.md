@@ -18,7 +18,7 @@ application repos.
 |------|----------|
 | [AGENTS.md](AGENTS.md) | Repo harness: commits; PR body is What / Why this repo / Verify (Lab C) |
 | [handout.md](handout.md) | Full guide: precedence, per-tool loading, `~/.agents/` source of truth, verify steps, Cloud promotion |
-| [lab/](lab/) | Templates, `wire-personal-agents.sh`, verify checklist |
+| [lab/](lab/) | Templates, `wire-personal-agents.sh`, walkthrough |
 | [example/](example/) | Sample finished personal setup (`~/.agents/` + product wrappers). Start at [example/walkthrough.md](example/walkthrough.md) |
 | [slides.html](slides.html) | **Live deck:** 17 slides, no speaker notes — clone, practices, Labs A–D, sources |
 | [customizing-your-agent-workflow-slides-draft-3.html](customizing-your-agent-workflow-slides-draft-3.html) | Same deck with speaker notes (facilitator) |

@@ -235,6 +235,20 @@ the wrappers:
 
 ### Commands
 
+You can run the two `bash` lines in Terminal, **or** paste this into a local
+agent that can run a shell (Cursor Agent on this Mac, Claude Code, Gemini
+CLI, Antigravity). Do **not** ask a Cursor Cloud Agent. Firebender: use that
+chat only if it can run a terminal command; otherwise Studio Terminal.
+
+```
+Run these two commands from the ai-workshops clone root.
+Do not commit or push. Paste the --check output.
+If a wrapper conflicts, stop and show me the message.
+
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --check
+```
+
 ```bash
 mkdir -p ~/.agents/instructions ~/.agents/rules ~/.cursor/rules
 cp templates/shared.md ~/.agents/instructions/shared.md
@@ -246,18 +260,21 @@ ln -sfn ~/.agents/rules/creating-pull-requests.mdc ~/.cursor/rules/creating-pull
 cp templates/agents.gitignore ~/.agents/.gitignore
 git -C ~/.agents init
 
-bash wire-personal-agents.sh
-bash wire-personal-agents.sh --check
+# Lab B — from clone root (folder that contains workshops/)
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --check
 
 # Only the products you use:
-bash wire-personal-agents.sh --tools=claude,gemini
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --tools=claude,gemini
 ```
 
-Optional alias:
+Optional alias (only if you want a short name; not required):
 
 ```bash
-alias wire-personal-agents='bash ~/path/to/ai-workshops/workshops/customizing-agent-workflow/lab/wire-personal-agents.sh'
+alias wire-personal-agents='bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh'
 ```
+
+Run that alias from the clone root.
 
 ### When to run
 

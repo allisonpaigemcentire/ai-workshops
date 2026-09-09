@@ -1038,11 +1038,14 @@ git -C ~/.agents init</pre>
                 <p class="kicker reveal"><span class="num">14</span> Lab B</p>
                 <p class="lab-time reveal">10 minutes</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-labb-h2">Wire and verify.</h2>
-                <p class="lab-goal reveal" data-ed="d3-labb-g">Each product you use gets a wrapper. A new session can quote or list those prefs. Smoke test is Lab C. Cloud Agents do not load laptop files.</p>
+                <p class="lab-goal reveal" data-ed="d3-labb-g">Each product you use gets a wrapper. Ask a local agent to run the script, or run it in Terminal. Do not use a Cursor Cloud Agent. A new session can quote or list those prefs. Smoke test is Lab C.</p>
                 <div class="lab-b-pre reveal">
-                    <pre class="lab-pre" data-ed="d3-labb-cmd">bash wire-personal-agents.sh
-bash wire-personal-agents.sh --check
-# optional: --tools=claude,cursor   names: claude, cursor, gemini, firebender</pre>
+                    <pre class="lab-pre" data-ed="d3-labb-cmd">From the ai-workshops clone root:
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --check
+# Cursor Agent · Claude Code · Gemini CLI · Antigravity
+# Firebender: that chat if it has a terminal, else Studio Terminal
+# optional: --tools=claude,cursor</pre>
                 </div>
                 <div class="lab-b-grid">
                     <div class="lab-prod reveal">
@@ -1064,7 +1067,7 @@ bash wire-personal-agents.sh --check
                 </div>
                 <p class="lab-done reveal" data-ed="d3-labb-d">Done when: file check and load check pass for each product you use.</p>
                 <p class="slide-num">14 / 17</p>
-                <div class="speaker-notes">Run wire from cloned lab/. Expect Personal agents wire: ok. Claude @ is live; Cursor, Gemini, Firebender embed — re-run after you edit shared.md. Skip unused products. Do not put the file path in the Cursor or Firebender quote prompt. I will demo a tool the room lacks.</div>
+                <div class="speaker-notes">The script must run; they do not have to type bash. Cursor Agent on this Mac, Claude Code, Gemini CLI, Antigravity can run it. Cloud Agent is the wrong machine. Firebender: terminal in that chat or Studio Terminal. Expect Personal agents wire: ok. Claude @ is live; Cursor, Gemini, Firebender embed — re-run after they edit shared.md. Skip unused products. Do not put the file path in the Cursor or Firebender quote prompt.</div>
             </section>
             <section class="slide" data-slide="15">
                 <p class="kicker reveal"><span class="num">15</span> Lab C</p>
@@ -1295,7 +1298,7 @@ bash wire-personal-agents.sh --check
         class InlineEditor {
             constructor() {
                 this.isActive = false;
-                this.storageKey = 'customizing-agent-workflow-slides-draft-3-edits-v7';
+                this.storageKey = 'customizing-agent-workflow-slides-draft-3-edits-v9';
                 this.toggleBtn = document.getElementById('editToggle');
                 this.restore();
             }

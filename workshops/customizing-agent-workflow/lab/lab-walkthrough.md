@@ -98,7 +98,36 @@ Save only at `~/.agents/instructions/shared.md`.
 
 ### All products — run the wire script
 
-From the cloned `lab/` directory:
+The wrappers exist only after `wire-personal-agents.sh` **runs**. You do not
+have to type `bash` in Terminal.app. Paste the prompt below into a **local**
+agent that can run a shell. Do **not** use a Cursor Cloud Agent.
+
+**Cursor** — Agent chat on this Mac (not Ask, not Cloud). Approve the
+terminal command if Cursor asks.
+
+**Claude Code** — paste in the CLI session; approve bash if asked.
+
+**Gemini CLI** — paste in Gemini CLI (not Android Studio Gemini).
+
+**Antigravity** — agent/chat that can run a terminal command. Same two
+`bash` lines. Writes `~/.gemini/GEMINI.md`.
+
+**Firebender** — if this chat can run a terminal command, paste the prompt.
+If it cannot, run the two `bash` lines in Android Studio **Terminal** or
+macOS Terminal.
+
+From the **ai-workshops clone root** (the folder where `ls` shows `AGENTS.md`
+and `workshops/`):
+
+```
+Run these two commands. Do not commit or push. Paste the --check output.
+If a wrapper conflicts, stop and show me the message.
+
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --check
+```
+
+If you already have this `lab/` folder open, the short form is enough:
 
 ```bash
 bash wire-personal-agents.sh

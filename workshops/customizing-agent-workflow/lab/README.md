@@ -45,21 +45,46 @@ has no PR headings. Neither file replaces repo `AGENTS.md` or repo
 
 ## Step 2 — Point each product at that file
 
-From this `lab/` directory:
+The wrappers exist only after `wire-personal-agents.sh` **runs**. You do not
+have to type `bash` yourself. A **local** agent that can run a shell can do
+it. Do **not** ask a Cursor Cloud Agent — that machine is not your laptop.
 
-```bash
-bash wire-personal-agents.sh
-bash wire-personal-agents.sh --check
+**Prompt** (from the **ai-workshops clone root** — the folder where `ls` shows `AGENTS.md` and `workshops/`):
+
 ```
+Run these two commands. Do not commit or push. Paste the --check output.
+If a wrapper conflicts, stop and show me the message.
+
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --check
+```
+
+If this `lab/` folder is already the open workspace, use:
+
+```
+Run bash wire-personal-agents.sh then bash wire-personal-agents.sh --check.
+Do not commit or push. Paste the --check output.
+```
+
+| Product | How to run the script |
+|---------|------------------------|
+| **Cursor** | **Agent** chat on this Mac (not Ask, not Cloud). Paste the prompt. Approve the terminal command if Cursor asks. |
+| **Claude Code** | Paste the prompt in the CLI session. Approve the bash tool if asked. |
+| **Gemini CLI** | Paste the prompt in Gemini CLI (not Android Studio Gemini). |
+| **Antigravity** | Agent/chat that can run a terminal command. Same two `bash` lines. Writes `~/.gemini/GEMINI.md` (shared with Gemini CLI). |
+| **Firebender** | If this Firebender chat can run a terminal command, paste the prompt. If it cannot, run the two `bash` lines in Android Studio **Terminal** or macOS Terminal. |
+| **Terminal.app** | From the clone root, run the two `bash workshops/customizing-agent-workflow/lab/…` lines. If you already `cd`'d into `lab/`, `bash wire-personal-agents.sh` is enough. |
+
+Only the products you use (from clone root):
+
+```
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --tools=claude,cursor
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --check --tools=claude,cursor
+```
+
+Valid `--tools` names: `claude`, `cursor`, `gemini`, `firebender`.
 
 Expect: `Personal agents wire: ok (N wrapper(s) → …/shared.md)`.
-
-To wire only the products you use:
-
-```bash
-bash wire-personal-agents.sh --tools=claude,gemini
-bash wire-personal-agents.sh --check --tools=claude,gemini
-```
 
 | Product | Wrapper the script writes |
 |---------|---------------------------|
