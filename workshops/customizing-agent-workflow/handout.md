@@ -520,7 +520,8 @@ discover `.agents/skills/` in the repo; personal skills live under
 
 **Personal skill** when you keep re-explaining a step-by-step that is yours:
 open a file in the right app, spin up your preferred worktree layout, wrap
-up session memory into `~/.ai-memory/`.
+up session memory into `~/.ai-memory/`. A finished sample of the worktree
+layout is [example/home-agents/skills/create-worktree/](example/home-agents/skills/create-worktree/).
 
 ### Write the spec before you invoke the authoring skill
 
@@ -612,7 +613,7 @@ NOT for…”). Auto-routing from description alone is inconsistent.
 | Doc | What it is |
 |-----|------------|
 | [lab/README.md](lab/README.md) | Participant setup: templates, wire script, verify steps |
-| [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) | Live 25-slide deck (practices, then labs step by step) |
+| [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) | Live 26-slide deck (practices, labs, then best-practice sources) |
 | [example/](example/) | Sample finished personal setup (`~/.agents/` + wrappers) |
 | [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Draft 1 archive (44 slides) |
 | [lab/wire-personal-agents.sh](lab/wire-personal-agents.sh) | Point Claude, Cursor, Gemini, Firebender at `~/.agents/instructions/shared.md` |

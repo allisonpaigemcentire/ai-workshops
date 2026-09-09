@@ -113,7 +113,7 @@ default. Workshop default is `shared.md` plus `wire-personal-agents.sh`.
 
 - [Handout](../handout.md) — full guide (precedence, Cloud Agents, skills)
 - [Example setup](../example/) — sample `~/.agents/` plus product wrappers
-- [Slides (Draft 2)](../customizing-your-agent-workflow-slides-draft-2.html) — 25 slides; practices then labs one step per slide
+- [Slides (Draft 2)](../customizing-your-agent-workflow-slides-draft-2.html) — 26 slides; practices, labs, then best-practice sources
 - [PR author packet](../pr-author-packet-rule.md) — Goal / Ran / Doubt example
 
 ## Script source

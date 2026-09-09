@@ -20,7 +20,7 @@ application repos.
 | [handout.md](handout.md) | Full guide: precedence, per-tool loading, `~/.agents/` source of truth, verify steps, Cloud promotion |
 | [lab/](lab/) | Templates, `wire-personal-agents.sh`, verify checklist |
 | [example/](example/) | Sample finished personal setup (`~/.agents/` + product wrappers) |
-| [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) | **Live deck (Draft 2):** 25 slides — practices 1–11, then Labs A–C one step per slide |
+| [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) | **Live deck (Draft 2):** 26 slides — practices 1–11, Labs A–C, then best-practice sources |
 | [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Draft 1 archive: 44 slides with pull quotes, skip list, and take-home slides 38–41 |
 | [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PR example and Cursor Cloud workaround |
 

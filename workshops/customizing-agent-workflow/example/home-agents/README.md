@@ -2,16 +2,20 @@
 
 This folder is what `~/.agents/` looks like after the workshop labs.
 
-**Edit** `instructions/shared.md` only. Point Claude, Cursor, Gemini, and
-Firebender at that file with `lab/wire-personal-agents.sh`. Do not paste the
-same prefs into each product by hand.
+**Edit** `instructions/shared.md` only for cross-tool prefs. Point Claude,
+Cursor, Gemini, and Firebender at that file with `lab/wire-personal-agents.sh`.
+Do not paste the same prefs into each product by hand.
+
+Optional: `skills/create-worktree/` is a sample personal skill (one job, one
+script). Copy it to `~/.agents/skills/` and symlink discovery dirs if the
+product does not scan that folder. Do not copy it into an application repo.
 
 ## Reinstall on a new machine
 
 ```bash
 # After you clone *your* private copy of this tree to ~/.agents:
-mkdir -p ~/.agents/instructions
-# copy instructions/shared.md and .gitignore here
+mkdir -p ~/.agents/instructions ~/.agents/skills
+# copy instructions/shared.md, .gitignore, and skills/create-worktree here
 git -C ~/.agents init   # if this is a fresh folder
 ```
 

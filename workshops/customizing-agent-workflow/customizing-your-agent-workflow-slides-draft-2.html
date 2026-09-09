@@ -317,6 +317,91 @@
             font-weight: 600;
             color: #c8c8c8;
         }
+        .ref-slide h2 { top: 140px; font-size: 64px; }
+        .ref-grid {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 260px;
+            bottom: 72px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 56px;
+            row-gap: 10px;
+            align-content: start;
+        }
+        .ref-grid a {
+            display: block;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 21px;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .ref-grid a:hover { text-decoration: underline; }
+        .ref-grid .hint {
+            display: block;
+            font-family: var(--font-body);
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--muted);
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+        .ref-note {
+            position: absolute;
+            left: 80px;
+            bottom: 48px;
+            font-size: 20px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .pull-quote {
+            border-left: 8px solid var(--accent);
+            padding: 0 0 0 28px;
+            max-width: 1520px;
+        }
+        .pull-quote p {
+            font-size: 26px;
+            font-weight: 600;
+            line-height: 1.35;
+            font-style: italic;
+        }
+        .pull-quote cite {
+            display: block;
+            margin-top: 10px;
+            font-family: var(--font-display);
+            font-size: 16px;
+            font-weight: 700;
+            letter-spacing: 0.1em;
+            font-style: normal;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .slide.dark .pull-quote { border-left-color: #ff6644; }
+        .slide.dark .pull-quote p { color: #f2f2f2; }
+        .slide.dark .pull-quote cite { color: #aaa; }
+        .pull-quote-bottom {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            bottom: 216px;
+        }
+        .pull-quote-compact p { font-size: 22px; }
+        .pull-quote-compact cite { font-size: 14px; }
+        .slide.has-pull-quote h2.speak-lg { top: 200px; font-size: 84px; }
+        .slide.has-pull-quote .lede.under-lg { top: 420px; font-size: 28px; }
+        .slide.has-pull-quote .lede { top: 400px; font-size: 30px; }
+        .slide.has-pull-quote .tiles { top: 280px; bottom: 384px; }
+        .slide.has-pull-quote .split { bottom: 320px; }
+        .slide.has-pull-quote .two-col { bottom: 320px; }
+        .slide.has-pull-quote .points { top: 300px; gap: 24px; }
+        .slide.has-pull-quote .points li { font-size: 36px; }
+        .slide.has-pull-quote.with-cmd h2 { font-size: 52px; top: 140px; }
+        .slide.has-pull-quote.with-cmd .cmd { top: 340px; font-size: 24px; padding: 28px 36px; }
+        .slide.has-pull-quote .prompt-box { top: 360px; font-size: 32px; padding: 36px 44px; }
         .close-slide h1 {
             position: absolute;
             left: 80px;
@@ -496,31 +581,43 @@
                 <h1 class="reveal" data-ed="d2-s01-h1">Customizing Your<br>Agent Workflow</h1>
                 <p class="sub reveal" data-ed="d2-s01-sub">Best practices, then labs. One personal file. Repo files still win.</p>
                 <p class="byline reveal" data-ed="d2-s01-by">Nuuly Engineering · 60 minutes</p>
-                <p class="slide-num">01 / 25</p>
+                <p class="slide-num">01 / 26</p>
                 <div class="speaker-notes">This is Draft 2. We will spend about fifteen minutes on the practices that matter, including git for ~/.agents, three writing lines, and do not explore in the main loop, then you will write one personal file and point each product you use at it. Open an application repo that already has AGENTS.md. Clone the lab folder if you have not: git clone ai-workshops, then cd to workshops/customizing-agent-workflow/lab.</div>
             </section>
 
-            <section class="slide dark" data-slide="2">
+            <section class="slide dark has-pull-quote" data-slide="2">
                 <p class="kicker reveal"><span class="num">02</span> Practice</p>
                 <h2 class="speak-lg reveal" data-ed="d2-s02-h2">Repo files win.</h2>
                 <p class="lede under-lg reveal" data-ed="d2-s02-lede">If a personal rule and AGENTS.md disagree, follow the repo file.</p>
-                <p class="slide-num">02 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s02-pq">The closest AGENTS.md to the edited file wins; explicit user chat prompts override everything.</p>
+                    <cite data-ed="d2-s02-pq-c">agents.md — FAQ</cite>
+                </blockquote>
+                <p class="slide-num">02 / 26</p>
                 <div class="speaker-notes">Say this with me: Repo files win. Personal config is allowed. It does not override AGENTS.md, repo skills, repo hooks, or repo rules. Markdown only advises. Nothing automatically enforces that for personal files. That is why every personal file starts with a Precedence block.</div>
             </section>
 
-            <section class="slide dark" data-slide="3">
+            <section class="slide dark has-pull-quote" data-slide="3">
                 <p class="kicker reveal"><span class="num">03</span> Practice</p>
                 <h2 class="speak-lg reveal" data-ed="d2-s03-h2">Hooks stop.<br>Markdown advises.</h2>
                 <p class="lede under-lg reveal" data-ed="d2-s03-lede">A personal rule cannot disable a repo hook. AGENTS.md will not return deny.</p>
-                <p class="slide-num">03 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s03-pq">To block an action regardless of what Claude decides, use a PreToolUse hook instead.</p>
+                    <cite data-ed="d2-s03-pq-c">Claude Code docs — CLAUDE.md vs auto memory</cite>
+                </blockquote>
+                <p class="slide-num">03 / 26</p>
                 <div class="speaker-notes">A repo hook can block a git push or deny a tool call. A personal rule in markdown cannot turn that off. If the repo already asks before git push, a personal confirm-before-push line is extra advice, not a replacement.</div>
             </section>
 
-            <section class="slide" data-slide="4">
+            <section class="slide has-pull-quote" data-slide="4">
                 <p class="kicker reveal"><span class="num">04</span> Practice</p>
                 <h2 class="reveal" data-ed="d2-s04-h2">Edit one file.</h2>
                 <p class="lede reveal" data-ed="d2-s04-lede">~/.agents/instructions/shared.md is the personal source. Not a replacement for repo AGENTS.md or repo .agents/skills.</p>
-                <p class="slide-num">04 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s04-pq">AGENTS.md complements this by containing the extra, sometimes detailed context coding agents need.</p>
+                    <cite data-ed="d2-s04-pq-c">agents.md — Why AGENTS.md?</cite>
+                </blockquote>
+                <p class="slide-num">04 / 26</p>
                 <div class="speaker-notes">Not every engineer uses Cursor. Do not make ~/.cursor/rules the source of truth. Edit shared.md once. Lab B writes thin wrappers so Claude, Cursor, Gemini, and Firebender follow that file. Personal ~/.agents is not the team harness in the application repo.</div>
             </section>
 
@@ -531,27 +628,35 @@
 git -C ~/.agents init
 # Lab A: cp templates/agents.gitignore ~/.agents/.gitignore</pre>
                 <p class="expect reveal" data-ed="d2-s05git-ex">Private remote only. Never commit secrets. This is not a team repo.</p>
-                <p class="slide-num">05 / 25</p>
+                <p class="slide-num">05 / 26</p>
                 <div class="speaker-notes">Treat ~/.agents as a personal dotfiles tree so a new laptop can reinstall. Run the copy from the cloned lab folder. Wrappers under ~/.claude and ~/.cursor stay outside this git tree unless you add them on purpose. Do not push to a public remote. Lab A can run the same commands after shared.md exists.</div>
             </section>
 
-            <section class="slide" data-slide="6">
+            <section class="slide has-pull-quote" data-slide="6">
                 <p class="kicker reveal"><span class="num">06</span> Practice</p>
                 <h2 class="reveal" data-ed="d2-s05-h2">Point tools at it.<br>Do not copy by hand.</h2>
                 <p class="lede reveal" data-ed="d2-s05-lede">lab/wire-personal-agents.sh writes wrappers. Claude @-imports. Gemini and Firebender embed a copy — re-run after you edit shared.md.</p>
-                <p class="slide-num">06 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s06-pq">Agents automatically read the nearest file in the directory tree, so the closest one takes precedence.</p>
+                    <cite data-ed="d2-s06-pq-c">agents.md — nested AGENTS.md</cite>
+                </blockquote>
+                <p class="slide-num">06 / 26</p>
                 <div class="speaker-notes">If you paste the same paragraph into three home folders, they drift. The wire script is the bridge. Use --tools= if you only use some products. Cursor Cloud Agents never see this laptop file. That is the next slide.</div>
             </section>
 
-            <section class="slide" data-slide="7">
+            <section class="slide has-pull-quote" data-slide="7">
                 <p class="kicker reveal"><span class="num">07</span> Practice</p>
                 <h2 class="reveal" data-ed="d2-s06-h2">Cloud does not<br>see your laptop.</h2>
                 <p class="lede reveal" data-ed="d2-s06-lede">If a pref must apply on a Cloud Agent run, put it in the repo harness or Team Rules before you start. Do not symlink ~/.agents into a repo.</p>
-                <p class="slide-num">07 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s07-pq">Cloud agents read AGENTS.md files. We recommend adding a dedicated section for Cloud-only setup and testing instructions.</p>
+                    <cite data-ed="d2-s07-pq-c">Cursor Cloud Agent setup docs</cite>
+                </blockquote>
+                <p class="slide-num">07 / 26</p>
                 <div class="speaker-notes">Desktop and Cloud are different runtimes. The Cloud VM clones the repo. It never loads ~/.agents or ~/.cursor/rules. Promote team requirements like PR body format. Keep writing style personal unless the whole team adopts it.</div>
             </section>
 
-            <section class="slide" data-slide="8">
+            <section class="slide has-pull-quote" data-slide="8">
                 <p class="kicker reveal"><span class="num">08</span> Practice</p>
                 <div class="tiles">
                     <div class="tile ink reveal">
@@ -565,11 +670,15 @@ git -C ~/.agents init
                         <p data-ed="d2-s07-p2">How to build this repo. A second copy of a repo skill. A global --no-verify rule. Tokens in a git-synced tree.</p>
                     </div>
                 </div>
-                <p class="slide-num">08 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s08-pq">Context must be treated as a finite resource with diminishing marginal returns.</p>
+                    <cite data-ed="d2-s08-pq-c">Anthropic — Effective context engineering for AI agents</cite>
+                </blockquote>
+                <p class="slide-num">08 / 26</p>
                 <div class="speaker-notes">Follow the open repo's hook rules. Some Nuuly repos require --no-verify for a known hook problem. Others forbid skipping hooks for new lint. Do not write a personal always or never. Add a line to shared.md when you catch yourself re-explaining the same habit.</div>
             </section>
 
-            <section class="slide" data-slide="9">
+            <section class="slide has-pull-quote" data-slide="9">
                 <p class="kicker reveal"><span class="num">09</span> Practice</p>
                 <h2 class="reveal" data-ed="d2-s09c-h2">Three writing lines.</h2>
                 <ul class="points">
@@ -577,15 +686,23 @@ git -C ~/.agents init
                     <li class="reveal"><span class="mark">02</span><span data-ed="d2-s09c-p2">No trailing summary of the diff.</span></li>
                     <li class="reveal"><span class="mark">03</span><span data-ed="d2-s09c-p3">State each finding once.</span></li>
                 </ul>
-                <p class="slide-num">09 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s09-pq">Because they're context rather than enforced configuration, how you write instructions affects how reliably Claude follows them.</p>
+                    <cite data-ed="d2-s09-pq-c">Claude Code docs — write effective instructions</cite>
+                </blockquote>
+                <p class="slide-num">09 / 26</p>
                 <div class="speaker-notes">Keep these three in shared.md. They are the default writing style for this workshop. Lab B load check is quoting the Precedence line, not a new closing sentence on every reply.</div>
             </section>
 
-            <section class="slide dark" data-slide="10">
+            <section class="slide dark has-pull-quote" data-slide="10">
                 <p class="kicker reveal"><span class="num">10</span> Practice</p>
                 <h2 class="speak-lg reveal" data-ed="d2-s10o-h2">Main thread plans.</h2>
                 <p class="lede under-lg reveal" data-ed="d2-s10o-lede">Do not explore in the main loop. Spike unknowns in a subagent or a second session. Return a short finding.</p>
-                <p class="slide-num">10 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s10-pq">Agents load skills progressively, pulling in more detail only as a task calls for it.</p>
+                    <cite data-ed="d2-s10-pq-c">Agent Skills specification — progressive disclosure</cite>
+                </blockquote>
+                <p class="slide-num">10 / 26</p>
                 <div class="speaker-notes">The chat you will keep using is the orchestrator. Cursor Agent and Claude Code can spawn a worker. Gemini CLI: start a second session. Do not trial-and-error APIs or re-read huge files in the main thread. Mechanical work still uses a cheaper model — that stays on the put-in-shared slide.</div>
             </section>
 
@@ -597,7 +714,7 @@ git -C ~/.agents init
                     <li class="reveal"><span class="mark">02</span><span data-ed="d2-s08-p2">Product lists it — /memory, quote test, or new Agent chat</span></li>
                     <li class="reveal"><span class="mark">03</span><span data-ed="d2-s08-p3">Smoke test — repo AGENTS.md wins on commits</span></li>
                 </ul>
-                <p class="slide-num">11 / 25</p>
+                <p class="slide-num">11 / 26</p>
                 <div class="speaker-notes">You will run these three steps in the labs. Android Studio Gemini is not Gemini CLI. Do not score Studio against /memory show. Advance to labs. Run only the products you actually use.</div>
             </section>
 
@@ -605,7 +722,7 @@ git -C ~/.agents init
                 <p class="kicker reveal"><span class="num">12</span> Labs</p>
                 <h2 class="reveal" data-ed="d2-s09-h2">Labs</h2>
                 <p class="sec-note reveal" data-ed="d2-s09-note">Open an app repo with AGENTS.md. Clone lab/. Skip any product you do not use.</p>
-                <p class="slide-num">12 / 25</p>
+                <p class="slide-num">12 / 26</p>
                 <div class="speaker-notes">Keep handout.md open if you want the long form. From here we walk one action per slide. Clone command is on the next slide if anyone still needs it. Ten minutes for Lab A.</div>
             </section>
 
@@ -617,7 +734,7 @@ git -C ~/.agents init
 cp templates/shared.md ~/.agents/instructions/shared.md
 cp templates/agents.gitignore ~/.agents/.gitignore</pre>
                 <p class="expect reveal" data-ed="d2-s10-ex">Run from the cloned lab/ folder. Do not copy this file into each product by hand.</p>
-                <p class="slide-num">13 / 25</p>
+                <p class="slide-num">13 / 26</p>
                 <div class="speaker-notes">Wait until most people have the file. If they write from scratch, the path is still ~/.agents/instructions/shared.md. Next slide is the Precedence block they must keep.</div>
             </section>
 
@@ -629,7 +746,7 @@ cp templates/agents.gitignore ~/.agents/.gitignore</pre>
 
 Repo AGENTS.md, .agents/skills/, repo hooks, and repo rules win.
 These lines are personal prefs for this machine. On conflict, follow the repo.</pre>
-                <p class="slide-num">14 / 25</p>
+                <p class="slide-num">14 / 26</p>
                 <div class="speaker-notes">This is already in the template. Do not delete it. It tells the agent where personal prefs sit. It does not replace repo instructions.</div>
             </section>
 
@@ -641,7 +758,7 @@ These lines are personal prefs for this machine. On conflict, follow the repo.</
                     <li class="reveal"><span class="mark">—</span><span data-ed="d2-s12-p1">No preamble. No trailing summary. State each finding once.</span></li>
                     <li class="reveal"><span class="mark">—</span><span data-ed="d2-s12-p2">Add tool and cost lines. Do not copy repo engineering.</span></li>
                 </ul>
-                <p class="slide-num">15 / 25</p>
+                <p class="slide-num">15 / 26</p>
                 <div class="speaker-notes">The template already has the three writing lines and the orchestrator lines. Delete only what you do not want. Do not copy branch-name rules, commit flags, or generate-client commands from the repo. Lab B load check is quoting Precedence. Work silently. Raise a hand if the path is wrong.</div>
             </section>
 
@@ -649,7 +766,7 @@ These lines are personal prefs for this machine. On conflict, follow the repo.</
                 <p class="kicker reveal"><span class="num">16</span> Lab A · done</p>
                 <h2 class="speak-lg reveal" data-ed="d2-s13-h2">Save only<br>shared.md.</h2>
                 <p class="lede under-lg reveal" data-ed="d2-s13-lede">Lab A is done when that file exists and starts with the Precedence block.</p>
-                <p class="slide-num">16 / 25</p>
+                <p class="slide-num">16 / 26</p>
                 <div class="speaker-notes">Confirm with the room. Then Lab B: seventeen minutes. Wire script first, then only the products you use.</div>
             </section>
 
@@ -660,11 +777,11 @@ These lines are personal prefs for this machine. On conflict, follow the repo.</
                 <pre class="cmd reveal" data-ed="d2-s14-cmd">bash wire-personal-agents.sh
 bash wire-personal-agents.sh --check</pre>
                 <p class="expect reveal" data-ed="d2-s14-ex">Expect: Personal agents wire: ok. Optional: --tools=claude,cursor</p>
-                <p class="slide-num">17 / 25</p>
+                <p class="slide-num">17 / 26</p>
                 <div class="speaker-notes">From the cloned lab/ directory. If GEMINI.md already exists and is unmanaged, the script reports a conflict — back it up or add the managed markers. Next four slides are per product. Skip any you do not use. I will demo a tool the room lacks.</div>
             </section>
 
-            <section class="slide with-cmd" data-slide="18">
+            <section class="slide with-cmd has-pull-quote" data-slide="18">
                 <p class="kicker reveal"><span class="num">18</span> Lab B · Cursor</p>
                 <p class="lab-meta reveal">Skip if unused</p>
                 <h2 class="reveal" data-ed="d2-s15-h2">File, then quote.</h2>
@@ -672,11 +789,15 @@ bash wire-personal-agents.sh --check</pre>
 
 New Agent chat:
 Quote the Precedence line from ~/.agents/instructions/shared.md</pre>
-                <p class="slide-num">18 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s18-pq">Rules are applied in this order: Team Rules → Project Rules → User Rules. All applicable rules are merged; earlier sources take precedence when guidance conflicts.</p>
+                    <cite data-ed="d2-s18-pq-c">Cursor Rules docs — precedence</cite>
+                </blockquote>
+                <p class="slide-num">18 / 26</p>
                 <div class="speaker-notes">Wrapper must mention shared.md. Cloud Agents do not load this — handout section seven if someone asks. Load check is quoting the Precedence line, not a trailing-summary test line.</div>
             </section>
 
-            <section class="slide with-cmd" data-slide="19">
+            <section class="slide with-cmd has-pull-quote" data-slide="19">
                 <p class="kicker reveal"><span class="num">19</span> Lab B · Claude</p>
                 <p class="lab-meta reveal">Skip if unused</p>
                 <h2 class="reveal" data-ed="d2-s16-h2">New session.<br>/memory</h2>
@@ -686,7 +807,11 @@ Quote the Precedence line from ~/.agents/instructions/shared.md</pre>
 
 /memory
 # or /context</pre>
-                <p class="slide-num">19 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s19-pq">Because they're context rather than enforced configuration, how you write instructions affects how reliably Claude follows them.</p>
+                    <cite data-ed="d2-s19-pq-c">Claude Code docs — write effective instructions</cite>
+                </blockquote>
+                <p class="slide-num">19 / 26</p>
                 <div class="speaker-notes">Confirm personal CLAUDE.md or the @ import appears. Chat-only Desktop Projects do not auto-load this. Start a local-folder Claude Code session in the app repo.</div>
             </section>
 
@@ -699,11 +824,11 @@ Quote the Precedence line from ~/.agents/instructions/shared.md</pre>
 /memory refresh
 /memory show</pre>
                 <p class="expect reveal" data-ed="d2-s17-ex">GEMINI.md and repo AGENTS.md listed. Android Studio Gemini is not this product.</p>
-                <p class="slide-num">20 / 25</p>
+                <p class="slide-num">20 / 26</p>
                 <div class="speaker-notes">Do not use /memory show for Android Studio Gemini. After you edit shared.md later, re-run the wire script so the Gemini copy stays current.</div>
             </section>
 
-            <section class="slide with-cmd" data-slide="21">
+            <section class="slide with-cmd has-pull-quote" data-slide="21">
                 <p class="kicker reveal"><span class="num">21</span> Lab B · Firebender</p>
                 <p class="lab-meta reveal">Skip if unused</p>
                 <h2 class="reveal" data-ed="d2-s18-h2">ls, then quote.</h2>
@@ -711,7 +836,11 @@ Quote the Precedence line from ~/.agents/instructions/shared.md</pre>
 
 New Firebender chat:
 Quote the Precedence line from my personal prefs.</pre>
-                <p class="slide-num">21 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s21-pq">All rules from both locations are combined and applied together.</p>
+                    <cite data-ed="d2-s21-pq-c">Firebender rules docs — configuration locations</cite>
+                </blockquote>
+                <p class="slide-num">21 / 26</p>
                 <div class="speaker-notes">Project .cursor/rules in the app repo is not this wrapper. Re-run wire after editing shared.md. Lab B is done when each product you use passed file check and loaded check. Seven minutes for Lab C.</div>
             </section>
 
@@ -720,16 +849,20 @@ Quote the Precedence line from my personal prefs.</pre>
                 <p class="lab-meta reveal">7 minutes</p>
                 <h2 class="reveal" data-ed="d2-s19-h2">Same prompt in each<br>product you verified.</h2>
                 <div class="prompt-box reveal" data-ed="d2-s19-q">Draft a PR body for my current branch.</div>
-                <p class="slide-num">22 / 25</p>
+                <p class="slide-num">22 / 26</p>
                 <div class="speaker-notes">Open the application repo in that product first. If they have a Goal / Ran / Doubt habit, those headings should appear. If not, any structured body is fine. Next prompt is the pass/fail.</div>
             </section>
 
-            <section class="slide dark" data-slide="23">
+            <section class="slide dark has-pull-quote" data-slide="23">
                 <p class="kicker reveal"><span class="num">23</span> Lab C · prompt 2</p>
                 <p class="lab-meta reveal">Repo must win</p>
                 <h2 class="reveal" data-ed="d2-s20-h2">Pass = repo rule.</h2>
                 <div class="prompt-box reveal" data-ed="d2-s20-q">What does AGENTS.md say about commits? Should you commit without me asking?</div>
-                <p class="slide-num">23 / 25</p>
+                <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
+                    <p data-ed="d2-s23-pq">The closest AGENTS.md to the edited file wins; explicit user chat prompts override everything.</p>
+                    <cite data-ed="d2-s23-pq-c">agents.md — FAQ</cite>
+                </blockquote>
+                <p class="slide-num">23 / 26</p>
                 <div class="speaker-notes">Pass: the agent cites the repo — for example do not commit unless explicitly asked. Fail: it follows only the personal habit and ignores AGENTS.md. If they fail, remove duplicate commit lines from shared.md. Re-run wire if they use Gemini or Firebender. Repeat both prompts in each product they verified.</div>
             </section>
 
@@ -741,17 +874,74 @@ Quote the Precedence line from my personal prefs.</pre>
 
 Mark Yes / No / N/A
 Keep a copy. Fix No rows from lab/README.md</pre>
-                <p class="slide-num">24 / 25</p>
-                <div class="speaker-notes">Success is a file on disk and a completed row for each product they use — not tip notes alone. Then close.</div>
+                <p class="slide-num">24 / 26</p>
+                <div class="speaker-notes">Success is a file on disk and a completed row for each product they use — not tip notes alone. Next slide is vendor sources. Then close.</div>
             </section>
 
-            <section class="slide dark close-slide" data-slide="25">
+            <section class="slide ref-slide" data-slide="25">
+                <p class="kicker reveal"><span class="num">25</span> References</p>
+                <h2 class="reveal" data-ed="d2-s25-h2">Best-practice sources</h2>
+                <div class="ref-grid reveal">
+                    <div class="reveal">
+                        <a href="https://agents.md/" data-ed="d2-s25-a1">agents.md</a>
+                        <span class="hint" data-ed="d2-s25-h1">Cross-tool AGENTS.md standard</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://cursor.com/docs/rules" data-ed="d2-s25-a2">Cursor Rules</a>
+                        <span class="hint" data-ed="d2-s25-h2b">.mdc rules and AGENTS.md</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://agentskills.io/specification" data-ed="d2-s25-a3">Agent Skills spec</a>
+                        <span class="hint" data-ed="d2-s25-h3">Portable SKILL.md format</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://cursor.com/docs/cloud-agent/setup" data-ed="d2-s25-a4">Cursor Cloud setup</a>
+                        <span class="hint" data-ed="d2-s25-h4">Cloud environments and AGENTS.md</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" data-ed="d2-s25-a5">Context engineering</a>
+                        <span class="hint" data-ed="d2-s25-h5">Anthropic — lean instructions</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://code.claude.com/docs/en/features-overview" data-ed="d2-s25-a6">Claude Code features</a>
+                        <span class="hint" data-ed="d2-s25-h6">CLAUDE.md, skills, hooks, subagents</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://www.aibuilderclub.com/blog/reviewing-ai-generated-pull-requests" data-ed="d2-s25-a7">Review AI PRs</a>
+                        <span class="hint" data-ed="d2-s25-h7">Goal / Ran / Doubt author packet</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://code.claude.com/docs/en/claude-md" data-ed="d2-s25-a8">Claude Code memory</a>
+                        <span class="hint" data-ed="d2-s25-h8">CLAUDE.md and @AGENTS.md</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://developer.android.com/studio/gemini/agent-files" data-ed="d2-s25-a9">Android Studio Gemini</a>
+                        <span class="hint" data-ed="d2-s25-h9">Studio reads AGENTS.md</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html" data-ed="d2-s25-a10">Gemini CLI context</a>
+                        <span class="hint" data-ed="d2-s25-h10">GEMINI.md and context.fileName</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://antigravity.google/docs/ide/rules/" data-ed="d2-s25-a11">Antigravity rules</a>
+                        <span class="hint" data-ed="d2-s25-h11">~/.gemini/GEMINI.md</span>
+                    </div>
+                    <div class="reveal">
+                        <a href="https://docs.firebender.com/api-reference/rules" data-ed="d2-s25-a12">Firebender rules</a>
+                        <span class="hint" data-ed="d2-s25-h12">~/.firebender/rules/</span>
+                    </div>
+                </div>
+                <p class="ref-note reveal" data-ed="d2-s25-note">Full list in handout.md → Related</p>
+                <p class="slide-num">25 / 26</p>
+                <div class="speaker-notes">These are the vendor and open-standard docs used to build this workshop. Full list is in handout.md under Related. Click a link to open it, or read after class. Goal / Ran / Doubt is in pr-author-packet-rule.md. Advance to close.</div>
+            </section>
+
+            <section class="slide dark close-slide" data-slide="26">
                 <div class="signal-sq reveal" aria-hidden="true"></div>
                 <h1 class="reveal" data-ed="d2-s22-h1">The repo still<br>teaches the codebase.</h1>
                 <div class="rule reveal"></div>
                 <p class="sub reveal" data-ed="d2-s22-sub">handout.md · lab/README.md · lab/verify-checklist.md</p>
-                <p class="slide-num">25 / 25</p>
-                <div class="speaker-notes">You wrote personal prefs on this machine. Edit ~/.agents/instructions/shared.md once. If a personal rule and AGENTS.md disagree, follow the repo. I am here for a few minutes of setup help. Thank you.</div>
+                <p class="slide-num">26 / 26</p> Edit ~/.agents/instructions/shared.md once. If a personal rule and AGENTS.md disagree, follow the repo. I am here for a few minutes of setup help. Thank you.</div>
             </section>
 
         </main>
@@ -767,7 +957,7 @@ Keep a copy. Fix No rows from lab/README.md</pre>
 
     <nav class="deck-controls" aria-label="Slide progress">
         <div id="dots"></div>
-        <span class="counter" id="counter">1 / 25</span>
+        <span class="counter" id="counter">1 / 26</span>
         <button class="notes-btn" id="notesToggle" type="button" aria-pressed="false" title="Speaker notes (N)">N</button>
     </nav>
 

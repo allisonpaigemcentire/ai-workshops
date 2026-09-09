@@ -9,6 +9,7 @@ Map on your machine:
 |----------------|----------------|
 | `home-agents/` | `~/.agents/` |
 | `home-agents/instructions/shared.md` | `~/.agents/instructions/shared.md` |
+| `home-agents/skills/create-worktree/` | `~/.agents/skills/create-worktree/` |
 | `wrappers/claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | `wrappers/cursor/personal-instructions.mdc` | `~/.cursor/rules/personal-instructions.mdc` |
 | `wrappers/gemini/GEMINI.md` | `~/.gemini/GEMINI.md` |
@@ -38,9 +39,20 @@ here are so you can see the shape without running it.
    a subagent or a second session.
 10. **Same three checks.** See `verify.md`.
 
+## Sample personal skill
+
+`home-agents/skills/create-worktree/` is one laptop-only recipe: spin up a
+git worktree per ticket so you never `git checkout` in the primary tree.
+The script does the git work. The `SKILL.md` tells the agent to run that
+script. That is the design in handout section 11.
+
+It is **not** a repo skill. Do not copy it into an application repo's
+`.agents/skills/`. After you copy it to `~/.agents/skills/`, symlink
+Cursor/Claude discovery dirs if needed (see that skill's README).
+
 ## What this example does not include
 
-- Personal skills under `~/.agents/skills/`
+- More personal skills than this one sample
 - A Claude subagent roster under `~/.agents/agents/`
 - Extra Cursor-only `.mdc` files (`lab/sync-personal-rules.sh` is optional)
 
@@ -51,10 +63,11 @@ Those stay in the handout for after class.
 From this `example/` directory, after you have cloned the workshop:
 
 ```bash
-mkdir -p ~/.agents/instructions
+mkdir -p ~/.agents/instructions ~/.agents/skills
 cp home-agents/instructions/shared.md ~/.agents/instructions/shared.md
 cp home-agents/.gitignore ~/.agents/.gitignore
 cp home-agents/README.md ~/.agents/README.md
+cp -R home-agents/skills/create-worktree ~/.agents/skills/create-worktree
 git -C ~/.agents init
 ```
 
