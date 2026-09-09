@@ -26,11 +26,6 @@ application repos.
 
 All participant and presenter files for this workshop live in this folder.
 
-When you edit the Draft 2 HTML or the handout, copy the same bytes into the
-curriculum repo (`bookish-octo-barnacle`: repo-root Draft 2 HTML and
-`PHASE_2/workshops/CustomizingWorkflow/customizing-your-agent-workflow.md`).
-Do not leave the two copies on different contents.
-
 ## Getting started
 
 1. Clone the lab folder (see [lab/README.md](lab/README.md)).
