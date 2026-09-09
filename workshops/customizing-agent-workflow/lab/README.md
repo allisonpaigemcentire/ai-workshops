@@ -4,7 +4,7 @@ Participant-facing starter kit. Write prefs once in `~/.agents/`, point each
 product at that file, then verify the products you use.
 
 **Step-by-step walkthrough:** [lab-walkthrough.md](lab-walkthrough.md) (Labs A,
-B, C, D, and exit checks with time boxes).
+B, C, and D with time boxes).
 
 ## Clone this lab
 
@@ -85,7 +85,7 @@ your laptop.
    the Precedence block.
 2. Product lists files: new session; `/memory` or `/context` shows personal
    `CLAUDE.md` and/or the `@` import.
-3. Smoke test: see [verify-checklist.md](verify-checklist.md).
+3. Smoke test: Lab C — same PR-body prompt in an app repo and in this clone.
 
 ### Cursor
 
@@ -93,14 +93,14 @@ your laptop.
    `ls -l ~/.cursor/rules/creating-pull-requests.mdc`.
 2. Product lists files: new Agent chat — quote the Precedence line from
    personal prefs. Do not put the file path in the prompt.
-3. Smoke test: see [verify-checklist.md](verify-checklist.md).
+3. Smoke test: Lab C — same PR-body prompt in an app repo and in this clone.
 
 ### Gemini CLI
 
 1. File on disk: `~/.gemini/GEMINI.md` exists with the Precedence line.
 2. Product lists files: `/memory refresh`, then `/memory show` — confirm
    `GEMINI.md` and repo `AGENTS.md` appear.
-3. Smoke test: see [verify-checklist.md](verify-checklist.md).
+3. Smoke test: Lab C — same PR-body prompt in an app repo and in this clone.
 
 Android Studio Gemini is **not** Gemini CLI. Do not use `/memory show` for Studio.
 
@@ -109,11 +109,7 @@ Android Studio Gemini is **not** Gemini CLI. Do not use `/memory show` for Studi
 1. File on disk: `ls -l ~/.firebender/rules/*.mdc` — wrapper exists.
 2. Product lists files: new Firebender chat — ask it to quote the Precedence
    line from your personal prefs.
-3. Smoke test: see [verify-checklist.md](verify-checklist.md).
-
-## Step 4 — Exit checklist
-
-Fill in [verify-checklist.md](verify-checklist.md). Keep a copy for yourself.
+3. Smoke test: Lab C — same PR-body prompt in an app repo and in this clone.
 
 ## Optional — extra Cursor-only rules
 
@@ -126,7 +122,7 @@ default. Workshop default is `shared.md` plus `wire-personal-agents.sh`.
 
 - [Handout](../handout.md) — full guide (precedence, Cloud Agents, skills)
 - [Example setup](../example/) — sample `~/.agents/` plus product wrappers; [walkthrough](../example/walkthrough.md)
-- [Slides](../slides.html) — 19 slides, no speaker notes; practices, Labs A–D, exit, sources
+- [Slides](../slides.html) — 17 slides, no speaker notes; practices, Labs A–D, sources
 - [Lab D prompt](lab-d-prompt.md) — main-thread / subagent spawn test
 - [PR author packet](../pr-author-packet-rule.md) — Goal / Ran / Doubt example
 

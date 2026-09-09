@@ -22,7 +22,6 @@ cd ai-workshops/workshops/customizing-agent-workflow/example
 example/
 ├── README.md                 # Map: this folder → paths on your laptop
 ├── walkthrough.md            # This file
-├── verify.md                 # Filled-in Lab B/C checklist for this sample
 ├── home-agents/              # Maps to ~/.agents/
 │   ├── README.md
 │   ├── .gitignore
@@ -164,10 +163,9 @@ subagent roster. Those are after-class (handout sections 11–12).
 
 ---
 
-## Step 5 — Read the sample verify sheet
+## Step 5 — Confirm Labs B–D would pass for this sample
 
-Open `verify.md`. That is Labs B and C already marked **Yes** for this
-sample. On your machine you fill `lab/verify-checklist.md` yourself.
+This sample is already wired. On your machine, Labs B–D are the real checks.
 
 Load checks (new session, do not paste the file path into the Cursor or
 Firebender quote prompt):

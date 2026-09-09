@@ -9,9 +9,8 @@ application repos.
 - **Duration:** 60 minutes
 - **Prerequisites:** an application repo with `AGENTS.md`; Cursor, Claude Code,
   Gemini CLI, and/or Firebender installed on your machine
-- **What participants leave with:** `~/.agents/instructions/shared.md` on disk,
-  product wrappers from `wire-personal-agents.sh`, and a completed verify
-  checklist for each product they use
+- **What participants leave with:** `~/.agents/instructions/shared.md` on disk
+  and product wrappers from `wire-personal-agents.sh`
 
 ## Contents of this folder
 
@@ -21,7 +20,7 @@ application repos.
 | [handout.md](handout.md) | Full guide: precedence, per-tool loading, `~/.agents/` source of truth, verify steps, Cloud promotion |
 | [lab/](lab/) | Templates, `wire-personal-agents.sh`, verify checklist |
 | [example/](example/) | Sample finished personal setup (`~/.agents/` + product wrappers). Start at [example/walkthrough.md](example/walkthrough.md) |
-| [slides.html](slides.html) | **Live deck:** 19 slides, no speaker notes — clone, practices, Labs A–D, exit, sources |
+| [slides.html](slides.html) | **Live deck:** 17 slides, no speaker notes — clone, practices, Labs A–D, sources |
 | [customizing-your-agent-workflow-slides-draft-3.html](customizing-your-agent-workflow-slides-draft-3.html) | Same deck with speaker notes (facilitator) |
 | [handout-laptop-vs-repo-adapters.md](handout-laptop-vs-repo-adapters.md) | Why the laptop wire script is allowed and a repo SessionStart wrapper script is not |
 

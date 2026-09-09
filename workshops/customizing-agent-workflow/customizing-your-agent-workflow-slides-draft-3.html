@@ -614,27 +614,25 @@
         <main class="deck-stage" id="deckStage">
 
             <section class="slide title-slide" data-slide="1">
-                <p class="kicker reveal"><span class="num">01</span> Workshop</p>
+                <p class="kicker reveal"><span class="num">1</span> Workshop</p>
                 <div class="signal-sq reveal" aria-hidden="true"></div>
                 <h1 class="reveal" data-ed="d3-s01-h1">Customizing Your<br>Agent Workflow</h1>
                 <p class="sub reveal" data-ed="d3-s01-sub">Personal prefs fill gaps. Repo files still win.</p>
                 <p class="byline reveal" data-ed="d3-s01-by">Nuuly Engineering</p>
-                <p class="slide-num">01 / 19</p>
+                <p class="slide-num">01 / 17</p>
                 <div class="speaker-notes">Title. Next slide is clone and cd. After that, each practice slide has four parts: the practice in plain English, vendor or open-standard links, a snippet from example/, and why we do it this way.</div>
             </section>
-
             <section class="slide" data-slide="2">
-                <p class="kicker reveal"><span class="num">02</span> Setup</p>
+                <p class="kicker reveal"><span class="num">2</span> Setup</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s02setup-h2">Clone, then cd.</h2>
                 <pre class="cmd reveal" data-ed="d3-s02setup-cmd">git clone https://github.com/allisonpaigemcentire/ai-workshops.git
 cd ai-workshops/workshops/customizing-agent-workflow</pre>
                 <p class="expect reveal" data-ed="d3-s02setup-ex">You are in the right folder when you see example/, handout.md, and lab/. If you already cloned, only run the cd line.</p>
-                <p class="slide-num">02 / 19</p>
+                <p class="slide-num">02 / 17</p>
                 <div class="speaker-notes">Wait until most people are in customizing-agent-workflow. That folder has example/ (sample ~/.agents/), handout.md, and lab/ (templates and wire script). Do not cd into lab/ unless you are running the timed labs. Open an application repo that already has AGENTS.md in another window.</div>
             </section>
-
             <section class="slide" data-slide="3">
-                <p class="kicker reveal"><span class="num">03</span> Practice</p>
+                <p class="kicker reveal"><span class="num">3</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s02-h2">Repo files win.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -665,12 +663,11 @@ These lines are personal prefs for this machine.
 On conflict, follow the repo.</pre>
                     </div>
                 </div>
-                <p class="slide-num">03 / 19</p>
+                <p class="slide-num">03 / 17</p>
                 <div class="speaker-notes">Nearest AGENTS.md to the edited file wins. Chat overrides files. Personal config is allowed and does not override the repo. Nothing auto-enforces that for personal markdown — that is why the block is first.</div>
             </section>
-
             <section class="slide dark" data-slide="4">
-                <p class="kicker reveal"><span class="num">04</span> Practice</p>
+                <p class="kicker reveal"><span class="num">4</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s03-h2">Hooks stop. Markdown advises.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -702,12 +699,11 @@ On conflict, follow the repo.</pre>
   `--no-verify`.</pre>
                     </div>
                 </div>
-                <p class="slide-num">04 / 19</p>
+                <p class="slide-num">04 / 17</p>
                 <div class="speaker-notes">To block an action regardless of what the model decides, use a PreToolUse hook. A personal confirm-before-push line is not a replacement for a repo that already asks on git push.</div>
             </section>
-
             <section class="slide" data-slide="5">
-                <p class="kicker reveal"><span class="num">05</span> Practice</p>
+                <p class="kicker reveal"><span class="num">5</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s04-h2">Edit one personal file.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -738,12 +734,11 @@ Do not paste the same prefs into each
 product by hand.</pre>
                     </div>
                 </div>
-                <p class="slide-num">05 / 19</p>
+                <p class="slide-num">05 / 17</p>
                 <div class="speaker-notes">AGENTS.md is the repo extra context. shared.md is laptop-only. Wrappers are adapters, not a second source of truth.</div>
             </section>
-
             <section class="slide" data-slide="6">
-                <p class="kicker reveal"><span class="num">06</span> Practice</p>
+                <p class="kicker reveal"><span class="num">6</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s05-h2">Put ~/.agents in git.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -775,12 +770,11 @@ product by hand.</pre>
 .DS_Store</pre>
                     </div>
                 </div>
-                <p class="slide-num">06 / 19</p>
+                <p class="slide-num">06 / 17</p>
                 <div class="speaker-notes">Copy agents.gitignore in Lab A. git init. Do not push ~/.agents to a public GitHub repo.</div>
             </section>
-
             <section class="slide dark" data-slide="7">
-                <p class="kicker reveal"><span class="num">07</span> Practice</p>
+                <p class="kicker reveal"><span class="num">7</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s06-h2">Point tools at it. Do not copy by hand.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -816,16 +810,15 @@ and repo rules win. Edit
 &lt;!-- /managed-by: wire-personal-agents --&gt;</pre>
                     </div>
                 </div>
-                <p class="slide-num">07 / 19</p>
+                <p class="slide-num">07 / 17</p>
                 <a class="q-cutout reveal" href="https://github.com/allisonpaigemcentire/ai-workshops/blob/main/workshops/customizing-agent-workflow/handout-laptop-vs-repo-adapters.md" target="_blank" rel="noopener" data-ed="d3-s07-cut">
                     <span class="q-mark">Q?</span>
                     Laptop vs. Repo adaptors
                 </a>
                 <div class="speaker-notes">Claude @ is laptop-only. @~/.agents was removed from frontend and services because Cloud and teammates only see the clone. We also replaced in-repo @AGENTS.md with a relative CLAUDE.md → AGENTS.md symlink: an import is still a second file people add rules under, and Claude loading both names attached the same kit twice. The symlink is one document, two names. Cursor, Gemini, and Firebender wrappers embed; --check compares that copy to shared.md. Cutout opens the laptop vs repo adapters handout: the wire script and the product share a machine; a repo hook writes files the clone does not see.</div>
             </section>
-
             <section class="slide" data-slide="8">
-                <p class="kicker reveal"><span class="num">08</span> Practice</p>
+                <p class="kicker reveal"><span class="num">8</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s07-h2">Cloud does not see your laptop.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -862,12 +855,11 @@ and repo rules win. Edit
   before a Cloud run.</pre>
                     </div>
                 </div>
-                <p class="slide-num">08 / 19</p>
+                <p class="slide-num">08 / 17</p>
                 <div class="speaker-notes">Promote team requirements such as PR body format. Keep writing style personal unless the whole team adopts it. Goal / Ran / Doubt on Cloud belongs in the repo or Team Rules.</div>
             </section>
-
             <section class="slide dark" data-slide="9">
-                <p class="kicker reveal"><span class="num">09</span> Practice</p>
+                <p class="kicker reveal"><span class="num">9</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s08-h2">Put writing, tools, and cost. Not the repo.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -905,10 +897,9 @@ and repo rules win. Edit
   or never `--no-verify`.</pre>
                     </div>
                 </div>
-                <p class="slide-num">09 / 19</p>
+                <p class="slide-num">09 / 17</p>
                 <div class="speaker-notes">Add a line to shared.md when you catch yourself re-explaining the same habit. Do not fork create-pr or other repo skills into ~/.agents/skills under the same name.</div>
             </section>
-
             <section class="slide" data-slide="10">
                 <p class="kicker reveal"><span class="num">10</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s09-h2">Three writing lines.</h2>
@@ -942,10 +933,9 @@ and repo rules win. Edit
   I decide.</pre>
                     </div>
                 </div>
-                <p class="slide-num">10 / 19</p>
+                <p class="slide-num">10 / 17</p>
                 <div class="speaker-notes">Do not teach “end every reply with what happens next” as the workshop default. That is a personal extra on some machines, not the attendee template.</div>
             </section>
-
             <section class="slide dark" data-slide="11">
                 <p class="kicker reveal"><span class="num">11</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s10-h2">Main thread plans.</h2>
@@ -982,51 +972,11 @@ and repo rules win. Edit
 - Cheaper model for mechanical work.</pre>
                     </div>
                 </div>
-                <p class="slide-num">11 / 19</p>
+                <p class="slide-num">11 / 17</p>
                 <div class="speaker-notes">Cursor Agent and Claude Code can spawn a worker. Gemini CLI: start a second session. Do not trial-and-error APIs in the main thread. Lab D is the proof after prefs are wired.</div>
             </section>
-
-            <section class="slide" data-slide="12">
+            <section class="slide dark" data-slide="12">
                 <p class="kicker reveal"><span class="num">12</span> Practice</p>
-                <h2 class="bp-h2 reveal" data-ed="d3-s11-h2">Same three checks for every product.</h2>
-                <div class="col-l">
-                    <div class="reveal">
-                        <p class="lbl">The practice</p>
-                        <p class="plain" data-ed="d3-s11-p">File on disk. Product lists the prefs. Smoke test: same PR prompt in an app repo (Goal / Ran / Doubt) and in this clone (What / Why this repo / Verify). Skip products you do not use. Android Studio Gemini is not Gemini CLI.</p>
-                    </div>
-                    <div class="reveal">
-                        <p class="lbl" style="margin-top:36px">Why</p>
-                        <p class="why" data-ed="d3-s11-w">A wrapper file can exist and still not load. Naming the file path in the quote prompt lets the agent Read it and fake a pass. Ask for the Precedence line from personal prefs. The real test is the second PR draft: does this clone’s What / Why this repo / Verify beat personal Goal / Ran / Doubt?</p>
-                    </div>
-                </div>
-                <div class="col-r">
-                    <div class="reveal">
-                        <p class="lbl">Sources</p>
-                        <div class="sources">
-                            <a href="https://code.claude.com/docs/en/claude-md" target="_blank" rel="noopener">Claude — /memory lists loaded files</a>
-                            <a href="https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html" target="_blank" rel="noopener">Gemini — /memory show</a>
-                            <a href="https://developer.android.com/studio/gemini/agent-files" target="_blank" rel="noopener">Android Studio Gemini — not Gemini CLI</a>
-                        </div>
-                    </div>
-                    <div class="reveal">
-                        <p class="lbl" style="margin-top:20px">Example</p>
-                        <p class="path">example/verify.md</p>
-                        <pre class="snip">| **Wire** — --check ok | Yes |
-| **Cursor** — Precedence quote | Yes |
-| **Claude** — /memory lists CLAUDE.md | Yes |
-| **Gemini CLI** — /memory show | Yes |
-| **Smoke test** — personal vs workshop PR headings | Yes |
-
-1. App repo, no PR headings. Draft a PR body. Do not open a PR.
-2. This clone open. Same prompt.</pre>
-                    </div>
-                </div>
-                <p class="slide-num">12 / 19</p>
-                <div class="speaker-notes">Do not put the file path in the Cursor or Firebender quote prompt. Lab C uses the same PR-body prompt twice: personal headings in an app repo, workshop headings in this clone.</div>
-            </section>
-
-            <section class="slide dark" data-slide="13">
-                <p class="kicker reveal"><span class="num">13</span> Practice</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s12-h2">A personal skill is one job plus a script.</h2>
                 <div class="col-l">
                     <div class="reveal">
@@ -1063,12 +1013,11 @@ repo's `.agents/skills/`.
    branch in the primary working tree.</pre>
                     </div>
                 </div>
-                <p class="slide-num">13 / 19</p>
+                <p class="slide-num">12 / 17</p>
                 <div class="speaker-notes">After class: copy to ~/.agents/skills/create-worktree/ and symlink ~/.cursor/skills and ~/.claude/skills if the product does not scan ~/.agents/skills. This is out of scope for the 60-minute labs.</div>
             </section>
-
-            <section class="slide" data-slide="14">
-                <p class="kicker reveal"><span class="num">14</span> Lab A</p>
+            <section class="slide" data-slide="13">
+                <p class="kicker reveal"><span class="num">13</span> Lab A</p>
                 <p class="lab-time reveal">10 minutes</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-laba-h2">Write personal prefs.</h2>
                 <p class="lab-goal reveal" data-ed="d3-laba-g">One file: ~/.agents/instructions/shared.md. Skip unused products. Work in an app repo that already has AGENTS.md.</p>
@@ -1082,12 +1031,11 @@ git -C ~/.agents init</pre>
                     <p class="lab-keep reveal" data-ed="d3-laba-k">From the cloned lab/ folder. Keep Precedence first. Keep: no preamble; no trailing summary of the diff; state each finding once. The last two commands are required: copy agents.gitignore, then git init. Save only shared.md for cross-tool prefs. Do not copy-paste into each product.</p>
                 </div>
                 <p class="lab-done reveal" data-ed="d3-laba-d">Done when: shared.md starts with Precedence, ~/.agents/.gitignore exists, and git -C ~/.agents status works.</p>
-                <p class="slide-num">14 / 19</p>
+                <p class="slide-num">13 / 17</p>
                 <div class="speaker-notes">Wait until most people have shared.md, .gitignore, and git init. The template already has Precedence, the three writing lines, and Goal / Ran / Doubt. Do not copy shared.md into ~/.cursor or ~/.claude by hand. Do not push ~/.agents to a public remote.</div>
             </section>
-
-            <section class="slide dark" data-slide="15">
-                <p class="kicker reveal"><span class="num">15</span> Lab B</p>
+            <section class="slide dark" data-slide="14">
+                <p class="kicker reveal"><span class="num">14</span> Lab B</p>
                 <p class="lab-time reveal">10 minutes</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-labb-h2">Wire and verify.</h2>
                 <p class="lab-goal reveal" data-ed="d3-labb-g">Each product you use gets a wrapper. A new session can quote or list those prefs. Smoke test is Lab C. Cloud Agents do not load laptop files.</p>
@@ -1115,12 +1063,11 @@ bash wire-personal-agents.sh --check
                     </div>
                 </div>
                 <p class="lab-done reveal" data-ed="d3-labb-d">Done when: file check and load check pass for each product you use.</p>
-                <p class="slide-num">15 / 19</p>
+                <p class="slide-num">14 / 17</p>
                 <div class="speaker-notes">Run wire from cloned lab/. Expect Personal agents wire: ok. Claude @ is live; Cursor, Gemini, Firebender embed — re-run after you edit shared.md. Skip unused products. Do not put the file path in the Cursor or Firebender quote prompt. I will demo a tool the room lacks.</div>
             </section>
-
-            <section class="slide" data-slide="16">
-                <p class="kicker reveal"><span class="num">16</span> Lab C</p>
+            <section class="slide" data-slide="15">
+                <p class="kicker reveal"><span class="num">15</span> Lab C</p>
                 <p class="lab-time reveal">8 minutes</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-labc-h2">Smoke test.</h2>
                 <p class="lab-goal reveal" data-ed="d3-labc-g">Same prompt twice. Do not open or push a PR. Switch which folder is open.</p>
@@ -1130,12 +1077,11 @@ bash wire-personal-agents.sh --check
                 </div>
                 <p class="lab-pass reveal" data-ed="d3-labc-pf">Pass: workshop clone uses What / Why this repo / Verify. Fail: it still uses Goal / Ran / Doubt there. If you fail, the workspace is still the app repo.</p>
                 <p class="lab-done reveal" data-ed="d3-labc-d">Done when: C1 is Goal / Ran / Doubt and C2 is What / Why this repo / Verify in at least one product you use daily.</p>
-                <p class="slide-num">16 / 19</p>
+                <p class="slide-num">15 / 17</p>
                 <div class="speaker-notes">Open an app repo first for Goal / Ran / Doubt. Then File → Open the ai-workshops clone. Pass is What / Why this repo / Verify, not a pretty Goal packet. Repeat in each product they verified. Do not gh pr create. Next is Lab D: watch a worker spawn.</div>
             </section>
-
-            <section class="slide dark" data-slide="17">
-                <p class="kicker reveal"><span class="num">17</span> Lab D</p>
+            <section class="slide dark" data-slide="16">
+                <p class="kicker reveal"><span class="num">16</span> Lab D</p>
                 <p class="lab-time reveal">7 minutes</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-labd-h2">Main thread plans.</h2>
                 <p class="lab-goal reveal" data-ed="d3-labd-g">Open your application repo. Context cost in shared.md says spike unknowns in a subagent or a second session. Do not paste file bodies into this chat.</p>
@@ -1144,26 +1090,11 @@ bash wire-personal-agents.sh --check
                 </div>
                 <p class="lab-pass reveal" data-ed="d3-labd-pf">Cursor / Claude: a Task or subagent appears, then a short finding. Gemini CLI: second session (no subagent tool). Fail: this chat greps and pastes files. If nobody spawns, prefs did not load. Fallback: Spike that unknown in a subagent.</p>
                 <p class="lab-done reveal" data-ed="d3-labd-d">Done when: you see a spawned worker in Cursor or Claude, or a second session in Gemini, in at least one product you use.</p>
-                <p class="slide-num">17 / 19</p>
+                <p class="slide-num">16 / 17</p>
                 <div class="speaker-notes">This is the proof for Main thread plans (this deck’s slide 11). Do not say subagent unless the room gets zero spawns. Open the app repo, not lab/.</div>
             </section>
-
-            <section class="slide dark" data-slide="18">
-                <p class="kicker reveal"><span class="num">18</span> Exit</p>
-                <p class="lab-time reveal">10 minutes</p>
-                <h2 class="bp-h2 reveal" data-ed="d3-exit-h2">Fill the checklist.</h2>
-                <p class="lab-goal reveal" data-ed="d3-exit-g">Leave with a filled checklist, not only memory. Skip any product you do not use.</p>
-                <div class="lab-stack">
-                    <pre class="lab-pre reveal" data-ed="d3-exit-cmd">Open lab/verify-checklist.md</pre>
-                    <p class="lab-keep reveal" data-ed="d3-exit-k">Mark Yes / No / N/A for: Precedence file on disk, wire --check, each product’s load check, Lab C headings, and Lab D spawn. Step-by-step is lab/lab-walkthrough.md in the participant repo.</p>
-                </div>
-                <p class="lab-done reveal" data-ed="d3-exit-d">Done when: every row you use is filled. Success is a file on disk plus completed rows — not tip notes alone.</p>
-                <p class="slide-num">18 / 19</p>
-                <div class="speaker-notes">Point at verify-checklist.md. Do not invent extra homework. Next slide is vendor sources.</div>
-            </section>
-
-            <section class="slide dark" data-slide="19">
-                <p class="kicker reveal"><span class="num">19</span> Resources</p>
+            <section class="slide dark" data-slide="17">
+                <p class="kicker reveal"><span class="num">17</span> Resources</p>
                 <h2 class="bp-h2 reveal" data-ed="d3-s13-h2">Best-practice sources</h2>
                 <div class="ref-grid reveal">
                     <div>
@@ -1215,7 +1146,7 @@ bash wire-personal-agents.sh --check
                         <span class="hint" data-ed="d3-s13-h12">~/.firebender/rules/</span>
                     </div>
                 </div>
-                <p class="slide-num">19 / 19</p>
+                <p class="slide-num">17 / 17</p>
                 <div class="speaker-notes">Last slide. Twelve vendor and open-standard docs used to build this workshop. Click a link to open it. Personal prefs fill gaps; if a personal rule and AGENTS.md disagree, follow the repo.</div>
             </section>
 
@@ -1232,7 +1163,7 @@ bash wire-personal-agents.sh --check
 
     <nav class="deck-controls" aria-label="Slide progress">
         <div id="dots"></div>
-        <span class="counter" id="counter">1 / 19</span>
+        <span class="counter" id="counter">1 / 17</span>
         <button class="notes-btn" id="notesToggle" type="button" aria-pressed="false" title="Speaker notes (N)">N</button>
     </nav>
 
@@ -1364,7 +1295,7 @@ bash wire-personal-agents.sh --check
         class InlineEditor {
             constructor() {
                 this.isActive = false;
-                this.storageKey = 'customizing-agent-workflow-slides-draft-3-edits-v6';
+                this.storageKey = 'customizing-agent-workflow-slides-draft-3-edits-v7';
                 this.toggleBtn = document.getElementById('editToggle');
                 this.restore();
             }

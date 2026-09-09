@@ -13,8 +13,7 @@ workshop. Run only the steps for products you actually use.
    cd ai-workshops/workshops/customizing-agent-workflow/lab
    ```
 
-3. Keep [handout.md](../handout.md) open for reference. Use
-   [verify-checklist.md](verify-checklist.md) at the end.
+3. Keep [handout.md](../handout.md) open for reference.
 
 ---
 
@@ -320,37 +319,6 @@ second session, in at least one product you use daily.
 
 ---
 
-## Exit checks (10 minutes)
-
-**Goal:** Record what you verified. Leave with files on disk, not notes alone.
-
-### Step 1 — Open the checklist
-
-Open [verify-checklist.md](verify-checklist.md).
-
-### Step 2 — Fill in each row
-
-| Check | Your answer |
-|-------|-------------|
-| `~/.agents/instructions/shared.md` starts with Precedence line | Yes / No |
-| **Wire** — `wire-personal-agents.sh --check` ok | Yes / No |
-| **Cursor** — distinctive line or Precedence quote in new Agent chat | Yes / No / N/A |
-| **Claude** — `/memory` lists personal `CLAUDE.md` or the `@` import | Yes / No / N/A |
-| **Gemini CLI** — `/memory show` lists `GEMINI.md` and `AGENTS.md` | Yes / No / N/A |
-| **Firebender** — `ls -l` ok; chat quotes Precedence | Yes / No / N/A |
-| **Smoke test** — personal PR headings vs workshop repo headings | Yes / No |
-| **Lab D** — worker spawned (Cursor/Claude Task) or Gemini second session | Yes / No / N/A |
-| Products verified today | _____________ |
-
-Mark **N/A** for tools you do not use.
-
-### Step 3 — Keep a copy
-
-Save the checklist for yourself. Fix any **No** rows after the session using
-[lab/README.md](README.md) and [handout.md](../handout.md).
-
----
-
 ## Quick reference — three-step verify (every product)
 
 | Step | What you check |
@@ -379,5 +347,4 @@ Save the checklist for yourself. Fix any **No** rows after the session using
 
 - [lab/README.md](README.md) — setup commands and verify summary
 - [handout.md](../handout.md) — full guide (precedence, Cloud, skills)
-- [verify-checklist.md](verify-checklist.md) — printable exit checklist
 - [pr-author-packet-rule.md](../pr-author-packet-rule.md) — Goal / Ran / Doubt example

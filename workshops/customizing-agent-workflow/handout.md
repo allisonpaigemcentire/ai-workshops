@@ -626,14 +626,13 @@ NOT for…”). Auto-routing from description alone is inconsistent.
 | Doc | What it is |
 |-----|------------|
 | [lab/README.md](lab/README.md) | Participant setup: templates, wire script, verify steps |
-| [slides.html](slides.html) | Live 19-slide deck (no speaker notes) |
+| [slides.html](slides.html) | Live 17-slide deck (no speaker notes) |
 | [customizing-your-agent-workflow-slides-draft-3.html](customizing-your-agent-workflow-slides-draft-3.html) | Same deck with speaker notes (facilitator) |
 | [example/](example/) | Sample finished personal setup (`~/.agents/` + wrappers); [walkthrough](example/walkthrough.md) |
 | [lab/wire-personal-agents.sh](lab/wire-personal-agents.sh) | Point Claude, Cursor, Gemini, Firebender at `~/.agents/instructions/shared.md` |
 | [lab/sync-personal-rules.sh](lab/sync-personal-rules.sh) | Optional: extra Cursor `.mdc` files → Claude |
 | [handout-laptop-vs-repo-adapters.md](handout-laptop-vs-repo-adapters.md) | Why the laptop wire script is allowed and a repo SessionStart wrapper script is not |
 | [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PRs; Cursor Cloud promotion example |
-| [lab/verify-checklist.md](lab/verify-checklist.md) | Exit checklist for the 60-minute session |
 
 ### Vendor and open standards
 

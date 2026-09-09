@@ -41,7 +41,6 @@ here are so you can see the shape without running it.
    State each finding once.
 9. **Main thread plans.** Do not explore in the main loop. Spike unknowns in
    a subagent or a second session.
-10. **Same three checks.** See `verify.md`.
 
 ## Sample personal skill
 
