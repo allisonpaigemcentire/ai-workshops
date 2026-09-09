@@ -26,8 +26,9 @@ bash wire-personal-agents.sh
 bash wire-personal-agents.sh --check
 ```
 
-Re-run the wire script after you edit `shared.md` if you use Gemini or
-Firebender. Claude and Cursor `@`-import the file, so those wrappers stay live.
+Re-run the wire script after you edit `shared.md` if you use Cursor, Gemini,
+or Firebender (those wrappers embed a copy). Claude `@`-imports the file, so
+that wrapper stays live.
 
 ## Do not
 

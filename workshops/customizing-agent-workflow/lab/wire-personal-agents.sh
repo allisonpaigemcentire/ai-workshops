@@ -5,9 +5,9 @@
 # Canonical:  ~/.agents/instructions/shared.md   (edit prefs here)
 # Wrappers:
 #   Claude     ~/.claude/CLAUDE.md               (@ import; live after body edits)
-#   Cursor     ~/.cursor/rules/personal-instructions.mdc
-#   Gemini     ~/.gemini/GEMINI.md               (pointer + embedded copy)
-#   Firebender ~/.firebender/rules/personal-instructions.mdc
+#   Cursor     ~/.cursor/rules/personal-instructions.mdc  (embed; re-run after edits)
+#   Gemini     ~/.gemini/GEMINI.md               (embed; re-run after edits)
+#   Firebender ~/.firebender/rules/personal-instructions.mdc  (embed; re-run after edits)
 #
 # Usage:
 #   bash wire-personal-agents.sh
@@ -15,9 +15,9 @@
 #   bash wire-personal-agents.sh --tools=claude,cursor,gemini,firebender
 #   bash wire-personal-agents.sh --help
 #
-# Gemini and Firebender embed a copy of shared.md so those products load the
-# text even if they do not expand @-imports. Re-run this script after you edit
-# shared.md if you use those products. Claude and Cursor wrappers stay live.
+# Claude @-imports shared.md (live after body edits). Cursor, Gemini, and
+# Firebender embed a copy so those products load the text even if they do
+# not expand @-imports. Those three wrappers are stale until you re-run.
 
 set -euo pipefail
 
@@ -27,6 +27,7 @@ CURSOR_MDC="${CURSOR_MDC:-$HOME/.cursor/rules/personal-instructions.mdc}"
 GEMINI_MD="${GEMINI_MD:-$HOME/.gemini/GEMINI.md}"
 FIREBENDER_MDC="${FIREBENDER_MDC:-$HOME/.firebender/rules/personal-instructions.mdc}"
 IMPORT_LINE="@~/.agents/instructions/shared.md"
+CANONICAL_MARK="<!-- canonical-shared.md -->"
 BEGIN="<!-- managed-by: wire-personal-agents -->"
 END="<!-- /managed-by: wire-personal-agents -->"
 MDC_MARKER="managed-by: wire-personal-agents"
@@ -42,7 +43,7 @@ for arg in "$@"; do
       exit 2
       ;;
     -h|--help)
-      sed -n '2,22p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,20p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *)
@@ -94,10 +95,12 @@ alwaysApply: true
 # $MDC_MARKER
 ---
 
-Follow \`~/.agents/instructions/shared.md\` as the source of personal
-preferences on this machine. On conflict with repo files, follow the repo.
+Follow \`~/.agents/instructions/shared.md\`. On conflict with repo files,
+follow the repo. Re-run \`wire-personal-agents.sh\` after you edit shared.md.
 
-$IMPORT_LINE
+$CANONICAL_MARK
+
+$(shared_body)
 EOF
 }
 
@@ -109,7 +112,7 @@ $BEGIN
 Follow \`~/.agents/instructions/shared.md\`. Re-run \`wire-personal-agents.sh\`
 after you edit that file so this copy stays current.
 
-$IMPORT_LINE
+$CANONICAL_MARK
 
 $(shared_body)
 $END
@@ -127,7 +130,7 @@ alwaysApply: true
 Follow \`~/.agents/instructions/shared.md\`. On conflict with repo files,
 follow the repo. Re-run \`wire-personal-agents.sh\` after you edit shared.md.
 
-$IMPORT_LINE
+$CANONICAL_MARK
 
 $(shared_body)
 EOF
@@ -220,27 +223,27 @@ check_contains() {
   return 0
 }
 
-# Text after the import line, optional stop at END, drop one leading blank line.
-extract_after_import() {
+# Text after the canonical marker, optional stop at END, drop one leading blank.
+extract_canonical() {
   local file="$1"
   local stop_at_end="$2"
-  awk -v imp="$IMPORT_LINE" -v end="$END" -v stop="$stop_at_end" '
-    $0 == imp { grab=1; next }
+  awk -v mark="$CANONICAL_MARK" -v end="$END" -v stop="$stop_at_end" '
+    $0 == mark { grab=1; next }
     grab && stop == 1 && $0 == end { exit }
     grab { print }
   ' "$file" | awk 'NR == 1 && $0 == "" { next } { print }' | sed -e :a -e '/^$/{$d;N;ba' -e '}'
 }
 
-# Gemini and Firebender store a copy of shared.md. --check must compare that
-# copy to the canonical file, not only look for the @ import line.
+# Cursor, Gemini, and Firebender store a copy of shared.md. --check must
+# compare that copy to the canonical file, not only look for a pointer line.
 check_embed() {
   local file="$1"
   local label="$2"
   local stop_at_end="$3"
-  if ! check_contains "$file" "$IMPORT_LINE" "$label"; then
+  if ! check_contains "$file" "$CANONICAL_MARK" "$label"; then
     return
   fi
-  if ! cmp -s "$SHARED" <(extract_after_import "$file" "$stop_at_end"); then
+  if ! cmp -s "$SHARED" <(extract_canonical "$file" "$stop_at_end"); then
     echo "Wrapper embed stale ($label): $file — re-run wire-personal-agents.sh after editing shared.md" >&2
     errors=$((errors + 1))
     return
@@ -256,11 +259,7 @@ if [[ "$MODE" == "check" ]]; then
       ok_msgs+=("Claude ok — $CLAUDE_MD")
     fi
   fi
-  if tool_wanted cursor; then
-    if check_contains "$CURSOR_MDC" "$IMPORT_LINE" "Cursor"; then
-      ok_msgs+=("Cursor ok — $CURSOR_MDC")
-    fi
-  fi
+  tool_wanted cursor && check_embed "$CURSOR_MDC" "Cursor" 0
   tool_wanted gemini && check_embed "$GEMINI_MD" "Gemini" 1
   tool_wanted firebender && check_embed "$FIREBENDER_MDC" "Firebender" 0
   if [[ "$errors" -gt 0 ]]; then
@@ -324,4 +323,4 @@ if [[ "$errors" -gt 0 ]]; then
 fi
 
 echo "Personal agents wire: ok (${#ok_msgs[@]} wrapper(s) → $SHARED)"
-echo "Edit $SHARED. Re-run this script after edits if you use Gemini or Firebender."
+echo "Edit $SHARED. Re-run this script after edits if you use Cursor, Gemini, or Firebender."

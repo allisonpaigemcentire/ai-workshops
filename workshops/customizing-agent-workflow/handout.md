@@ -227,8 +227,8 @@ the wrappers:
 | Product | Wrapper | How it follows `shared.md` |
 |---------|---------|----------------------------|
 | Claude Code | `~/.claude/CLAUDE.md` | `@~/.agents/instructions/shared.md` (live after body edits) |
-| Cursor | `~/.cursor/rules/personal-instructions.mdc` | `alwaysApply: true` plus `@` import |
-| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` | Pointer plus an **embedded copy** (re-run wire after edits) |
+| Cursor | `~/.cursor/rules/personal-instructions.mdc` | `alwaysApply: true` plus an **embedded copy** (re-run wire after edits) |
+| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` | **Embedded copy** (re-run wire after edits) |
 | Firebender | `~/.firebender/rules/personal-instructions.mdc` | Frontmatter plus an **embedded copy** (re-run wire after edits) |
 
 ### Commands
@@ -254,11 +254,12 @@ alias wire-personal-agents='bash ~/path/to/ai-workshops/workshops/customizing-ag
 ### When to run
 
 - After Lab A, once `shared.md` exists
-- After you edit `shared.md` if you use Gemini or Firebender
+- After you edit `shared.md` if you use Cursor, Gemini, or Firebender
 - After cloning the lab folder on a new machine
 
-You do **not** need to re-run after editing `shared.md` for Claude or Cursor
-wrappers (they `@`-import the file).
+You do **not** need to re-run after editing `shared.md` for Claude (it
+`@`-imports the file). Cursor, Gemini, and Firebender embeds are stale until
+you re-run.
 
 ### What the script does **not** do
 
@@ -358,7 +359,8 @@ product, plus personal-skill symlinks.
 ### Cursor
 
 1. **File check:** `~/.cursor/rules/personal-instructions.mdc` exists.
-2. **Product lists files:** New Agent chat; quote Precedence from `shared.md`.
+2. **Product lists files:** New Agent chat; quote the Precedence line from
+   personal prefs. Do not put the file path in the prompt.
 3. **Smoke test:** Section 13 prompts.
 
 Cursor Cloud Agents do not load these wrappers (section 7).

@@ -98,8 +98,9 @@ bash wire-personal-agents.sh --check --tools=claude,cursor
 
 Valid `--tools` names: `claude`, `cursor`, `gemini`, `firebender`.
 
-Re-run after you edit `shared.md` if you use **Gemini or Firebender** (those
-wrappers embed a copy). Claude `@` import and the Cursor wrapper stay live.
+Re-run after you edit `shared.md` if you use **Cursor, Gemini, or Firebender**
+(those wrappers embed a copy and are stale until you re-run). Claude `@`
+import stays live.
 
 Then run only the product sections below that apply to you.
 
@@ -117,7 +118,7 @@ Confirm the wrapper exists and mentions `~/.agents/instructions/shared.md`.
 
 1. Open your application repo in Cursor.
 2. Start a **new** Agent chat.
-3. Ask: `Quote the Precedence line from ~/.agents/instructions/shared.md`
+3. Ask: `Quote the Precedence line from my personal prefs`
 
 **Step B3 — Smoke test**
 
@@ -199,8 +200,7 @@ Project `.cursor/rules/` in an app repo is **not** your personal wrapper.
 3. Ask:
 
    ```
-   Quote the Precedence line from my personal prefs
-   (~/.agents/instructions/shared.md or ~/.firebender/rules/personal-instructions.mdc).
+   Quote the Precedence line from my personal prefs.
    ```
 
 **Step B3 — Smoke test**

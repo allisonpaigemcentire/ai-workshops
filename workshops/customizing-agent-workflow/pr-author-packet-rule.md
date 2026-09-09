@@ -195,5 +195,5 @@ from home.
 | `~/.firebender/rules/personal-instructions.mdc` | Firebender |
 
 After editing `shared.md`, re-run `bash wire-personal-agents.sh` from the
-workshop `lab/` folder if you use Gemini or Firebender (not required for
-Claude `@` import or the Cursor wrapper after content-only edits).
+workshop `lab/` folder if you use Cursor, Gemini, or Firebender (not required
+for Claude `@` import after content-only edits).

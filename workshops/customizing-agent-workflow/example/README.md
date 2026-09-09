@@ -26,8 +26,9 @@ here are so you can see the shape without running it.
 3. **One personal file.** Edit `shared.md` only.
 4. **Git the home folder.** `.gitignore` is present. Reinstall notes are in
    `home-agents/README.md`. Private remote only; no secrets.
-5. **Point tools; do not copy prefs by hand.** Wrappers `@`-import or embed
-   `shared.md`.
+5. **Point tools; do not copy prefs by hand.** Claude `@`-imports
+   `shared.md`. Cursor, Gemini, and Firebender embed a copy (re-run the
+   wire script after edits).
 6. **Cloud does not see the laptop.** Nothing in this folder is a Cloud setup.
    Do not symlink `~/.agents` into a repo.
 7. **Put writing, tools, and cost in `shared.md`.** Do not put how to build

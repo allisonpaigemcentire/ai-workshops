@@ -635,13 +635,13 @@ git -C ~/.agents init
             <section class="slide has-pull-quote" data-slide="6">
                 <p class="kicker reveal"><span class="num">06</span> Practice</p>
                 <h2 class="reveal" data-ed="d2-s05-h2">Point tools at it.<br>Do not copy by hand.</h2>
-                <p class="lede reveal" data-ed="d2-s05-lede">lab/wire-personal-agents.sh writes wrappers. Claude @-imports. Gemini and Firebender embed a copy — re-run after you edit shared.md.</p>
+                <p class="lede reveal" data-ed="d2-s05-lede">lab/wire-personal-agents.sh writes wrappers. Claude @-imports (live). Cursor, Gemini, and Firebender embed a copy — stale until you re-run.</p>
                 <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
                     <p data-ed="d2-s06-pq">Agents automatically read the nearest file in the directory tree, so the closest one takes precedence.</p>
                     <cite data-ed="d2-s06-pq-c">agents.md — nested AGENTS.md</cite>
                 </blockquote>
                 <p class="slide-num">06 / 26</p>
-                <div class="speaker-notes">If you paste the same paragraph into three home folders, they drift. The wire script is the bridge. Use --tools= if you only use some products. Cursor Cloud Agents never see this laptop file. That is the next slide.</div>
+                <div class="speaker-notes">If you paste the same paragraph into three home folders, they drift. The wire script is the bridge. Embedded wrappers are only as fresh as the last wire run. Claude stays live via @ import. Use --tools= if you only use some products. Cursor Cloud Agents never see this laptop file. That is the next slide.</div>
             </section>
 
             <section class="slide has-pull-quote" data-slide="7">
@@ -788,13 +788,13 @@ bash wire-personal-agents.sh --check</pre>
                 <pre class="cmd reveal" data-ed="d2-s15-cmd">ls ~/.cursor/rules/personal-instructions.mdc
 
 New Agent chat:
-Quote the Precedence line from ~/.agents/instructions/shared.md</pre>
+Quote the Precedence line from my personal prefs.</pre>
                 <blockquote class="pull-quote pull-quote-bottom pull-quote-compact reveal">
                     <p data-ed="d2-s18-pq">Rules are applied in this order: Team Rules → Project Rules → User Rules. All applicable rules are merged; earlier sources take precedence when guidance conflicts.</p>
                     <cite data-ed="d2-s18-pq-c">Cursor Rules docs — precedence</cite>
                 </blockquote>
                 <p class="slide-num">18 / 26</p>
-                <div class="speaker-notes">Wrapper must mention shared.md. Cloud Agents do not load this — handout section seven if someone asks. Load check is quoting the Precedence line, not a trailing-summary test line.</div>
+                <div class="speaker-notes">Wrapper must mention shared.md. Do not put the file path in the quote prompt — naming the path lets the agent Read the file even if the wrapper did not load. Cloud Agents do not load this — handout section seven if someone asks.</div>
             </section>
 
             <section class="slide with-cmd has-pull-quote" data-slide="19">
@@ -863,7 +863,7 @@ Quote the Precedence line from my personal prefs.</pre>
                     <cite data-ed="d2-s23-pq-c">agents.md — FAQ</cite>
                 </blockquote>
                 <p class="slide-num">23 / 26</p>
-                <div class="speaker-notes">Pass: the agent cites the repo — for example do not commit unless explicitly asked. Fail: it follows only the personal habit and ignores AGENTS.md. If they fail, remove duplicate commit lines from shared.md. Re-run wire if they use Gemini or Firebender. Repeat both prompts in each product they verified.</div>
+                <div class="speaker-notes">Pass: the agent cites the repo — for example do not commit unless explicitly asked. Fail: it follows only the personal habit and ignores AGENTS.md. If they fail, remove duplicate commit lines from shared.md. Re-run wire if they use Cursor, Gemini, or Firebender. Repeat both prompts in each product they verified.</div>
             </section>
 
             <section class="slide with-cmd" data-slide="24">

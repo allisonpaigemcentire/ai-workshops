@@ -54,13 +54,14 @@ bash wire-personal-agents.sh --check --tools=claude,gemini
 | Product | Wrapper the script writes |
 |---------|---------------------------|
 | Claude Code | `~/.claude/CLAUDE.md` (`@~/.agents/instructions/shared.md`) |
-| Cursor | `~/.cursor/rules/personal-instructions.mdc` |
-| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` (pointer + embedded copy) |
-| Firebender | `~/.firebender/rules/personal-instructions.mdc` |
+| Cursor | `~/.cursor/rules/personal-instructions.mdc` (embedded copy) |
+| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` (embedded copy) |
+| Firebender | `~/.firebender/rules/personal-instructions.mdc` (embedded copy) |
 
-Claude and Cursor wrappers stay live when you edit `shared.md`. **Gemini and
-Firebender embed a copy** — re-run the wire script after you edit `shared.md`
-if you use those products.
+Claude `@`-imports `shared.md` and stays live when you edit that file.
+**Cursor, Gemini, and Firebender embed a copy** — re-run the wire script
+after you edit `shared.md` if you use those products. Those wrappers are
+stale until you re-run.
 
 Project `.cursor/rules/` in an app repo is **not** the personal wrapper.
 Cursor Cloud Agents do **not** load `~/.agents/` or `~/.cursor/rules/` from
@@ -79,7 +80,8 @@ your laptop.
 ### Cursor
 
 1. File on disk: `ls ~/.cursor/rules/personal-instructions.mdc`.
-2. Product lists files: new Agent chat — quote the Precedence line.
+2. Product lists files: new Agent chat — quote the Precedence line from
+   personal prefs. Do not put the file path in the prompt.
 3. Smoke test: see [verify-checklist.md](verify-checklist.md).
 
 ### Gemini CLI

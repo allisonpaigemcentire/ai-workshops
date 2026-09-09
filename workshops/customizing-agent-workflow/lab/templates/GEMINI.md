@@ -4,7 +4,7 @@
 Follow `~/.agents/instructions/shared.md`. Re-run `wire-personal-agents.sh`
 after you edit that file so this copy stays current.
 
-@~/.agents/instructions/shared.md
+<!-- canonical-shared.md -->
 
 ## Precedence
 

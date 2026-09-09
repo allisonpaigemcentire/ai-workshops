@@ -7,7 +7,7 @@ alwaysApply: true
 Follow `~/.agents/instructions/shared.md`. On conflict with repo files,
 follow the repo. Re-run `wire-personal-agents.sh` after you edit shared.md.
 
-@~/.agents/instructions/shared.md
+<!-- canonical-shared.md -->
 
 ## Precedence
 
