@@ -23,20 +23,17 @@ Packet idea: [How to Review AI-Generated Pull Requests](https://www.aibuilderclu
 
 ## Local setup (desktop Agent, Claude Code, Gemini CLI)
 
-Personal rules live on your machine. They apply across all repos you open
-locally. They do **not** commit to git.
+Personal prefs live in `~/.agents/instructions/shared.md`. Wrappers in each
+product's home folder point at that file. They do **not** commit to git.
 
-### 1. Cursor — canonical source
+### 1. Canonical file
 
-One file covers author packet, draft default, full `gh pr create` workflow, and
-`r15-services-customer` branch gates:
+Put Goal / Ran / Doubt requirements in `~/.agents/instructions/shared.md` (or
+in a Cursor-only extra `.mdc` if they should not load in every product).
 
-| File | Role |
-|------|------|
-| `creating-pull-requests.mdc` | Goal / Ran / Doubt body, draft-by-default, `gh` workflow, branch-name hard gate, Cloud workaround notes |
-
-Use `alwaysApply: false` with a clear `description` so the rule loads when PR
-work is relevant, not every session (see handout section 5 — keep context lean).
+For always-on prefs, keep them in `shared.md`. For Cursor-only PR workflow
+with `alwaysApply: false`, keep a separate `~/.cursor/rules/creating-pull-requests.mdc`
+and do not put that whole file in `shared.md`.
 
 `creating-pull-requests.mdc` step 0 is a hard gate for `r15-services-customer`:
 do not create a branch, push, or open a PR until the name is valid. No ticket:
@@ -50,35 +47,36 @@ Previously this lived in three files (`pr-author-packet.mdc`,
 `draft-pr-default.mdc`, and `creating-pull-requests.mdc`). They duplicated the
 same template and draft default — one file is enough.
 
-### 2. Claude Code — symlink bridge
+### 2. Wire every product you use
 
-From a checkout that contains the sync script in the workshop `lab/` folder:
+From a checkout that contains the wire script in the workshop `lab/` folder:
 
 ```bash
 cd path/to/ai-workshops/workshops/customizing-agent-workflow/lab
-bash sync-personal-rules.sh
-bash sync-personal-rules.sh --check
+bash wire-personal-agents.sh
+bash wire-personal-agents.sh --check
 ```
 
-This mirrors each `~/.cursor/rules/*.mdc` to `~/.claude/rules/<stem>.md`
-**except** stems in `.claude-exclude`. Situational rules (`creating-pull-requests`,
-`cody-review-before-commit`) stay out of Claude’s always-loaded set; managed
-`~/.claude/CLAUDE.md` carries a short PR/commit summary and instructs Claude
-to read the full `.mdc` when that work starts. Restart Claude Code; confirm
-with `/memory`.
+This points Claude, Cursor, Gemini, and Firebender at
+`~/.agents/instructions/shared.md`. Restart each product; confirm with
+`/memory` (Claude), `/memory show` (Gemini), or a quote test (Cursor /
+Firebender).
+
+If Goal / Ran / Doubt lives only in a Cursor extra `.mdc` (not in `shared.md`),
+also run `bash sync-personal-rules.sh` so Claude can read that extra file on
+demand. That is optional.
 
 ### 3. Gemini CLI — global memory
 
-Add the same PR body requirements to `~/.gemini/GEMINI.md`. Run `/memory refresh`
-in an active Gemini CLI session after edits, then `/memory show` to confirm
-`GEMINI.md` appears in the loaded list.
+The wire script writes `~/.gemini/GEMINI.md` from `shared.md`. After edits to
+`shared.md`, re-run `wire-personal-agents.sh`, then `/memory refresh` and
+`/memory show`.
 
 ### 4. Firebender — personal rules
 
-Add the same PR body requirements to `~/.firebender/rules/` (copy or symlink
-from `~/.cursor/rules/creating-pull-requests.mdc`). Verify with
-`ls -l ~/.firebender/rules/*.mdc`, then ask a new Firebender chat to quote
-the Precedence line from that file.
+The wire script writes `~/.firebender/rules/personal-instructions.mdc`. Verify
+with `ls -l ~/.firebender/rules/*.mdc`, then ask a new Firebender chat to quote
+the Precedence line.
 
 ### 5. Smoke test
 
@@ -96,7 +94,7 @@ the agent runs on a remote Ubuntu VM. That VM:
 - Loads **project** rules from `.cursor/rules/` in the clone
 - Loads **`AGENTS.md`** (including nested files)
 - May load **Team Rules** from the Cursor dashboard (team/enterprise)
-- Does **not** load `~/.cursor/rules/` from your laptop
+- Does **not** load `~/.agents/` or `~/.cursor/rules/` from your laptop
 - Does **not** load Cursor User Rules stored only on your machine
 
 So personal `creating-pull-requests.mdc` affects **local desktop Agent chat
@@ -160,7 +158,7 @@ route PR creation through this skill instead of raw `gh pr create`.
 
 | You want… | Use |
 |-----------|-----|
-| Your machine only, all repos | `~/.cursor/rules/creating-pull-requests.mdc` + sync script + `~/.gemini/GEMINI.md` |
+| Your machine only, all repos | `~/.agents/instructions/shared.md` + `wire-personal-agents.sh` |
 | One repo, local + Cloud | Commit repo `.cursor/rules/` rule **or** `AGENTS.md` section |
 | All engineers + Cloud, one org | Team Rules + optional org `.github` PR template |
 | Humans without agents | `.github/pull_request_template.md` |
@@ -174,7 +172,7 @@ GitHub template for humans.
 
 | Kind | Destination |
 |------|-------------|
-| Personal habit (draft PRs, author packet locally) | `~/.cursor/rules/creating-pull-requests.mdc` + `sync-personal-rules.sh` |
+| Personal habit (draft PRs, author packet locally) | `~/.agents/instructions/shared.md` + `wire-personal-agents.sh` |
 | Same habit in Cloud | Repo `.cursor/rules/` or `AGENTS.md` |
 | Whole team | Team Rules + PR template |
 | Curriculum / how-to | This file + [lab/README.md](lab/README.md) |
@@ -189,11 +187,13 @@ from home.
 
 | Path | Loads in |
 |------|----------|
-| `~/.cursor/rules/creating-pull-requests.mdc` | Cursor (PR tasks; `alwaysApply: false`) |
-| `~/.claude/CLAUDE.md` | Claude — PR/commit summary; read full `.mdc` on demand |
+| `~/.agents/instructions/shared.md` | Canonical personal prefs (all local products via wrappers) |
+| `~/.cursor/rules/personal-instructions.mdc` | Cursor wrapper |
+| `~/.cursor/rules/creating-pull-requests.mdc` | Cursor-only extras (optional; `alwaysApply: false`) |
+| `~/.claude/CLAUDE.md` | Claude — `@` import of `shared.md` |
 | `~/.gemini/GEMINI.md` | Gemini CLI (global) |
-| `~/.firebender/rules/*.mdc` | Firebender (personal; copy or symlink from Cursor) |
+| `~/.firebender/rules/personal-instructions.mdc` | Firebender |
 
-After editing personal rules, re-run `bash sync-personal-rules.sh` from the
-workshop `lab/` folder if you added or removed a file (not required for
-content-only edits to existing files).
+After editing `shared.md`, re-run `bash wire-personal-agents.sh` from the
+workshop `lab/` folder if you use Gemini or Firebender (not required for
+Claude `@` import or the Cursor wrapper after content-only edits).

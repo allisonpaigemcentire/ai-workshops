@@ -1,43 +1,11 @@
+# This template is a redirect. Do not treat it as the personal source.
+
 ---
-description: Personal workflow prefs for this machine
-alwaysApply: true
+description: Personal prefs live in ~/.agents/instructions/shared.md
+alwaysApply: false
 ---
 
-## Precedence
+Canonical file: `~/.agents/instructions/shared.md` (starter: `templates/shared.md`).
+Cursor wrapper from `wire-personal-agents.sh`: `personal-instructions.mdc`.
 
-Repo `AGENTS.md`, `.agents/skills/`, repo hooks, and repo rules win.
-These lines are personal prefs for this machine. On conflict, follow the repo.
-
-## How I work
-
-- Be short. No preamble. No trailing summary of the diff.
-- State each finding once.
-- Name tradeoffs in 1–2 sentences; I decide.
-- Do not ask permission for read-only git / gh / acli.
-- Confirm before push, PR open/close, branch delete, or force-push.
-
-## Tooling
-
-- GitHub and Jira: `gh` and `acli`, not a logged-out web fetch.
-- Reads may auto-run. Writes always confirm unless a repo hook already
-  handles that command.
-
-## Context cost
-
-- Delegate long reads and wide search; keep the main thread as the
-  orchestrator.
-- New chat or `/clear` at phase boundaries.
-- Cheaper model for mechanical work.
-
-## Defaults
-
-- Commits and PRs only when I ask. Push only when I say push.
-- Prefer edit over new files. No unsolicited READMEs.
-- Comments in code only when the why is non-obvious.
-- Branch names: follow this repo's CONTRIBUTING / AGENTS.md. If the name
-  is wrong, stop and ask; do not rename the branch on GitHub.
-
-## Workshop test line
-
-- End every reply with what happens next. (Remove this line after you verify
-  the rule loaded.)
+@~/.agents/instructions/shared.md

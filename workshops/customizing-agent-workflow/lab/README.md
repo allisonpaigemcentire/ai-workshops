@@ -1,7 +1,7 @@
 # Lab — Customizing Your Agent Workflow
 
-Participant-facing starter kit. Copy templates into your home directory, run the
-sync script for Claude Code, then verify each product you use.
+Participant-facing starter kit. Write prefs once in `~/.agents/`, point each
+product at that file, then verify the products you use.
 
 **Step-by-step walkthrough:** [lab-walkthrough.md](lab-walkthrough.md) (Labs A,
 B, C, and exit checks with time boxes).
@@ -19,64 +19,72 @@ cd ai-workshops/workshops/customizing-agent-workflow/lab
 - Have Cursor, Claude Code, Gemini CLI, and/or Firebender available — you only
   verify the tools you actually use.
 
-## Step 1 — Install personal prefs
-
-**Cursor (canonical source for most people)**
+## Step 1 — Write the canonical file
 
 ```bash
-mkdir -p ~/.cursor/rules
-cp templates/personal-workflow.mdc ~/.cursor/rules/personal-workflow.mdc
-# Edit: replace boilerplate with your own five to ten lines. Keep the Precedence block.
+mkdir -p ~/.agents/instructions
+cp templates/shared.md ~/.agents/instructions/shared.md
+cp templates/agents.gitignore ~/.agents/.gitignore
+git -C ~/.agents init
+# Edit shared.md. Keep Precedence. Keep the three writing lines.
+# Private remote only. Never commit secrets.
 ```
 
-**Gemini CLI / Antigravity**
+This is the only file you edit for cross-tool personal prefs. It is **not** a
+replacement for repo `AGENTS.md` or repo `.agents/skills/`.
 
-```bash
-mkdir -p ~/.gemini
-cp templates/GEMINI.md ~/.gemini/GEMINI.md
-# Edit to match your Cursor prefs (same text, not repo engineering rules).
-```
-
-**Firebender**
-
-```bash
-mkdir -p ~/.firebender/rules
-cp templates/personal-workflow.mdc ~/.firebender/rules/personal-workflow.mdc
-# Or symlink from Cursor:
-# ln -sfn ~/.cursor/rules/personal-workflow.mdc ~/.firebender/rules/personal-workflow.mdc
-```
-
-Project `.cursor/rules/` in an app repo is **not** `~/.cursor/rules/`. Personal
-Cursor rules reach Firebender only through `~/.firebender/rules/`.
-
-## Step 2 — Mirror Cursor rules into Claude Code
+## Step 2 — Point each product at that file
 
 From this `lab/` directory:
 
 ```bash
-bash sync-personal-rules.sh
-bash sync-personal-rules.sh --check
+bash wire-personal-agents.sh
+bash wire-personal-agents.sh --check
 ```
 
-Expect: `Personal rules bridge: ok (N Cursor rule(s))`.
+Expect: `Personal agents wire: ok (N wrapper(s) → …/shared.md)`.
 
-Optional: copy `templates/claude-exclude.example` to
-`~/.cursor/rules/.claude-exclude` if you have situational Cursor-only rules.
+To wire only the products you use:
 
-Re-run sync after you **add, rename, or remove** a file in `~/.cursor/rules/`.
-You do not need to re-run after editing the body of an existing `.mdc`.
+```bash
+bash wire-personal-agents.sh --tools=claude,gemini
+bash wire-personal-agents.sh --check --tools=claude,gemini
+```
+
+| Product | Wrapper the script writes |
+|---------|---------------------------|
+| Claude Code | `~/.claude/CLAUDE.md` (`@~/.agents/instructions/shared.md`) |
+| Cursor | `~/.cursor/rules/personal-instructions.mdc` |
+| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` (pointer + embedded copy) |
+| Firebender | `~/.firebender/rules/personal-instructions.mdc` |
+
+Claude and Cursor wrappers stay live when you edit `shared.md`. **Gemini and
+Firebender embed a copy** — re-run the wire script after you edit `shared.md`
+if you use those products.
+
+Project `.cursor/rules/` in an app repo is **not** the personal wrapper.
+Cursor Cloud Agents do **not** load `~/.agents/` or `~/.cursor/rules/` from
+your laptop.
 
 ## Step 3 — Verify each product (same three steps)
 
 ### Claude Code
 
-1. File on disk: sync `--check` passes (above).
-2. Product lists files: new session; `/memory` or `/context` shows mirrored rules.
+1. File on disk: wire `--check` passes; `~/.agents/instructions/shared.md` has
+   the Precedence block.
+2. Product lists files: new session; `/memory` or `/context` shows personal
+   `CLAUDE.md` and/or the `@` import.
+3. Smoke test: see [verify-checklist.md](verify-checklist.md).
+
+### Cursor
+
+1. File on disk: `ls ~/.cursor/rules/personal-instructions.mdc`.
+2. Product lists files: new Agent chat — quote the Precedence line.
 3. Smoke test: see [verify-checklist.md](verify-checklist.md).
 
 ### Gemini CLI
 
-1. File on disk: `~/.gemini/GEMINI.md` exists with Precedence line.
+1. File on disk: `~/.gemini/GEMINI.md` exists with the Precedence line.
 2. Product lists files: `/memory refresh`, then `/memory show` — confirm
    `GEMINI.md` and repo `AGENTS.md` appear.
 3. Smoke test: see [verify-checklist.md](verify-checklist.md).
@@ -85,31 +93,31 @@ Android Studio Gemini is **not** Gemini CLI. Do not use `/memory show` for Studi
 
 ### Firebender
 
-1. File on disk: `ls -l ~/.firebender/rules/*.mdc` — real file or symlink.
-2. Product lists files: new Firebender chat — ask it to name files under
-   `~/.firebender/rules` and quote your Precedence line.
-3. Smoke test: see [verify-checklist.md](verify-checklist.md).
-
-### Cursor
-
-1. File on disk: `ls ~/.cursor/rules/*.mdc`.
-2. Product lists files: new Agent chat — distinctive line appears or agent can
-   quote your rule.
+1. File on disk: `ls -l ~/.firebender/rules/*.mdc` — wrapper exists.
+2. Product lists files: new Firebender chat — ask it to quote the Precedence
+   line from your personal prefs.
 3. Smoke test: see [verify-checklist.md](verify-checklist.md).
 
 ## Step 4 — Exit checklist
 
 Fill in [verify-checklist.md](verify-checklist.md). Keep a copy for yourself.
 
+## Optional — extra Cursor-only rules
+
+If you already keep situational files under `~/.cursor/rules/*.mdc` that should
+**not** live in `shared.md`, you can still mirror those extras into Claude with
+[`sync-personal-rules.sh`](sync-personal-rules.sh). That is not the workshop
+default. Workshop default is `shared.md` plus `wire-personal-agents.sh`.
+
 ## Reference
 
 - [Handout](../handout.md) — full guide (precedence, Cloud Agents, skills)
-- [Slides](../customizing-your-agent-workflow-slides.html) — open in a browser (41 slides; lab walkthrough on slides 27–33; references on slide 40)
+- [Example setup](../example/) — sample `~/.agents/` plus product wrappers
+- [Slides (Draft 2)](../customizing-your-agent-workflow-slides-draft-2.html) — 25 slides; practices then labs one step per slide
 - [PR author packet](../pr-author-packet-rule.md) — Goal / Ran / Doubt example
 
 ## Script source
 
-`sync-personal-rules.sh` in this folder mirrors `~/.cursor/rules/*.mdc` into
-`~/.claude/rules/` as symlinks and manages a personal `~/.claude/CLAUDE.md`
-index when appropriate. It does **not** sync Gemini or Firebender — copy prefs
-to those paths manually (step 1).
+`wire-personal-agents.sh` in this folder writes thin wrappers so Claude, Cursor,
+Gemini, and Firebender all follow `~/.agents/instructions/shared.md`. It does
+**not** replace repo `AGENTS.md`, repo skills, or repo hooks.

@@ -5,9 +5,11 @@ product you verify.
 
 | Check | Pass |
 |-------|------|
-| Personal file starts with Precedence line | Yes / No |
-| **Cursor** — distinctive line or rule list in new Agent chat | Yes / No / N/A |
-| **Claude** — `sync-personal-rules.sh --check` ok; `/memory` lists rules | Yes / No / N/A |
+| `~/.agents/instructions/shared.md` starts with Precedence line | Yes / No |
+| `~/.agents/` is a git repo; `.gitignore` present; no secrets committed | Yes / No |
+| **Wire** — `wire-personal-agents.sh --check` ok for products you use | Yes / No |
+| **Cursor** — Precedence quote in new Agent chat | Yes / No / N/A |
+| **Claude** — `/memory` lists personal `CLAUDE.md` or the `@` import | Yes / No / N/A |
 | **Gemini CLI** — `/memory show` lists `GEMINI.md` and `AGENTS.md` | Yes / No / N/A |
 | **Firebender** — `ls -l ~/.firebender/rules/*.mdc` ok; chat quotes Precedence | Yes / No / N/A |
 | **Smoke test** — repo `AGENTS.md` wins on commits | Yes / No |

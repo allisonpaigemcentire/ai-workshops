@@ -1,0 +1,976 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizing Your Agent Workflow — Draft 2</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        :root {
+            --stage-bg: #111111;
+            --slide-bg: #ffffff;
+            --ink: #000000;
+            --muted: #555555;
+            --accent: #ff3300;
+            --font-display: 'Archivo', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+            --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: var(--slide-bg, #fff);
+        }
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--slide-bg, #fff);
+        }
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+        img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+        .deck-controls {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
+            transform: none;
+            z-index: 1000;
+        }
+        @media print {
+            html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+            .deck-viewport { position: static; overflow: visible; background: #fff; }
+            .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+            .slide:last-child { break-after: auto; page-break-after: auto; }
+            .deck-controls { display: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+        }
+
+        .slide {
+            font-family: var(--font-body);
+            color: var(--ink);
+            background-color: #fff;
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.055) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.055) 1px, transparent 1px);
+            background-size: 80px 80px;
+        }
+        .slide.dark {
+            background-color: #111;
+            color: #fff;
+            background-image:
+                linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px);
+        }
+        .kicker {
+            position: absolute;
+            left: 80px;
+            top: 48px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .kicker .num { color: var(--accent); margin-right: 16px; }
+        .slide.dark .kicker { color: #aaa; }
+        .lab-meta {
+            position: absolute;
+            top: 48px;
+            right: 80px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 22px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        h1, h2 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            letter-spacing: -0.04em;
+            line-height: 0.95;
+        }
+        h2 {
+            position: absolute;
+            left: 80px;
+            top: 200px;
+            right: 80px;
+            font-size: 92px;
+        }
+        h2.speak-lg { font-size: 108px; top: 280px; }
+        .lede {
+            position: absolute;
+            left: 80px;
+            top: 520px;
+            right: 200px;
+            font-size: 36px;
+            font-weight: 600;
+            line-height: 1.35;
+            color: var(--muted);
+        }
+        .slide.dark .lede { color: #c8c8c8; }
+        .lede.under-lg { top: 560px; }
+        .slide-num {
+            position: absolute;
+            right: 80px;
+            bottom: 40px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 0.12em;
+            color: var(--muted);
+        }
+        .slide.dark .slide-num { color: #888; }
+        .cmd {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 400px;
+            font-family: var(--font-mono);
+            font-size: 28px;
+            font-weight: 400;
+            line-height: 1.5;
+            background: #111;
+            color: #f2f2f2;
+            padding: 40px 48px;
+            border-left: 12px solid var(--accent);
+            white-space: pre-wrap;
+        }
+        .with-cmd h2 {
+            font-size: 64px;
+            top: 160px;
+        }
+        .slide.dark .cmd {
+            background: #000;
+            border: 4px solid #fff;
+            border-left-width: 12px;
+            border-left-color: var(--accent);
+        }
+        .expect {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 780px;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .slide.dark .expect { color: #c8c8c8; }
+        .prompt-box {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 420px;
+            font-family: var(--font-mono);
+            font-size: 36px;
+            line-height: 1.4;
+            padding: 48px 56px;
+            border: 4px solid var(--ink);
+            background: #fff;
+        }
+        .slide.dark .prompt-box {
+            background: #000;
+            border-color: #fff;
+            color: #fff;
+        }
+        .tiles {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 420px;
+            bottom: 100px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 28px;
+        }
+        .tile {
+            border: 4px solid var(--ink);
+            padding: 40px 44px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .tile.ink { background: var(--ink); color: #fff; border-color: var(--ink); }
+        .tile .tag {
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .tile.ink .tag { color: #ff6644; }
+        .tile h3 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 40px;
+            letter-spacing: -0.03em;
+        }
+        .tile p { font-size: 28px; font-weight: 600; line-height: 1.35; color: var(--muted); }
+        .tile.ink p { color: rgba(255,255,255,0.85); }
+        .points {
+            position: absolute;
+            left: 80px;
+            top: 420px;
+            right: 80px;
+            display: flex;
+            flex-direction: column;
+            gap: 32px;
+        }
+        .points li {
+            list-style: none;
+            display: flex;
+            gap: 28px;
+            align-items: baseline;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 40px;
+            letter-spacing: -0.03em;
+            line-height: 1.15;
+        }
+        .points .mark { color: var(--accent); width: 56px; flex: none; }
+        .title-slide h1 {
+            position: absolute;
+            left: 80px;
+            top: 280px;
+            right: 80px;
+            font-size: 96px;
+        }
+        .title-slide .sub {
+            position: absolute;
+            left: 80px;
+            top: 720px;
+            font-size: 32px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .title-slide .byline {
+            position: absolute;
+            left: 80px;
+            bottom: 80px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            font-size: 18px;
+            color: var(--accent);
+        }
+        .section-slide h2 { top: 360px; font-size: 120px; }
+        .section-slide .sec-note {
+            position: absolute;
+            left: 80px;
+            top: 720px;
+            right: 80px;
+            font-size: 32px;
+            font-weight: 600;
+            color: #c8c8c8;
+        }
+        .close-slide h1 {
+            position: absolute;
+            left: 80px;
+            top: 280px;
+            width: 1600px;
+            font-size: 96px;
+        }
+        .close-slide .sub {
+            position: absolute;
+            left: 80px;
+            top: 720px;
+            font-size: 28px;
+            font-weight: 600;
+            color: #c8c8c8;
+        }
+        .signal-sq {
+            position: absolute;
+            left: 80px;
+            top: 200px;
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+        }
+        .rule {
+            position: absolute;
+            left: 80px;
+            top: 640px;
+            width: 240px;
+            height: 8px;
+            background: var(--accent);
+        }
+        .deck-controls {
+            display: flex;
+            align-items: center;
+            gap: 16px;
+        }
+        #dots {
+            display: flex;
+            flex: 1;
+            justify-content: space-between;
+            min-width: 0;
+        }
+        .dot {
+            flex: 1 1 0;
+            height: 28px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            padding: 0;
+        }
+        .dot::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            margin: -5px 0 0 -5px;
+            border-radius: 50%;
+            background: #666;
+        }
+        .dot.on::after { background: #ff3300; }
+        .counter {
+            font-family: var(--font-display);
+            font-size: 14px;
+            color: #ddd;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+        .notes-btn {
+            font-family: var(--font-display);
+            font-size: 22px;
+            font-weight: 800;
+            color: #ddd;
+            background: transparent;
+            border: 0;
+            cursor: pointer;
+            padding: 6px 12px;
+        }
+        .notes-btn[aria-pressed="true"] { color: #ff3300; }
+        .edit-hotzone {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 80px;
+            height: 80px;
+            z-index: 10000;
+        }
+        .edit-toggle {
+            position: fixed;
+            top: 16px;
+            left: 16px;
+            opacity: 0;
+            pointer-events: none;
+            z-index: 10001;
+            background: #ff3300;
+            color: #fff;
+            border: 0;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            padding: 10px 14px;
+            cursor: pointer;
+        }
+        .edit-toggle.show, .edit-toggle.active { opacity: 1; pointer-events: auto; }
+        body.editing .edit-toggle { background: #000; }
+        [contenteditable="true"] { outline: 1px dashed var(--accent); outline-offset: 4px; }
+        .slide > .speaker-notes {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            pointer-events: none;
+        }
+        .notes-panel {
+            position: fixed;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            height: min(32vh, 340px);
+            z-index: 900;
+            background: #111111;
+            color: #f2f2f2;
+            border-top: 4px solid #ff3300;
+            display: none;
+            flex-direction: column;
+            font-family: var(--font-body);
+        }
+        body.notes-open .notes-panel { display: flex; }
+        body.notes-open .notes-body { padding-bottom: 72px; }
+        .notes-panel header {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 24px 6px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 13px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: #ff3300;
+        }
+        .notes-hint { color: #888; }
+        .notes-body {
+            overflow: auto;
+            padding: 8px 24px 20px;
+            font-size: 17px;
+            line-height: 1.45;
+            white-space: pre-wrap;
+            font-weight: 600;
+        }
+        .reveal { animation: rise 0.55s cubic-bezier(0.16, 1, 0.3, 1) both; }
+        .reveal:nth-child(1) { animation-delay: 0.04s; }
+        .reveal:nth-child(2) { animation-delay: 0.1s; }
+        .reveal:nth-child(3) { animation-delay: 0.16s; }
+        @keyframes rise {
+            from { opacity: 0; transform: translateY(18px); }
+            to { opacity: 1; transform: none; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .reveal { animation: none; }
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-hotzone" title="Edit mode"></div>
+    <button class="edit-toggle" id="editToggle" type="button" title="Edit mode (E)">Edit</button>
+
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage">
+
+            <section class="slide title-slide" data-slide="1">
+                <p class="kicker reveal"><span class="num">01</span> Draft 2</p>
+                <h1 class="reveal" data-ed="d2-s01-h1">Customizing Your<br>Agent Workflow</h1>
+                <p class="sub reveal" data-ed="d2-s01-sub">Best practices, then labs. One personal file. Repo files still win.</p>
+                <p class="byline reveal" data-ed="d2-s01-by">Nuuly Engineering · 60 minutes</p>
+                <p class="slide-num">01 / 25</p>
+                <div class="speaker-notes">This is Draft 2. We will spend about fifteen minutes on the practices that matter, including git for ~/.agents, three writing lines, and do not explore in the main loop, then you will write one personal file and point each product you use at it. Open an application repo that already has AGENTS.md. Clone the lab folder if you have not: git clone ai-workshops, then cd to workshops/customizing-agent-workflow/lab.</div>
+            </section>
+
+            <section class="slide dark" data-slide="2">
+                <p class="kicker reveal"><span class="num">02</span> Practice</p>
+                <h2 class="speak-lg reveal" data-ed="d2-s02-h2">Repo files win.</h2>
+                <p class="lede under-lg reveal" data-ed="d2-s02-lede">If a personal rule and AGENTS.md disagree, follow the repo file.</p>
+                <p class="slide-num">02 / 25</p>
+                <div class="speaker-notes">Say this with me: Repo files win. Personal config is allowed. It does not override AGENTS.md, repo skills, repo hooks, or repo rules. Markdown only advises. Nothing automatically enforces that for personal files. That is why every personal file starts with a Precedence block.</div>
+            </section>
+
+            <section class="slide dark" data-slide="3">
+                <p class="kicker reveal"><span class="num">03</span> Practice</p>
+                <h2 class="speak-lg reveal" data-ed="d2-s03-h2">Hooks stop.<br>Markdown advises.</h2>
+                <p class="lede under-lg reveal" data-ed="d2-s03-lede">A personal rule cannot disable a repo hook. AGENTS.md will not return deny.</p>
+                <p class="slide-num">03 / 25</p>
+                <div class="speaker-notes">A repo hook can block a git push or deny a tool call. A personal rule in markdown cannot turn that off. If the repo already asks before git push, a personal confirm-before-push line is extra advice, not a replacement.</div>
+            </section>
+
+            <section class="slide" data-slide="4">
+                <p class="kicker reveal"><span class="num">04</span> Practice</p>
+                <h2 class="reveal" data-ed="d2-s04-h2">Edit one file.</h2>
+                <p class="lede reveal" data-ed="d2-s04-lede">~/.agents/instructions/shared.md is the personal source. Not a replacement for repo AGENTS.md or repo .agents/skills.</p>
+                <p class="slide-num">04 / 25</p>
+                <div class="speaker-notes">Not every engineer uses Cursor. Do not make ~/.cursor/rules the source of truth. Edit shared.md once. Lab B writes thin wrappers so Claude, Cursor, Gemini, and Firebender follow that file. Personal ~/.agents is not the team harness in the application repo.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="5">
+                <p class="kicker reveal"><span class="num">05</span> Practice</p>
+                <h2 class="reveal" data-ed="d2-s05git-h2">Put ~/.agents<br>in git.</h2>
+                <pre class="cmd reveal" data-ed="d2-s05git-cmd">mkdir -p ~/.agents
+git -C ~/.agents init
+# Lab A: cp templates/agents.gitignore ~/.agents/.gitignore</pre>
+                <p class="expect reveal" data-ed="d2-s05git-ex">Private remote only. Never commit secrets. This is not a team repo.</p>
+                <p class="slide-num">05 / 25</p>
+                <div class="speaker-notes">Treat ~/.agents as a personal dotfiles tree so a new laptop can reinstall. Run the copy from the cloned lab folder. Wrappers under ~/.claude and ~/.cursor stay outside this git tree unless you add them on purpose. Do not push to a public remote. Lab A can run the same commands after shared.md exists.</div>
+            </section>
+
+            <section class="slide" data-slide="6">
+                <p class="kicker reveal"><span class="num">06</span> Practice</p>
+                <h2 class="reveal" data-ed="d2-s05-h2">Point tools at it.<br>Do not copy by hand.</h2>
+                <p class="lede reveal" data-ed="d2-s05-lede">lab/wire-personal-agents.sh writes wrappers. Claude @-imports. Gemini and Firebender embed a copy — re-run after you edit shared.md.</p>
+                <p class="slide-num">06 / 25</p>
+                <div class="speaker-notes">If you paste the same paragraph into three home folders, they drift. The wire script is the bridge. Use --tools= if you only use some products. Cursor Cloud Agents never see this laptop file. That is the next slide.</div>
+            </section>
+
+            <section class="slide" data-slide="7">
+                <p class="kicker reveal"><span class="num">07</span> Practice</p>
+                <h2 class="reveal" data-ed="d2-s06-h2">Cloud does not<br>see your laptop.</h2>
+                <p class="lede reveal" data-ed="d2-s06-lede">If a pref must apply on a Cloud Agent run, put it in the repo harness or Team Rules before you start. Do not symlink ~/.agents into a repo.</p>
+                <p class="slide-num">07 / 25</p>
+                <div class="speaker-notes">Desktop and Cloud are different runtimes. The Cloud VM clones the repo. It never loads ~/.agents or ~/.cursor/rules. Promote team requirements like PR body format. Keep writing style personal unless the whole team adopts it.</div>
+            </section>
+
+            <section class="slide" data-slide="8">
+                <p class="kicker reveal"><span class="num">08</span> Practice</p>
+                <div class="tiles">
+                    <div class="tile ink reveal">
+                        <span class="tag">Put in shared.md</span>
+                        <h3 data-ed="d2-s07-h1">Writing. Tools. Cost.</h3>
+                        <p data-ed="d2-s07-p1">Be short. gh and acli. Confirm before push if the hook does not. Cheaper model for mechanical work.</p>
+                    </div>
+                    <div class="tile reveal">
+                        <span class="tag">Do not put here</span>
+                        <h3 data-ed="d2-s07-h2">Build. Test. Secrets.</h3>
+                        <p data-ed="d2-s07-p2">How to build this repo. A second copy of a repo skill. A global --no-verify rule. Tokens in a git-synced tree.</p>
+                    </div>
+                </div>
+                <p class="slide-num">08 / 25</p>
+                <div class="speaker-notes">Follow the open repo's hook rules. Some Nuuly repos require --no-verify for a known hook problem. Others forbid skipping hooks for new lint. Do not write a personal always or never. Add a line to shared.md when you catch yourself re-explaining the same habit.</div>
+            </section>
+
+            <section class="slide" data-slide="9">
+                <p class="kicker reveal"><span class="num">09</span> Practice</p>
+                <h2 class="reveal" data-ed="d2-s09c-h2">Three writing lines.</h2>
+                <ul class="points">
+                    <li class="reveal"><span class="mark">01</span><span data-ed="d2-s09c-p1">No preamble.</span></li>
+                    <li class="reveal"><span class="mark">02</span><span data-ed="d2-s09c-p2">No trailing summary of the diff.</span></li>
+                    <li class="reveal"><span class="mark">03</span><span data-ed="d2-s09c-p3">State each finding once.</span></li>
+                </ul>
+                <p class="slide-num">09 / 25</p>
+                <div class="speaker-notes">Keep these three in shared.md. They are the default writing style for this workshop. Lab B load check is quoting the Precedence line, not a new closing sentence on every reply.</div>
+            </section>
+
+            <section class="slide dark" data-slide="10">
+                <p class="kicker reveal"><span class="num">10</span> Practice</p>
+                <h2 class="speak-lg reveal" data-ed="d2-s10o-h2">Main thread plans.</h2>
+                <p class="lede under-lg reveal" data-ed="d2-s10o-lede">Do not explore in the main loop. Spike unknowns in a subagent or a second session. Return a short finding.</p>
+                <p class="slide-num">10 / 25</p>
+                <div class="speaker-notes">The chat you will keep using is the orchestrator. Cursor Agent and Claude Code can spawn a worker. Gemini CLI: start a second session. Do not trial-and-error APIs or re-read huge files in the main thread. Mechanical work still uses a cheaper model — that stays on the put-in-shared slide.</div>
+            </section>
+
+            <section class="slide" data-slide="11">
+                <p class="kicker reveal"><span class="num">11</span> Practice</p>
+                <h2 class="reveal" data-ed="d2-s08-h2">Same three checks<br>for every product.</h2>
+                <ul class="points">
+                    <li class="reveal"><span class="mark">01</span><span data-ed="d2-s08-p1">File on disk — shared.md and wire --check</span></li>
+                    <li class="reveal"><span class="mark">02</span><span data-ed="d2-s08-p2">Product lists it — /memory, quote test, or new Agent chat</span></li>
+                    <li class="reveal"><span class="mark">03</span><span data-ed="d2-s08-p3">Smoke test — repo AGENTS.md wins on commits</span></li>
+                </ul>
+                <p class="slide-num">11 / 25</p>
+                <div class="speaker-notes">You will run these three steps in the labs. Android Studio Gemini is not Gemini CLI. Do not score Studio against /memory show. Advance to labs. Run only the products you actually use.</div>
+            </section>
+
+            <section class="slide dark section-slide" data-slide="12">
+                <p class="kicker reveal"><span class="num">12</span> Labs</p>
+                <h2 class="reveal" data-ed="d2-s09-h2">Labs</h2>
+                <p class="sec-note reveal" data-ed="d2-s09-note">Open an app repo with AGENTS.md. Clone lab/. Skip any product you do not use.</p>
+                <p class="slide-num">12 / 25</p>
+                <div class="speaker-notes">Keep handout.md open if you want the long form. From here we walk one action per slide. Clone command is on the next slide if anyone still needs it. Ten minutes for Lab A.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="13">
+                <p class="kicker reveal"><span class="num">13</span> Lab A · step 1</p>
+                <p class="lab-meta reveal">10 minutes</p>
+                <h2 class="reveal" data-ed="d2-s10-h2">Copy the starter.</h2>
+                <pre class="cmd reveal" data-ed="d2-s10-cmd">mkdir -p ~/.agents/instructions
+cp templates/shared.md ~/.agents/instructions/shared.md
+cp templates/agents.gitignore ~/.agents/.gitignore</pre>
+                <p class="expect reveal" data-ed="d2-s10-ex">Run from the cloned lab/ folder. Do not copy this file into each product by hand.</p>
+                <p class="slide-num">13 / 25</p>
+                <div class="speaker-notes">Wait until most people have the file. If they write from scratch, the path is still ~/.agents/instructions/shared.md. Next slide is the Precedence block they must keep.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="14">
+                <p class="kicker reveal"><span class="num">14</span> Lab A · step 2</p>
+                <p class="lab-meta reveal">Keep this first</p>
+                <h2 class="reveal" data-ed="d2-s11-h2">Precedence block<br>stays at the top.</h2>
+                <pre class="cmd reveal" data-ed="d2-s11-cmd">## Precedence
+
+Repo AGENTS.md, .agents/skills/, repo hooks, and repo rules win.
+These lines are personal prefs for this machine. On conflict, follow the repo.</pre>
+                <p class="slide-num">14 / 25</p>
+                <div class="speaker-notes">This is already in the template. Do not delete it. It tells the agent where personal prefs sit. It does not replace repo instructions.</div>
+            </section>
+
+            <section class="slide" data-slide="15">
+                <p class="kicker reveal"><span class="num">15</span> Lab A · step 3</p>
+                <p class="lab-meta reveal">Your lines</p>
+                <h2 class="reveal" data-ed="d2-s12-h2">Keep the three<br>writing lines.</h2>
+                <ul class="points" style="top: 480px;">
+                    <li class="reveal"><span class="mark">—</span><span data-ed="d2-s12-p1">No preamble. No trailing summary. State each finding once.</span></li>
+                    <li class="reveal"><span class="mark">—</span><span data-ed="d2-s12-p2">Add tool and cost lines. Do not copy repo engineering.</span></li>
+                </ul>
+                <p class="slide-num">15 / 25</p>
+                <div class="speaker-notes">The template already has the three writing lines and the orchestrator lines. Delete only what you do not want. Do not copy branch-name rules, commit flags, or generate-client commands from the repo. Lab B load check is quoting Precedence. Work silently. Raise a hand if the path is wrong.</div>
+            </section>
+
+            <section class="slide dark" data-slide="16">
+                <p class="kicker reveal"><span class="num">16</span> Lab A · done</p>
+                <h2 class="speak-lg reveal" data-ed="d2-s13-h2">Save only<br>shared.md.</h2>
+                <p class="lede under-lg reveal" data-ed="d2-s13-lede">Lab A is done when that file exists and starts with the Precedence block.</p>
+                <p class="slide-num">16 / 25</p>
+                <div class="speaker-notes">Confirm with the room. Then Lab B: seventeen minutes. Wire script first, then only the products you use.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="17">
+                <p class="kicker reveal"><span class="num">17</span> Lab B · all products</p>
+                <p class="lab-meta reveal">17 minutes</p>
+                <h2 class="reveal" data-ed="d2-s14-h2">Run the wire script.</h2>
+                <pre class="cmd reveal" data-ed="d2-s14-cmd">bash wire-personal-agents.sh
+bash wire-personal-agents.sh --check</pre>
+                <p class="expect reveal" data-ed="d2-s14-ex">Expect: Personal agents wire: ok. Optional: --tools=claude,cursor</p>
+                <p class="slide-num">17 / 25</p>
+                <div class="speaker-notes">From the cloned lab/ directory. If GEMINI.md already exists and is unmanaged, the script reports a conflict — back it up or add the managed markers. Next four slides are per product. Skip any you do not use. I will demo a tool the room lacks.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="18">
+                <p class="kicker reveal"><span class="num">18</span> Lab B · Cursor</p>
+                <p class="lab-meta reveal">Skip if unused</p>
+                <h2 class="reveal" data-ed="d2-s15-h2">File, then quote.</h2>
+                <pre class="cmd reveal" data-ed="d2-s15-cmd">ls ~/.cursor/rules/personal-instructions.mdc
+
+New Agent chat:
+Quote the Precedence line from ~/.agents/instructions/shared.md</pre>
+                <p class="slide-num">18 / 25</p>
+                <div class="speaker-notes">Wrapper must mention shared.md. Cloud Agents do not load this — handout section seven if someone asks. Load check is quoting the Precedence line, not a trailing-summary test line.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="19">
+                <p class="kicker reveal"><span class="num">19</span> Lab B · Claude</p>
+                <p class="lab-meta reveal">Skip if unused</p>
+                <h2 class="reveal" data-ed="d2-s16-h2">New session.<br>/memory</h2>
+                <pre class="cmd reveal" data-ed="d2-s16-cmd"># wire --check already confirmed
+# ~/.claude/CLAUDE.md contains:
+@~/.agents/instructions/shared.md
+
+/memory
+# or /context</pre>
+                <p class="slide-num">19 / 25</p>
+                <div class="speaker-notes">Confirm personal CLAUDE.md or the @ import appears. Chat-only Desktop Projects do not auto-load this. Start a local-folder Claude Code session in the app repo.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="20">
+                <p class="kicker reveal"><span class="num">20</span> Lab B · Gemini CLI</p>
+                <p class="lab-meta reveal">Skip if unused</p>
+                <h2 class="reveal" data-ed="d2-s17-h2">Refresh, then show.</h2>
+                <pre class="cmd reveal" data-ed="d2-s17-cmd">head -20 ~/.gemini/GEMINI.md
+
+/memory refresh
+/memory show</pre>
+                <p class="expect reveal" data-ed="d2-s17-ex">GEMINI.md and repo AGENTS.md listed. Android Studio Gemini is not this product.</p>
+                <p class="slide-num">20 / 25</p>
+                <div class="speaker-notes">Do not use /memory show for Android Studio Gemini. After you edit shared.md later, re-run the wire script so the Gemini copy stays current.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="21">
+                <p class="kicker reveal"><span class="num">21</span> Lab B · Firebender</p>
+                <p class="lab-meta reveal">Skip if unused</p>
+                <h2 class="reveal" data-ed="d2-s18-h2">ls, then quote.</h2>
+                <pre class="cmd reveal" data-ed="d2-s18-cmd">ls -l ~/.firebender/rules/personal-instructions.mdc
+
+New Firebender chat:
+Quote the Precedence line from my personal prefs.</pre>
+                <p class="slide-num">21 / 25</p>
+                <div class="speaker-notes">Project .cursor/rules in the app repo is not this wrapper. Re-run wire after editing shared.md. Lab B is done when each product you use passed file check and loaded check. Seven minutes for Lab C.</div>
+            </section>
+
+            <section class="slide" data-slide="22">
+                <p class="kicker reveal"><span class="num">22</span> Lab C · prompt 1</p>
+                <p class="lab-meta reveal">7 minutes</p>
+                <h2 class="reveal" data-ed="d2-s19-h2">Same prompt in each<br>product you verified.</h2>
+                <div class="prompt-box reveal" data-ed="d2-s19-q">Draft a PR body for my current branch.</div>
+                <p class="slide-num">22 / 25</p>
+                <div class="speaker-notes">Open the application repo in that product first. If they have a Goal / Ran / Doubt habit, those headings should appear. If not, any structured body is fine. Next prompt is the pass/fail.</div>
+            </section>
+
+            <section class="slide dark" data-slide="23">
+                <p class="kicker reveal"><span class="num">23</span> Lab C · prompt 2</p>
+                <p class="lab-meta reveal">Repo must win</p>
+                <h2 class="reveal" data-ed="d2-s20-h2">Pass = repo rule.</h2>
+                <div class="prompt-box reveal" data-ed="d2-s20-q">What does AGENTS.md say about commits? Should you commit without me asking?</div>
+                <p class="slide-num">23 / 25</p>
+                <div class="speaker-notes">Pass: the agent cites the repo — for example do not commit unless explicitly asked. Fail: it follows only the personal habit and ignores AGENTS.md. If they fail, remove duplicate commit lines from shared.md. Re-run wire if they use Gemini or Firebender. Repeat both prompts in each product they verified.</div>
+            </section>
+
+            <section class="slide with-cmd" data-slide="24">
+                <p class="kicker reveal"><span class="num">24</span> Exit</p>
+                <p class="lab-meta reveal">8 minutes</p>
+                <h2 class="reveal" data-ed="d2-s21-h2">Fill the checklist.</h2>
+                <pre class="cmd reveal" data-ed="d2-s21-cmd">Open lab/verify-checklist.md
+
+Mark Yes / No / N/A
+Keep a copy. Fix No rows from lab/README.md</pre>
+                <p class="slide-num">24 / 25</p>
+                <div class="speaker-notes">Success is a file on disk and a completed row for each product they use — not tip notes alone. Then close.</div>
+            </section>
+
+            <section class="slide dark close-slide" data-slide="25">
+                <div class="signal-sq reveal" aria-hidden="true"></div>
+                <h1 class="reveal" data-ed="d2-s22-h1">The repo still<br>teaches the codebase.</h1>
+                <div class="rule reveal"></div>
+                <p class="sub reveal" data-ed="d2-s22-sub">handout.md · lab/README.md · lab/verify-checklist.md</p>
+                <p class="slide-num">25 / 25</p>
+                <div class="speaker-notes">You wrote personal prefs on this machine. Edit ~/.agents/instructions/shared.md once. If a personal rule and AGENTS.md disagree, follow the repo. I am here for a few minutes of setup help. Thank you.</div>
+            </section>
+
+        </main>
+    </div>
+
+    <aside class="notes-panel" id="notesPanel" aria-label="Speaker notes">
+        <header>
+            <span>Speaker notes</span>
+            <span class="notes-hint">N to close</span>
+        </header>
+        <div class="notes-body" id="notesBody"></div>
+    </aside>
+
+    <nav class="deck-controls" aria-label="Slide progress">
+        <div id="dots"></div>
+        <span class="counter" id="counter">1 / 25</span>
+        <button class="notes-btn" id="notesToggle" type="button" aria-pressed="false" title="Speaker notes (N)">N</button>
+    </nav>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.stage = document.getElementById('deckStage');
+                this.dotsRoot = document.getElementById('dots');
+                this.counter = document.getElementById('counter');
+                this.setupStageScale();
+                this.setupDots();
+                this.setupNotes();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.showSlide(this.startSlideFromUrl());
+            }
+            startSlideFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                const n = parseInt(params.get('slide') || '1', 10);
+                if (Number.isNaN(n)) return 0;
+                return Math.max(0, Math.min(n - 1, this.slides.length - 1));
+            }
+            setupStageScale() {
+                const scale = () => {
+                    const notesPanel = document.getElementById('notesPanel');
+                    const notesH = document.body.classList.contains('notes-open') && notesPanel
+                        ? notesPanel.offsetHeight : 0;
+                    const availH = window.innerHeight - notesH;
+                    const factor = Math.min(window.innerWidth / 1920, availH / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (availH - 1080 * factor) / 2;
+                    this.stage.style.transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + factor + ')';
+                };
+                this.rescale = scale;
+                scale();
+                window.addEventListener('resize', scale);
+            }
+            setupNotes() {
+                this.notesBody = document.getElementById('notesBody');
+                this.notesToggle = document.getElementById('notesToggle');
+                this.notesOpen = false;
+                this.notesToggle.addEventListener('click', () => this.toggleNotes());
+                document.addEventListener('keydown', (e) => {
+                    if (e.target && e.target.getAttribute('contenteditable') === 'true') return;
+                    if (e.key === 'n' || e.key === 'N') {
+                        e.preventDefault();
+                        this.toggleNotes();
+                    }
+                });
+            }
+            toggleNotes() {
+                this.notesOpen = !this.notesOpen;
+                document.body.classList.toggle('notes-open', this.notesOpen);
+                this.notesToggle.setAttribute('aria-pressed', this.notesOpen ? 'true' : 'false');
+                this.syncNotes();
+                if (this.rescale) this.rescale();
+            }
+            syncNotes() {
+                const slide = this.slides[this.currentSlide];
+                const src = slide ? slide.querySelector('.speaker-notes') : null;
+                this.notesBody.textContent = src ? src.textContent : '';
+            }
+            setupDots() {
+                this.slides.forEach((_, i) => {
+                    const b = document.createElement('button');
+                    b.className = 'dot';
+                    b.type = 'button';
+                    b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                    b.addEventListener('click', () => this.showSlide(i));
+                    this.dotsRoot.appendChild(b);
+                });
+                this.dots = this.dotsRoot.querySelectorAll('.dot');
+            }
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target && e.target.getAttribute('contenteditable') === 'true') return;
+                    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.showSlide(this.currentSlide + 1);
+                    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.showSlide(this.currentSlide - 1);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.showSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.showSlide(this.slides.length - 1);
+                    }
+                });
+            }
+            setupTouchNav() {
+                let x0 = null;
+                this.stage.addEventListener('touchstart', (e) => {
+                    x0 = e.changedTouches[0].screenX;
+                }, { passive: true });
+                this.stage.addEventListener('touchend', (e) => {
+                    if (x0 === null) return;
+                    const dx = e.changedTouches[0].screenX - x0;
+                    if (Math.abs(dx) > 50) this.showSlide(this.currentSlide + (dx < 0 ? 1 : -1));
+                    x0 = null;
+                }, { passive: true });
+            }
+            setupWheelNav() {
+                let locked = false;
+                window.addEventListener('wheel', (e) => {
+                    if (document.body.classList.contains('editing')) return;
+                    if (locked) return;
+                    if (Math.abs(e.deltaY) < 30) return;
+                    locked = true;
+                    this.showSlide(this.currentSlide + (e.deltaY > 0 ? 1 : -1));
+                    setTimeout(() => { locked = false; }, 450);
+                }, { passive: true });
+            }
+            showSlide(index) {
+                this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === this.currentSlide);
+                    slide.classList.toggle('visible', i === this.currentSlide);
+                });
+                this.dots.forEach((d, i) => d.classList.toggle('on', i === this.currentSlide));
+                this.counter.textContent = (this.currentSlide + 1) + ' / ' + this.slides.length;
+                if (this.syncNotes) this.syncNotes();
+            }
+        }
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.storageKey = 'customizing-agent-workflow-slides-draft-2-edits-v2';
+                this.toggleBtn = document.getElementById('editToggle');
+                this.restore();
+            }
+            editableNodes() {
+                return document.querySelectorAll('[data-ed], h1, h2, h3, .lede, .sub, .byline, .expect, #notesBody');
+            }
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                document.body.classList.toggle('editing', this.isActive);
+                this.toggleBtn.classList.toggle('active', this.isActive);
+                this.toggleBtn.textContent = this.isActive ? 'Editing' : 'Edit';
+                this.editableNodes().forEach((el) => {
+                    el.setAttribute('contenteditable', this.isActive ? 'true' : 'false');
+                });
+                if (!this.isActive) this.save();
+            }
+            save() {
+                const active = document.querySelector('.slide.active .speaker-notes');
+                const notesBody = document.getElementById('notesBody');
+                if (active && notesBody && document.body.classList.contains('notes-open')) {
+                    active.textContent = notesBody.textContent;
+                }
+                const data = {};
+                document.querySelectorAll('[data-ed]').forEach((el) => {
+                    data[el.getAttribute('data-ed')] = el.innerHTML;
+                });
+                try { localStorage.setItem(this.storageKey, JSON.stringify(data)); } catch (err) {}
+            }
+            restore() {
+                try {
+                    const raw = localStorage.getItem(this.storageKey);
+                    if (!raw) return;
+                    const data = JSON.parse(raw);
+                    Object.keys(data).forEach((id) => {
+                        const el = document.querySelector('[data-ed="' + id + '"]');
+                        if (el) el.innerHTML = data[id];
+                    });
+                } catch (err) {}
+            }
+        }
+        const deck = new SlidePresentation();
+        const editor = new InlineEditor();
+        document.getElementById('editToggle').addEventListener('click', () => editor.toggleEditMode());
+        const hotzone = document.querySelector('.edit-hotzone');
+        const editToggle = document.getElementById('editToggle');
+        let hideTimeout = null;
+        hotzone.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimeout);
+            editToggle.classList.add('show');
+        });
+        hotzone.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                if (!editor.isActive) editToggle.classList.remove('show');
+            }, 400);
+        });
+        editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+        editToggle.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                if (!editor.isActive) editToggle.classList.remove('show');
+            }, 400);
+        });
+        hotzone.addEventListener('click', () => editor.toggleEditMode());
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                editor.toggleEditMode();
+            }
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                editor.save();
+            }
+        });
+    </script>
+</body>
+</html>

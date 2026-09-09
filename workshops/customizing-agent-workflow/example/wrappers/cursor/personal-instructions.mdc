@@ -1,0 +1,10 @@
+---
+description: Personal prefs from ~/.agents/instructions/shared.md
+alwaysApply: true
+# managed-by: wire-personal-agents
+---
+
+Follow `~/.agents/instructions/shared.md` as the source of personal
+preferences on this machine. On conflict with repo files, follow the repo.
+
+@~/.agents/instructions/shared.md

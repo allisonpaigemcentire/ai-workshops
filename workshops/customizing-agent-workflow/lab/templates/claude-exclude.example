@@ -1,7 +1,13 @@
-# Cursor-only stems — not mirrored into ~/.claude/rules/
-# Copy to ~/.cursor/rules/.claude-exclude (one stem per line, # comments ok)
+# Cursor-only extra rules — not the workshop default
 #
-# Examples (rename to match your situational rules):
+# Workshop default: edit ~/.agents/instructions/shared.md, then run
+# wire-personal-agents.sh. That file is what Claude, Gemini, and Firebender
+# should follow.
+#
+# Use this exclude list only if you also keep extra files under
+# ~/.cursor/rules/*.mdc and still run sync-personal-rules.sh to mirror them
+# into Claude. Copy to ~/.cursor/rules/.claude-exclude (one stem per line).
+#
+# Examples:
 # creating-pull-requests
-# cody-review-before-commit
 # context-baseline-html-report

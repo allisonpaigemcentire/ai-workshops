@@ -9,30 +9,38 @@ application repos.
 - **Duration:** 60 minutes
 - **Prerequisites:** an application repo with `AGENTS.md`; Cursor, Claude Code,
   Gemini CLI, and/or Firebender installed on your machine
-- **What participants leave with:** personal pref files on disk, the sync script
-  for Cursor ↔ Claude, and a completed verify checklist for each product they use
+- **What participants leave with:** `~/.agents/instructions/shared.md` on disk,
+  product wrappers from `wire-personal-agents.sh`, and a completed verify
+  checklist for each product they use
 
 ## Contents of this folder
 
 | File | Contents |
 |------|----------|
-| [handout.md](handout.md) | Full guide: precedence, per-tool loading, verify steps, Cloud promotion |
-| [lab/](lab/) | Templates, `sync-personal-rules.sh`, verify checklist |
-| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | **Canonical** 41-slide deck with speaker notes; lab walkthrough on slides 27–33; references on slide 40 (self-contained in this folder) |
+| [handout.md](handout.md) | Full guide: precedence, per-tool loading, `~/.agents/` source of truth, verify steps, Cloud promotion |
+| [lab/](lab/) | Templates, `wire-personal-agents.sh`, verify checklist |
+| [example/](example/) | Sample finished personal setup (`~/.agents/` + product wrappers) |
+| [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) | **Live deck (Draft 2):** 25 slides — practices 1–11, then Labs A–C one step per slide |
+| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Draft 1 archive: 44 slides with pull quotes, skip list, and take-home slides 38–41 |
 | [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PR example and Cursor Cloud workaround |
 
-All participant and presenter files for this workshop live in this folder. There
-is no separate curriculum-repo copy of the slide deck.
+All participant and presenter files for this workshop live in this folder.
+
+When you edit the Draft 2 HTML or the handout, copy the same bytes into the
+curriculum repo (`bookish-octo-barnacle`: repo-root Draft 2 HTML and
+`PHASE_2/workshops/CustomizingWorkflow/customizing-your-agent-workflow.md`).
+Do not leave the two copies on different contents.
 
 ## Getting started
 
 1. Clone the lab folder (see [lab/README.md](lab/README.md)).
-2. Open [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) in a browser.
+2. Open [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) in a browser.
 3. Follow [handout.md](handout.md) and [lab/README.md](lab/README.md) for setup and verify steps.
 
 ## Takeaway line
 
 Personal prefs fill gaps on this machine. Repo files still win on conflict.
+Edit `~/.agents/instructions/shared.md` once. Point each product at that file.
 
 ## Participant clone command
 

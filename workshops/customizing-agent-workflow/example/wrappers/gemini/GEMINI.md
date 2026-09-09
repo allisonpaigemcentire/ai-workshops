@@ -17,7 +17,9 @@ These lines are personal prefs for this machine. On conflict, follow the repo.
 - State each finding once.
 - Name tradeoffs in 1–2 sentences; I decide.
 - Do not ask permission for read-only git / gh / acli.
-- Confirm before push, PR open/close, branch delete, or force-push.
+- Confirm before push, PR open/close, branch delete, or force-push — unless a
+  repo hook already asks or denies.
+- When I ask for a PR body, use Goal, Ran, and Doubt.
 
 ## Tooling
 
@@ -35,9 +37,11 @@ These lines are personal prefs for this machine. On conflict, follow the repo.
 
 ## Defaults
 
-- Commits and PRs only when I ask. Push only when I say push.
+- Commits and PRs only when I ask. A commit request is not permission to push.
 - Prefer edit over new files. No unsolicited READMEs.
 - Comments in code only when the why is non-obvious.
 - Branch names: follow this repo's CONTRIBUTING / AGENTS.md. If the name
   is wrong, stop and ask; do not rename the branch on GitHub.
+- Follow the **open repo's** commit-hook rules. Do not invent a global
+  always or never `--no-verify`.
 <!-- /managed-by: wire-personal-agents -->

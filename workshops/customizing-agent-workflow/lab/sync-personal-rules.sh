@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Mirror personal Cursor user rules into Claude Code's user rules directory.
+# OPTIONAL: mirror extra Cursor-only ~/.cursor/rules/*.mdc into Claude.
+# Workshop default is ~/.agents/instructions/shared.md + wire-personal-agents.sh.
 #
-# Canonical: ~/.cursor/rules/*.mdc
+# Canonical for this extra bridge: ~/.cursor/rules/*.mdc
 # Claude:    ~/.claude/rules/<stem>.md  -> symlink to each .mdc
 # Exclude:    ~/.cursor/rules/.claude-exclude (stems to skip)
 # Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script)
@@ -219,14 +220,8 @@ draft, create, or update a PR (including `gh pr create` / `gh pr edit`):
   PR (no ticket: `am-no-ticket-…` hyphens only; ticketed: `am/<ticket>-…`).
 - Do not delegate `gh pr create` or the PR body draft to a subagent.
 
-**Commits** — read `~/.cursor/rules/cody-review-before-commit.mdc` when the user
-explicitly asks to **make a commit** (including `--amend`):
-
-- Run PR review on the to-be-committed diff via Task subagents (`sonnet` and
-  `opus`) following `~/.claude/skills/cody-pr-review/SKILL.md` before
-  `git commit`. Skip only if the user says `skip cody review` or equivalent in
-  the same turn.
-- Do not use the word "Cody" in anything that gets committed.
+The commit-review gate is a mirrored always-on rule (`cody-review-before-commit`),
+not an exclude stub. Follow that file before `git commit`.
 
 ## Cross-tool session memory
 

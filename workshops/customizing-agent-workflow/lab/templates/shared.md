@@ -1,11 +1,3 @@
-# Personal prefs. Repo AGENTS.md, skills, and hooks win on conflict.
-<!-- managed-by: wire-personal-agents -->
-
-Follow `~/.agents/instructions/shared.md`. Re-run `wire-personal-agents.sh`
-after you edit that file so this copy stays current.
-
-@~/.agents/instructions/shared.md
-
 ## Precedence
 
 Repo `AGENTS.md`, `.agents/skills/`, repo hooks, and repo rules win.
@@ -40,4 +32,3 @@ These lines are personal prefs for this machine. On conflict, follow the repo.
 - Comments in code only when the why is non-obvious.
 - Branch names: follow this repo's CONTRIBUTING / AGENTS.md. If the name
   is wrong, stop and ask; do not rename the branch on GitHub.
-<!-- /managed-by: wire-personal-agents -->

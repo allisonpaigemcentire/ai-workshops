@@ -20,38 +20,24 @@ workshop. Run only the steps for products you actually use.
 
 ## Lab A — Write personal prefs (10 minutes)
 
-**Goal:** Create a personal instruction file with five to ten lines that do
-not repeat your repo's `AGENTS.md`. Start with the Precedence block.
+**Goal:** Create **one** personal instruction file. Keep the Precedence block
+and the three writing lines (no preamble, no trailing summary, state each
+finding once). Add tool and cost lines that do not repeat your repo's
+`AGENTS.md`.
 
-### Step 1 — Copy a starter template (optional)
+### Step 1 — Copy the starter
 
 From the `lab/` directory:
 
-**Cursor (most people use this as the canonical source)**
-
 ```bash
-mkdir -p ~/.cursor/rules
-cp templates/personal-workflow.mdc ~/.cursor/rules/personal-workflow.mdc
+mkdir -p ~/.agents/instructions
+cp templates/shared.md ~/.agents/instructions/shared.md
+cp templates/agents.gitignore ~/.agents/.gitignore
+git -C ~/.agents init
 ```
 
-**Gemini CLI or Antigravity (if you do not use Cursor, or in addition)**
-
-```bash
-mkdir -p ~/.gemini
-cp templates/GEMINI.md ~/.gemini/GEMINI.md
-```
-
-**Firebender**
-
-```bash
-mkdir -p ~/.firebender/rules
-cp templates/personal-workflow.mdc ~/.firebender/rules/personal-workflow.mdc
-```
-
-**Claude Code only (no Cursor)**
-
-Copy the same text into `~/.claude/CLAUDE.md` or a file under
-`~/.claude/rules/`. Skip the sync script until you also use Cursor.
+Do **not** copy this file into each product's home folder by hand. Lab B
+points Claude, Cursor, Gemini, and Firebender at this one file.
 
 ### Step 2 — Keep the Precedence block at the top
 
@@ -64,38 +50,22 @@ Repo `AGENTS.md`, `.agents/skills/`, repo hooks, and repo rules win.
 These lines are personal prefs for this machine. On conflict, follow the repo.
 ```
 
-For Cursor and Firebender `.mdc` files, keep this frontmatter:
+### Step 3 — Keep the writing lines; add yours
 
-```yaml
----
-description: Personal workflow prefs for this machine
-alwaysApply: true
----
-```
+1. Keep **no preamble**, **no trailing summary of the diff**, and **state each
+   finding once**.
+2. Keep the orchestrator lines under Context cost, or write the same idea in
+   your own words: main thread plans; do not explore in the main loop.
+3. Add or edit tool habits. Do **not** copy branch rules, commit flags, package
+   managers, or generate-client commands from the repo.
+4. Lab B load check is quoting the Precedence line. Do not add “end every reply
+   with what happens next.”
 
-For `~/.gemini/GEMINI.md`, the template opens with a one-line summary, then
-the same Precedence block.
+### Step 4 — Save
 
-### Step 3 — Replace boilerplate with your own lines
+Save only at `~/.agents/instructions/shared.md`.
 
-1. Delete or edit the example sections (`How I work`, `Tooling`, etc.).
-2. Write five to ten lines that are **yours** — writing style, tool habits,
-   cost prefs. Do **not** copy branch rules, commit flags, package managers,
-   or generate-client commands from the repo.
-3. Add **one distinctive test line** you can check in Lab B. Example from the
-   template: `End every reply with what happens next.` Remove that line after
-   you confirm it loaded.
-
-### Step 4 — Save to the right path
-
-| Product | Save here |
-|---------|-----------|
-| Cursor | `~/.cursor/rules/personal-workflow.mdc` |
-| Claude only | `~/.claude/CLAUDE.md` or `~/.claude/rules/*.md` |
-| Gemini CLI / Antigravity | `~/.gemini/GEMINI.md` |
-| Firebender | `~/.firebender/rules/personal-workflow.mdc` |
-
-**Lab A done when:** Your file exists on disk and starts with the Precedence
+**Lab A done when:** That file exists on disk and starts with the Precedence
 block.
 
 ---
@@ -104,67 +74,73 @@ block.
 
 **Goal:** For each product you use, run the same three steps:
 
-1. **File check** — file on disk, Precedence block present.
-2. **Product lists files** — the tool shows your personal rules loaded.
+1. **File check** — canonical file on disk; wrapper points at it.
+2. **Product lists files** — the tool shows your personal prefs loaded.
 3. **Smoke test** — Lab C (next section).
 
-Run only the product sections below that apply to you.
+### All products — run the wire script
+
+From the cloned `lab/` directory:
+
+```bash
+bash wire-personal-agents.sh
+bash wire-personal-agents.sh --check
+```
+
+**Expected output:** `Personal agents wire: ok (N wrapper(s) → …/shared.md)`
+
+Only the products you use:
+
+```bash
+bash wire-personal-agents.sh --tools=claude,cursor
+bash wire-personal-agents.sh --check --tools=claude,cursor
+```
+
+Valid `--tools` names: `claude`, `cursor`, `gemini`, `firebender`.
+
+Re-run after you edit `shared.md` if you use **Gemini or Firebender** (those
+wrappers embed a copy). Claude `@` import and the Cursor wrapper stay live.
+
+Then run only the product sections below that apply to you.
 
 ### Cursor
 
 **Step B1 — File check**
 
 ```bash
-ls ~/.cursor/rules/*.mdc
+ls ~/.cursor/rules/personal-instructions.mdc
 ```
 
-Confirm `personal-workflow.mdc` (or your file) exists. Open it and confirm the
-Precedence block is first.
+Confirm the wrapper exists and mentions `~/.agents/instructions/shared.md`.
 
 **Step B2 — Product lists files**
 
 1. Open your application repo in Cursor.
 2. Start a **new** Agent chat.
-3. Ask: `What personal rules from ~/.cursor/rules are loaded?`
-   Or confirm your distinctive test line appears in replies.
+3. Ask: `Quote the Precedence line from ~/.agents/instructions/shared.md`
 
 **Step B3 — Smoke test**
 
 Continue to Lab C below.
 
-**Note:** Cursor Cloud Agents do **not** load `~/.cursor/rules/`. If you use
-Cloud, promote must-have prefs into the repo or Team Rules (handout section 7).
+**Note:** Cursor Cloud Agents do **not** load `~/.agents/` or
+`~/.cursor/rules/` from your laptop. If you use Cloud, promote must-have
+prefs into the repo or Team Rules (handout section 7).
 
 ---
 
 ### Claude Code
 
-**Step B1 — File check and sync**
+**Step B1 — File check**
 
-From the cloned `lab/` directory:
-
-```bash
-bash sync-personal-rules.sh
-bash sync-personal-rules.sh --check
-```
-
-**Expected output:** `Personal rules bridge: ok (N Cursor rule(s))`
-
-If you do not use Cursor, skip the sync script. Your Claude personal file from
-Lab A is enough.
-
-**Optional:** If you have Cursor-only rules that should not mirror to Claude,
-copy `templates/claude-exclude.example` to `~/.cursor/rules/.claude-exclude`,
-add rule stems (one per line), then re-run sync.
-
-Re-run sync after you **add, rename, or remove** a file in `~/.cursor/rules/`.
-You do **not** need to re-run after editing the body of an existing `.mdc`.
+Wire `--check` already confirmed `~/.claude/CLAUDE.md` contains
+`@~/.agents/instructions/shared.md`.
 
 **Step B2 — Product lists files**
 
 1. Start a **new** Claude Code session in your application repo.
 2. Run `/memory` or `/context`.
-3. Confirm mirrored rules from `~/.claude/rules/` appear.
+3. Confirm personal `CLAUDE.md` (or the `@` import of `shared.md`) appears.
 
 **Step B3 — Smoke test**
 
@@ -177,11 +153,11 @@ Continue to Lab C below.
 **Step B1 — File check**
 
 ```bash
-cat ~/.gemini/GEMINI.md | head -20
+head -20 ~/.gemini/GEMINI.md
 ```
 
-Confirm the file exists and starts with the Precedence block (or the template
-opener plus Precedence).
+Confirm the file exists and includes the Precedence block (the wire script
+embeds `shared.md`).
 
 **Step B2 — Product lists files**
 
@@ -212,16 +188,9 @@ Continue to Lab C below.
 ls -l ~/.firebender/rules/*.mdc
 ```
 
-Each entry should be a real file or a symlink. Optional symlink from Cursor:
+Confirm `personal-instructions.mdc` exists (written by the wire script).
 
-```bash
-mkdir -p ~/.firebender/rules
-ln -sfn ~/.cursor/rules/personal-workflow.mdc ~/.firebender/rules/personal-workflow.mdc
-ls -l ~/.firebender/rules/
-```
-
-Project `.cursor/rules/` in an app repo is **not** `~/.cursor/rules/`. Personal
-Cursor rules reach Firebender only through `~/.firebender/rules/`.
+Project `.cursor/rules/` in an app repo is **not** your personal wrapper.
 
 **Step B2 — Product lists files**
 
@@ -230,8 +199,8 @@ Cursor rules reach Firebender only through `~/.firebender/rules/`.
 3. Ask:
 
    ```
-   Name the personal rule files under ~/.firebender/rules and quote the
-   Precedence line from my personal-workflow rule.
+   Quote the Precedence line from my personal prefs
+   (~/.agents/instructions/shared.md or ~/.firebender/rules/personal-instructions.mdc).
    ```
 
 **Step B3 — Smoke test**
@@ -274,8 +243,9 @@ you explicitly ask.
 I ask”) and ignores what `AGENTS.md` says.
 
 If you fail, check whether your personal Defaults section duplicates commit
-policy from the repo. Remove the duplicate from your personal file or align the
-wording with the Precedence block.
+policy from the repo. Remove the duplicate from `shared.md` or align the
+wording with the Precedence block. Re-run the wire script if you use Gemini
+or Firebender.
 
 ### Step C3 — Repeat in each product
 
@@ -298,9 +268,10 @@ Open [verify-checklist.md](verify-checklist.md).
 
 | Check | Your answer |
 |-------|-------------|
-| Personal file starts with Precedence line | Yes / No |
-| **Cursor** — distinctive line or rule list in new Agent chat | Yes / No / N/A |
-| **Claude** — `sync-personal-rules.sh --check` ok; `/memory` lists rules | Yes / No / N/A |
+| `~/.agents/instructions/shared.md` starts with Precedence line | Yes / No |
+| **Wire** — `wire-personal-agents.sh --check` ok | Yes / No |
+| **Cursor** — distinctive line or Precedence quote in new Agent chat | Yes / No / N/A |
+| **Claude** — `/memory` lists personal `CLAUDE.md` or the `@` import | Yes / No / N/A |
 | **Gemini CLI** — `/memory show` lists `GEMINI.md` and `AGENTS.md` | Yes / No / N/A |
 | **Firebender** — `ls -l` ok; chat quotes Precedence | Yes / No / N/A |
 | **Smoke test** — repo `AGENTS.md` wins on commits | Yes / No |
@@ -319,7 +290,7 @@ Save the checklist for yourself. Fix any **No** rows after the session using
 
 | Step | What you check |
 |------|----------------|
-| 1. File on disk | Personal file exists; Precedence block first |
+| 1. File on disk | `shared.md` exists; Precedence block first; wire `--check` ok |
 | 2. Product lists files | Cursor: new Agent chat. Claude: `/memory`. Gemini: `/memory show`. Firebender: quote test in chat. |
 | 3. Smoke test | Prompt 2 cites repo commit rule |
 
@@ -329,11 +300,12 @@ Save the checklist for yourself. Fix any **No** rows after the session using
 
 | Problem | What to do |
 |---------|------------|
-| Sync `--check` fails | Run `bash sync-personal-rules.sh` again from `lab/`. Check for broken symlinks in `~/.claude/rules/`. |
-| Claude loads too many rules | Add Cursor-only stems to `~/.cursor/rules/.claude-exclude`. Re-run sync. |
-| Gemini `/memory show` empty | Run `/memory refresh` first. Confirm you are in Gemini CLI, not Android Studio. |
-| Firebender does not quote Precedence | Confirm `ls -l ~/.firebender/rules/` shows your file. Use a new chat, not an old thread. |
-| Smoke test fail on commits | Remove duplicate commit lines from personal file. Re-read Precedence block. Re-run prompt 2. |
+| Wire `--check` fails | Confirm `~/.agents/instructions/shared.md` exists and includes the Precedence line. Re-run `bash wire-personal-agents.sh` from `lab/`. |
+| Wrapper conflict | The script will not overwrite an unmanaged `GEMINI.md`, Cursor wrapper, or Claude `CLAUDE.md`. Back up that file, or add the `managed-by: wire-personal-agents` markers, then re-run. |
+| Claude does not show prefs | New session. Confirm `~/.claude/CLAUDE.md` contains `@~/.agents/instructions/shared.md`. Run `/memory`. |
+| Gemini `/memory show` empty | Run `/memory refresh` first. Confirm you are in Gemini CLI, not Android Studio. Re-run the wire script after editing `shared.md`. |
+| Firebender does not quote Precedence | Confirm `ls -l ~/.firebender/rules/` shows `personal-instructions.mdc`. Use a new chat. Re-run the wire script after editing `shared.md`. |
+| Smoke test fail on commits | Remove duplicate commit lines from `shared.md`. Re-read Precedence block. Re-run prompt 2. |
 | Cloud Agent ignores personal rules | Expected. Copy must-have prefs into repo `.cursor/rules/`, `AGENTS.md`, or Team Rules. See handout section 7 and [pr-author-packet-rule.md](../pr-author-packet-rule.md). |
 
 ---
