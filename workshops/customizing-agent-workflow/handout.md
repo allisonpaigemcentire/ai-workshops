@@ -278,13 +278,37 @@ Run that alias from the clone root.
 
 ### When to run
 
-- After Lab A, once `shared.md` exists
-- After you edit `shared.md` if you use Cursor, Gemini, or Firebender
-- After cloning the lab folder on a new machine
+You do **not** re-run after every edit for every product. Edit
+`~/.agents/instructions/shared.md` once. Then:
 
-You do **not** need to re-run after editing `shared.md` for Claude (it
-`@`-imports the file). Cursor, Gemini, and Firebender embeds are stale until
-you re-run.
+| Product | After you edit `shared.md` |
+|---------|----------------------------|
+| **Claude Code** | Do not re-run. `~/.claude/CLAUDE.md` `@`-imports `shared.md`, so the next session sees the new text. |
+| **Cursor** | Re-run the wire script. The wrapper is a **copy**, not a live import. |
+| **Gemini CLI / Antigravity** | Same: re-run. `~/.gemini/GEMINI.md` is a copy. |
+| **Firebender** | Same: re-run. The Firebender `.mdc` is a copy. |
+
+`--check` reports Cursor / Gemini / Firebender wrappers as stale if you edited
+`shared.md` and did not re-run. After a re-run, start a **new** chat in those
+products.
+
+Also run the script:
+
+- After Lab A, once `shared.md` exists
+- After cloning this repo on a new machine
+
+You do **not** re-run for extra Cursor-only `.mdc` files under
+`~/.cursor/rules/` that are not the wire wrapper. Those files are already
+where Cursor reads them. Cursor Cloud Agents still never see laptop files,
+even after a re-run.
+
+From the clone root, after an edit that should reach Cursor, Gemini, or
+Firebender:
+
+```bash
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh
+bash workshops/customizing-agent-workflow/lab/wire-personal-agents.sh --check
+```
 
 ### What the script does **not** do
 
