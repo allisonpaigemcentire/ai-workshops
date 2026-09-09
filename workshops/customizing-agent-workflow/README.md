@@ -17,19 +17,20 @@ application repos.
 
 | File | Contents |
 |------|----------|
+| [AGENTS.md](AGENTS.md) | Repo harness: commits; PR body is What / Why this repo / Verify (Lab C) |
 | [handout.md](handout.md) | Full guide: precedence, per-tool loading, `~/.agents/` source of truth, verify steps, Cloud promotion |
 | [lab/](lab/) | Templates, `wire-personal-agents.sh`, verify checklist |
-| [example/](example/) | Sample finished personal setup (`~/.agents/` + product wrappers) |
-| [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) | **Live deck (Draft 2):** 26 slides — practices 1–11, Labs A–C, then best-practice sources |
-| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Draft 1 archive: 44 slides with pull quotes, skip list, and take-home slides 38–41 |
-| [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PR example and Cursor Cloud workaround |
+| [example/](example/) | Sample finished personal setup (`~/.agents/` + product wrappers). Start at [example/walkthrough.md](example/walkthrough.md) |
+| [slides.html](slides.html) | **Live deck:** 19 slides, no speaker notes — clone, practices, Labs A–D, exit, sources |
+| [customizing-your-agent-workflow-slides-draft-3.html](customizing-your-agent-workflow-slides-draft-3.html) | Same deck with speaker notes (facilitator) |
+| [handout-laptop-vs-repo-adapters.md](handout-laptop-vs-repo-adapters.md) | Why the laptop wire script is allowed and a repo SessionStart wrapper script is not |
 
 All participant and presenter files for this workshop live in this folder.
 
 ## Getting started
 
 1. Clone the lab folder (see [lab/README.md](lab/README.md)).
-2. Open [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) in a browser.
+2. Open [slides.html](slides.html) in a browser.
 3. Follow [handout.md](handout.md) and [lab/README.md](lab/README.md) for setup and verify steps.
 
 ## Takeaway line

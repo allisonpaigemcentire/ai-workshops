@@ -10,6 +10,8 @@ These lines are personal prefs for this machine. On conflict, follow the repo.
 - Name tradeoffs in 1–2 sentences; I decide.
 - Do not ask permission for read-only git / gh / acli.
 - Confirm before push, PR open/close, branch delete, or force-push.
+- When I ask for a PR body, use Goal, Ran, and Doubt unless the open repo
+  names a different PR body. Then use the repo's headings.
 
 ## Tooling
 
@@ -32,3 +34,22 @@ These lines are personal prefs for this machine. On conflict, follow the repo.
 - Comments in code only when the why is non-obvious.
 - Branch names: follow this repo's CONTRIBUTING / AGENTS.md. If the name
   is wrong, stop and ask; do not rename the branch on GitHub.
+
+## PR descriptions
+
+When you draft, create, or update a pull request, the body needs **Goal**,
+**Ran**, and **Doubt** with real content (optional Test plan) **unless the
+open repo's `AGENTS.md` or project rules name different headings**. Then use
+the repo's headings and do not use Goal / Ran / Doubt there. Open as draft
+unless I asked for ready in the same turn. When this personal format applies,
+use headings `## Goal`, `## Ran`, and `## Doubt`.
+
+| Section | Required | Content |
+|---------|----------|---------|
+| **Goal** | Yes | What changed and why, in your words — not the file list |
+| **Ran** | Yes | Commands/checks you ran and outcomes — not "CI is green" alone |
+| **Doubt** | Yes | Where a miss would hurt; what you still do not know |
+| **Test plan** | Optional | Checklist only; does not replace Goal, Ran, Doubt |
+
+Cursor: also read `~/.agents/rules/creating-pull-requests.mdc` when that file
+exists (Lab A copies it from `templates/creating-pull-requests.mdc`).

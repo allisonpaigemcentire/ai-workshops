@@ -198,7 +198,9 @@ edit, and thin wrappers so each product loads that file.
 
 ```text
 ~/.agents/
+├── .gitignore                # Lab A: copy from templates/agents.gitignore
 ├── instructions/shared.md    # THE source of truth — edit here
+├── rules/creating-pull-requests.mdc  # Goal / Ran / Doubt (symlink in ~/.cursor/rules/)
 ├── skills/<name>/            # optional personal skills (section 11)
 └── README.md                 # optional reinstall notes
 ```
@@ -234,9 +236,15 @@ the wrappers:
 ### Commands
 
 ```bash
-mkdir -p ~/.agents/instructions
+mkdir -p ~/.agents/instructions ~/.agents/rules ~/.cursor/rules
 cp templates/shared.md ~/.agents/instructions/shared.md
+cp templates/creating-pull-requests.mdc ~/.agents/rules/creating-pull-requests.mdc
+ln -sfn ~/.agents/rules/creating-pull-requests.mdc ~/.cursor/rules/creating-pull-requests.mdc
 # Edit shared.md. Keep the Precedence block.
+
+# Lab A step 4 — required
+cp templates/agents.gitignore ~/.agents/.gitignore
+git -C ~/.agents init
 
 bash wire-personal-agents.sh
 bash wire-personal-agents.sh --check
@@ -354,7 +362,7 @@ product, plus personal-skill symlinks.
 1. **File check:** `~/.claude/CLAUDE.md` contains
    `@~/.agents/instructions/shared.md` (`wire-personal-agents.sh --check`).
 2. **Product lists files:** New session; `/memory` or `/context`.
-3. **Smoke test:** Section 13 prompts. Repo `AGENTS.md` wins on commits.
+3. **Smoke test:** Section 13 prompts.
 
 ### Cursor
 
@@ -598,11 +606,14 @@ NOT for…”). Auto-routing from description alone is inconsistent.
 7. Gemini CLI / Antigravity: `/memory refresh`, then `/memory show` (section 8).
 8. Firebender: `ls -l ~/.firebender/rules/*.mdc`, then a quote test (section 8).
 9. Cursor: new Agent chat; quote the Precedence line from `shared.md`.
-10. Smoke test in **each** product you verified: “Draft a PR body for this
-    branch” and “What does `AGENTS.md` say about commits?” Confirm the repo
-    rule is what the agent follows.
-11. Add a personal skill only after you have written the spec (section 11).
-12. If you use **Cursor Cloud Agents**, promote must-have prefs into the repo
+10. Smoke test in **each** product you verified: same prompt twice — draft a PR
+    body, do not open or push. First in an app repo with no PR headings
+    (expect Goal / Ran / Doubt). Then with this clone open (expect What /
+    Why this repo / Verify).
+11. Lab D in the **application** repo: paste [lab/lab-d-prompt.md](lab/lab-d-prompt.md).
+    Cursor / Claude should spawn a Task or subagent. Gemini CLI: second session.
+12. Add a personal skill only after you have written the spec (section 11).
+13. If you use **Cursor Cloud Agents**, promote must-have prefs into the repo
     or Team Rules (section 7). See [pr-author-packet-rule.md](pr-author-packet-rule.md)
     for the PR example.
 
@@ -615,11 +626,12 @@ NOT for…”). Auto-routing from description alone is inconsistent.
 | Doc | What it is |
 |-----|------------|
 | [lab/README.md](lab/README.md) | Participant setup: templates, wire script, verify steps |
-| [customizing-your-agent-workflow-slides-draft-2.html](customizing-your-agent-workflow-slides-draft-2.html) | Live 26-slide deck (practices, labs, then best-practice sources) |
-| [example/](example/) | Sample finished personal setup (`~/.agents/` + wrappers) |
-| [customizing-your-agent-workflow-slides.html](customizing-your-agent-workflow-slides.html) | Draft 1 archive (44 slides) |
+| [slides.html](slides.html) | Live 19-slide deck (no speaker notes) |
+| [customizing-your-agent-workflow-slides-draft-3.html](customizing-your-agent-workflow-slides-draft-3.html) | Same deck with speaker notes (facilitator) |
+| [example/](example/) | Sample finished personal setup (`~/.agents/` + wrappers); [walkthrough](example/walkthrough.md) |
 | [lab/wire-personal-agents.sh](lab/wire-personal-agents.sh) | Point Claude, Cursor, Gemini, Firebender at `~/.agents/instructions/shared.md` |
 | [lab/sync-personal-rules.sh](lab/sync-personal-rules.sh) | Optional: extra Cursor `.mdc` files → Claude |
+| [handout-laptop-vs-repo-adapters.md](handout-laptop-vs-repo-adapters.md) | Why the laptop wire script is allowed and a repo SessionStart wrapper script is not |
 | [pr-author-packet-rule.md](pr-author-packet-rule.md) | Goal / Ran / Doubt PRs; Cursor Cloud promotion example |
 | [lab/verify-checklist.md](lab/verify-checklist.md) | Exit checklist for the 60-minute session |
 

@@ -1,0 +1,1304 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Customizing Your Agent Workflow — Best practices</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;700;800&family=IBM+Plex+Mono:wght@400;600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet">
+    <style>
+        /* === THEME === */
+        :root {
+            --stage-bg: #111111;
+            --slide-bg: #ffffff;
+            --ink: #000000;
+            --muted: #555555;
+            --accent: #ff3300;
+            --font-display: 'Archivo', sans-serif;
+            --font-body: 'Nunito', sans-serif;
+            --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+            --ease-out-expo: cubic-bezier(0.16, 1, 0.3, 1);
+        }
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        /* === VIEWPORT BASE (fixed 16:9 stage) === */
+        html, body {
+            width: 100%;
+            height: 100%;
+            margin: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+        .deck-viewport {
+            position: fixed;
+            inset: 0;
+            overflow: hidden;
+            background: var(--stage-bg, #000);
+        }
+        .deck-stage {
+            position: absolute;
+            left: 0;
+            top: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            transform-origin: 0 0;
+            background: var(--slide-bg, #fff);
+        }
+        .slide {
+            position: absolute;
+            inset: 0;
+            width: 1920px;
+            height: 1080px;
+            overflow: hidden;
+            display: block;
+            visibility: hidden;
+            opacity: 0;
+            pointer-events: none;
+            background: var(--slide-bg, #fff);
+        }
+        .slide.active,
+        .slide.visible {
+            visibility: visible;
+            opacity: 1;
+            pointer-events: auto;
+            z-index: 1;
+        }
+        img, video, canvas, svg { max-width: 100%; max-height: 100%; }
+        .deck-controls {
+            position: fixed;
+            left: 16px;
+            right: 16px;
+            bottom: 16px;
+            transform: none;
+            z-index: 1000;
+        }
+        @media print {
+            html, body { width: 1920px; height: auto; overflow: visible; background: #fff; }
+            .deck-viewport { position: static; overflow: visible; background: #fff; }
+            .deck-stage { position: static; width: auto; height: auto; transform: none !important; background: none; }
+            .slide {
+                position: relative;
+                display: block !important;
+                visibility: visible !important;
+                opacity: 1 !important;
+                pointer-events: auto !important;
+                width: 1920px;
+                height: 1080px;
+                break-after: page;
+                page-break-after: always;
+            }
+            .slide:last-child { break-after: auto; page-break-after: auto; }
+            .deck-controls { display: none !important; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                transition-duration: 0.2s !important;
+            }
+            .reveal { opacity: 1 !important; transform: none !important; }
+        }
+
+        /* === SLIDE SURFACE === */
+        .slide {
+            font-family: var(--font-body);
+            color: var(--ink);
+            background-color: #fff;
+            background-image:
+                linear-gradient(to right, rgba(0,0,0,0.055) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(0,0,0,0.055) 1px, transparent 1px);
+            background-size: 80px 80px;
+        }
+        .slide.dark {
+            background-color: #111;
+            color: #fff;
+            background-image:
+                linear-gradient(to right, rgba(255,255,255,0.07) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(255,255,255,0.07) 1px, transparent 1px);
+        }
+        .kicker {
+            position: absolute;
+            left: 80px;
+            top: 40px;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 18px;
+            letter-spacing: 0.14em;
+            text-transform: uppercase;
+            color: var(--muted);
+        }
+        .kicker .num { color: var(--accent); margin-right: 16px; }
+        .slide.dark .kicker { color: #aaa; }
+        .slide-num {
+            position: absolute;
+            right: 80px;
+            bottom: 36px;
+            font-family: var(--font-display);
+            font-size: 16px;
+            letter-spacing: 0.08em;
+            color: #888;
+        }
+        .slide.dark .slide-num { color: #777; }
+        .q-cutout {
+            position: absolute;
+            right: 0;
+            bottom: 88px;
+            z-index: 2;
+            display: block;
+            background: var(--accent);
+            color: #fff;
+            text-decoration: none;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 0.04em;
+            line-height: 1.2;
+            padding: 16px 28px 16px 36px;
+            clip-path: polygon(16px 0, 100% 0, 100% 100%, 16px 100%, 0 50%);
+        }
+        .q-cutout:hover { filter: brightness(1.08); }
+        .q-cutout .q-mark {
+            display: block;
+            font-size: 13px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            opacity: 0.9;
+            margin-bottom: 4px;
+        }
+
+        /* === TITLE === */
+        .title-slide h1 {
+            position: absolute;
+            left: 80px;
+            top: 280px;
+            width: 1680px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 92px;
+            line-height: 1.02;
+            letter-spacing: -0.03em;
+        }
+        .title-slide .sub {
+            position: absolute;
+            left: 80px;
+            top: 720px;
+            width: 1600px;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .title-slide .byline {
+            position: absolute;
+            left: 80px;
+            top: 800px;
+            font-family: var(--font-display);
+            font-size: 20px;
+            letter-spacing: 0.08em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .signal-sq {
+            position: absolute;
+            left: 80px;
+            top: 200px;
+            width: 48px;
+            height: 48px;
+            background: var(--accent);
+        }
+
+        /* === PRACTICE LAYOUT === */
+        .bp-h2 {
+            position: absolute;
+            left: 80px;
+            top: 84px;
+            width: 1760px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 48px;
+            letter-spacing: -0.03em;
+            line-height: 1.05;
+        }
+        .lbl {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 13px;
+            letter-spacing: 0.16em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .col-l {
+            position: absolute;
+            left: 80px;
+            top: 168px;
+            width: 860px;
+        }
+        .col-r {
+            position: absolute;
+            left: 980px;
+            top: 168px;
+            width: 860px;
+        }
+        .plain {
+            margin-top: 10px;
+            font-size: 26px;
+            font-weight: 700;
+            line-height: 1.35;
+        }
+        .slide.dark .plain { color: #f2f2f2; }
+        .why {
+            margin-top: 36px;
+            border-left: 8px solid var(--accent);
+            padding: 16px 0 16px 24px;
+            font-size: 22px;
+            line-height: 1.4;
+            font-weight: 600;
+        }
+        .sources {
+            margin-top: 10px;
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+        }
+        .sources a {
+            font-family: var(--font-mono);
+            font-size: 16px;
+            color: var(--accent);
+            text-decoration: underline;
+            text-underline-offset: 3px;
+        }
+        .slide.dark .sources a { color: #ff6644; }
+        .path {
+            margin-top: 10px;
+            font-family: var(--font-mono);
+            font-size: 14px;
+            color: var(--muted);
+        }
+        .slide.dark .path { color: #999; }
+        .snip {
+            margin-top: 10px;
+            background: #111;
+            color: #f2f2f2;
+            font-family: var(--font-mono);
+            font-size: 15px;
+            line-height: 1.4;
+            padding: 20px 22px;
+            height: 430px;
+            overflow: hidden;
+            white-space: pre;
+        }
+        .slide.dark .snip {
+            background: #000;
+            border: 1px solid #333;
+        }
+        .cmd {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 280px;
+            font-family: var(--font-mono);
+            font-size: 32px;
+            font-weight: 400;
+            line-height: 1.5;
+            background: #111;
+            color: #f2f2f2;
+            padding: 40px 48px;
+            border-left: 12px solid var(--accent);
+            white-space: pre-wrap;
+        }
+        .expect {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 780px;
+            font-size: 28px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .slide.dark .expect { color: #c8c8c8; }
+        .lab-time {
+            position: absolute;
+            right: 80px;
+            top: 40px;
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 18px;
+            letter-spacing: 0.12em;
+            text-transform: uppercase;
+            color: var(--accent);
+        }
+        .lab-goal {
+            position: absolute;
+            left: 80px;
+            top: 148px;
+            right: 80px;
+            font-size: 24px;
+            font-weight: 700;
+            line-height: 1.3;
+        }
+        .slide.dark .lab-goal { color: #f2f2f2; }
+        .lab-stack {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 230px;
+            bottom: 140px;
+        }
+        .lab-pre {
+            font-family: var(--font-mono);
+            font-size: 22px;
+            line-height: 1.4;
+            background: #111;
+            color: #f2f2f2;
+            padding: 22px 28px;
+            border-left: 8px solid var(--accent);
+            white-space: pre-wrap;
+        }
+        .slide.dark .lab-pre {
+            background: #000;
+            border: 1px solid #333;
+            border-left: 8px solid var(--accent);
+        }
+        .lab-keep {
+            margin-top: 20px;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .slide.dark .lab-keep { color: #ddd; }
+        .lab-done {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            bottom: 72px;
+            font-size: 22px;
+            font-weight: 700;
+            line-height: 1.3;
+            border-left: 8px solid var(--accent);
+            padding-left: 20px;
+        }
+        .slide.dark .lab-done { color: #f2f2f2; }
+        .lab-b-pre {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 228px;
+        }
+        .lab-b-pre .lab-pre { font-size: 20px; padding: 16px 22px; }
+        .lab-b-grid {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 430px;
+            bottom: 128px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            grid-template-rows: 1fr 1fr;
+            column-gap: 48px;
+            row-gap: 12px;
+        }
+        .lab-prod h3 {
+            font-family: var(--font-display);
+            font-weight: 800;
+            font-size: 22px;
+            letter-spacing: -0.02em;
+            color: var(--accent);
+        }
+        .lab-prod p {
+            margin-top: 6px;
+            font-size: 18px;
+            font-weight: 600;
+            line-height: 1.3;
+        }
+        .slide.dark .lab-prod p { color: #ddd; }
+        .lab-prompts {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 230px;
+            display: flex;
+            flex-direction: column;
+            gap: 16px;
+        }
+        .lab-prompt {
+            font-family: var(--font-mono);
+            font-size: 26px;
+            font-weight: 600;
+            line-height: 1.35;
+            background: #111;
+            color: #f2f2f2;
+            padding: 22px 28px;
+            border-left: 8px solid var(--accent);
+        }
+        .lab-pass {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 620px;
+            font-size: 22px;
+            font-weight: 600;
+            line-height: 1.4;
+        }
+        .ref-grid {
+            position: absolute;
+            left: 80px;
+            right: 80px;
+            top: 240px;
+            bottom: 120px;
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 56px;
+            row-gap: 12px;
+            align-content: start;
+        }
+        .ref-grid a {
+            display: block;
+            font-family: var(--font-display);
+            font-weight: 700;
+            font-size: 21px;
+            letter-spacing: -0.02em;
+            line-height: 1.15;
+            color: var(--accent);
+            text-decoration: none;
+        }
+        .slide.dark .ref-grid a { color: #ff6644; }
+        .ref-grid a:hover { text-decoration: underline; }
+        .ref-grid .hint {
+            display: block;
+            font-family: var(--font-body);
+            font-size: 17px;
+            font-weight: 600;
+            color: var(--muted);
+            line-height: 1.2;
+            margin-top: 2px;
+        }
+        .slide.dark .ref-grid .hint { color: #aaa; }
+        .ref-note {
+            position: absolute;
+            left: 80px;
+            right: 200px;
+            bottom: 48px;
+            font-size: 22px;
+            font-weight: 600;
+            color: var(--muted);
+        }
+        .slide.dark .ref-note { color: #c8c8c8; }
+
+        /* === REVEAL === */
+        .reveal {
+            opacity: 0;
+            transform: translateY(20px);
+            transition: opacity 0.5s var(--ease-out-expo), transform 0.5s var(--ease-out-expo);
+        }
+        .slide.visible .reveal { opacity: 1; transform: translateY(0); }
+        .slide.visible .col-l .reveal:nth-child(1) { transition-delay: 0.08s; }
+        .slide.visible .col-l .reveal:nth-child(2) { transition-delay: 0.16s; }
+        .slide.visible .col-l .reveal:nth-child(3) { transition-delay: 0.24s; }
+        .slide.visible .col-r .reveal:nth-child(1) { transition-delay: 0.12s; }
+        .slide.visible .col-r .reveal:nth-child(2) { transition-delay: 0.2s; }
+        .slide.visible .col-r .reveal:nth-child(3) { transition-delay: 0.28s; }
+
+        /* === CHROME === */
+        .deck-controls { display: flex; align-items: center; gap: 16px; }
+        #dots { display: flex; flex: 1; justify-content: space-between; min-width: 0; }
+        .dot {
+            flex: 1 1 0;
+            height: 28px;
+            border: 0;
+            background: transparent;
+            cursor: pointer;
+            position: relative;
+            padding: 0;
+        }
+        .dot::after {
+            content: "";
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            width: 10px;
+            height: 10px;
+            margin: -5px 0 0 -5px;
+            border-radius: 50%;
+            background: #666;
+        }
+        .dot.on::after { background: #ff3300; }
+        .counter {
+            font-family: var(--font-display);
+            font-size: 14px;
+            color: #ddd;
+            letter-spacing: 0.08em;
+            white-space: nowrap;
+        }
+    </style>
+</head>
+<body>
+    <div class="edit-hotzone" title="Edit mode"></div>
+    <button class="edit-toggle" id="editToggle" type="button" title="Edit mode (E)">Edit</button>
+
+    <div class="deck-viewport">
+        <main class="deck-stage" id="deckStage">
+
+            <section class="slide title-slide" data-slide="1">
+                <p class="kicker reveal"><span class="num">01</span> Workshop</p>
+                <div class="signal-sq reveal" aria-hidden="true"></div>
+                <h1 class="reveal" data-ed="d3-s01-h1">Customizing Your<br>Agent Workflow</h1>
+                <p class="sub reveal" data-ed="d3-s01-sub">Personal prefs fill gaps. Repo files still win.</p>
+                <p class="byline reveal" data-ed="d3-s01-by">Nuuly Engineering</p>
+                <p class="slide-num">01 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="2">
+                <p class="kicker reveal"><span class="num">02</span> Setup</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s02setup-h2">Clone, then cd.</h2>
+                <pre class="cmd reveal" data-ed="d3-s02setup-cmd">git clone https://github.com/allisonpaigemcentire/ai-workshops.git
+cd ai-workshops/workshops/customizing-agent-workflow</pre>
+                <p class="expect reveal" data-ed="d3-s02setup-ex">You are in the right folder when you see example/, handout.md, and lab/. If you already cloned, only run the cd line.</p>
+                <p class="slide-num">02 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="3">
+                <p class="kicker reveal"><span class="num">03</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s02-h2">Repo files win.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s02-p">If a personal preference and the application repo disagree, follow the repo. Personal files fill gaps on this laptop. They do not replace AGENTS.md, repo skills, repo hooks, or repo rules.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s02-w">The clone is what teammates and Cloud Agents see. A laptop file that fights the repo trains the agent to ignore the team harness. The Precedence block is how we say that in every personal file, because markdown cannot enforce it.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://agents.md/" target="_blank" rel="noopener">agents.md — nearest AGENTS.md wins</a>
+                            <a href="https://cursor.com/docs/rules" target="_blank" rel="noopener">Cursor Rules — Team → Project → User</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/instructions/shared.md</p>
+                        <pre class="snip">## Precedence
+
+Repo `AGENTS.md`, `.agents/skills/`, repo hooks,
+and repo rules win.
+These lines are personal prefs for this machine.
+On conflict, follow the repo.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">03 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="4">
+                <p class="kicker reveal"><span class="num">04</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s03-h2">Hooks stop. Markdown advises.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s03-p">A personal rule cannot turn off a repo hook. AGENTS.md will not return deny. Confirm-before-push in shared.md is extra advice when the repo already asks or denies.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s03-w">If markdown could disable a hook, a laptop pref would punch a hole in team safety. The stop lives in the product: Cursor hooks.json, Claude deny/ask, Firebender hooks. Personal files stay advisory.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://code.claude.com/docs/en/features-overview" target="_blank" rel="noopener">Claude Code — hooks vs CLAUDE.md</a>
+                            <a href="https://code.claude.com/docs/en/claude-md" target="_blank" rel="noopener">Claude Code memory — instructions are context</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/instructions/shared.md</p>
+                        <pre class="snip">- Confirm before push, PR open/close, branch
+  delete, or force-push — unless a
+  repo hook already asks or denies.
+
+- Follow the **open repo's** commit-hook rules.
+  Do not invent a global always or never
+  `--no-verify`.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">04 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="5">
+                <p class="kicker reveal"><span class="num">05</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s04-h2">Edit one personal file.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s04-p">Cross-tool prefs live in ~/.agents/instructions/shared.md. That file is not a replacement for repo AGENTS.md or repo .agents/skills. Do not paste the same paragraph into each product by hand.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s04-w">Not everyone uses Cursor. If ~/.cursor/rules is the source of truth, Claude and Gemini drift. One file, then thin wrappers, keeps the products aligned without making personal prefs the team harness.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://agents.md/" target="_blank" rel="noopener">agents.md — extra context agents need</a>
+                            <a href="https://cursor.com/help/customization/rules.md" target="_blank" rel="noopener">Cursor Help — user rule files on this machine</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/README.md</p>
+                        <pre class="snip">**Edit** `instructions/shared.md` only for
+cross-tool prefs. Point Claude, Cursor,
+Gemini, and Firebender at that file with
+`lab/wire-personal-agents.sh`.
+Do not paste the same prefs into each
+product by hand.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">05 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="6">
+                <p class="kicker reveal"><span class="num">06</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s05-h2">Put ~/.agents in git.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s05-p">Treat ~/.agents as a personal git tree so a new laptop can reinstall. Private remote only. Never commit secrets. This is not a team repo.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s05-w">Without git, the one-file setup dies on the next machine. A public remote would publish prefs and, if you slip, tokens. .gitignore is the gate. Wrappers under ~/.claude and ~/.cursor stay outside this tree unless you add them on purpose.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://cursor.com/docs/cloud-agent/setup" target="_blank" rel="noopener">Cursor Cloud — do not ship laptop files in the clone</a>
+                            <a href="https://agents.md/" target="_blank" rel="noopener">agents.md — keep secrets out of agent context</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/.gitignore</p>
+                        <pre class="snip">.env
+.env.*
+*.pem
+*.key
+*token*
+*secret*
+.DS_Store</pre>
+                    </div>
+                </div>
+                <p class="slide-num">06 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="7">
+                <p class="kicker reveal"><span class="num">07</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s06-h2">Point tools at it. Do not copy by hand.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s06-p">The wire script writes wrappers. Claude @-imports shared.md (live). Cursor, Gemini, and Firebender embed a copy. Those three are stale until you re-run. Use @~/path only on the laptop. In a repo, CLAUDE.md points at AGENTS.md in that tree.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s06-w">Pasting the same paragraph into three home folders drifts. Claude documents @~/path for a file outside CLAUDE.md. Cursor @filename is a workspace reference, not a home import, so we embed. A @~/.agents line in a frontend or services repo would not load on Cloud or for teammates.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://code.claude.com/docs/en/claude-md" target="_blank" rel="noopener">Claude Code — @AGENTS.md / CLAUDE.md</a>
+                            <a href="https://cursor.com/docs/rules" target="_blank" rel="noopener">Cursor Rules — @filename in a rule</a>
+                            <a href="https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html" target="_blank" rel="noopener">Gemini CLI — GEMINI.md</a>
+                            <a href="https://docs.firebender.com/api-reference/rules" target="_blank" rel="noopener">Firebender — ~/.firebender/rules/</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/wrappers/claude/CLAUDE.md</p>
+                        <pre class="snip">&lt;!-- managed-by: wire-personal-agents --&gt;
+## Personal prefs (canonical)
+
+Repo `AGENTS.md`, repo skills, repo hooks,
+and repo rules win. Edit
+`~/.agents/instructions/shared.md`.
+
+@~/.agents/instructions/shared.md
+&lt;!-- /managed-by: wire-personal-agents --&gt;</pre>
+                    </div>
+                </div>
+                <p class="slide-num">07 / 19</p>
+                <a class="q-cutout reveal" href="https://github.com/allisonpaigemcentire/ai-workshops/blob/main/workshops/customizing-agent-workflow/handout-laptop-vs-repo-adapters.md" target="_blank" rel="noopener" data-ed="d3-s07-cut">
+                    <span class="q-mark">Q?</span>
+                    Laptop vs. Repo adaptors
+                </a>
+            </section>
+
+            <section class="slide" data-slide="8">
+                <p class="kicker reveal"><span class="num">08</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s07-h2">Cloud does not see your laptop.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s07-p">If a preference must apply on a Cloud Agent run, put it in the repo harness or Team Rules before you start. Do not symlink ~/.agents into a repo.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s07-w">Desktop and Cloud are different runtimes. The Cloud VM clones the repo. It never loads ~/.agents or ~/.cursor/rules. A symlink would either fail for teammates or turn personal prefs into an accidental team contract.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://cursor.com/docs/cloud-agent/setup" target="_blank" rel="noopener">Cursor Cloud Agent setup</a>
+                            <a href="https://cursor.com/docs/rules" target="_blank" rel="noopener">Cursor Rules — project rules travel with the clone</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/README.md</p>
+                        <pre class="snip">## Do not
+
+- Commit tokens, `.env`, or keys.
+- Push this tree to a public remote.
+- Copy or symlink this folder into an
+  application repo.
+- Treat this as a replacement for repo
+  `AGENTS.md` or repo `.agents/skills/`.
+- Expect Cursor Cloud Agents to load
+  these files. Promote team requirements
+  into the repo harness or Team Rules
+  before a Cloud run.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">08 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="9">
+                <p class="kicker reveal"><span class="num">09</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s08-h2">Put writing, tools, and cost. Not the repo.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s08-p">shared.md holds how you like answers, which CLIs you use, and how you spend context. Do not put how to build this repo, a second copy of a repo skill, a global --no-verify rule, or tokens.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s08-w">Context is finite. Duplicating the repo in a personal file fights Precedence and wastes tokens every turn. Some Nuuly repos require --no-verify; others forbid skipping new lint. Follow the open repo instead of a global always or never.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Anthropic — context is a finite resource</a>
+                            <a href="https://agents.md/" target="_blank" rel="noopener">agents.md — repo-specific instructions stay in the repo</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/instructions/shared.md</p>
+                        <pre class="snip">## Tooling
+
+- GitHub and Jira: `gh` and `acli`, not a
+  logged-out web fetch.
+
+## Defaults
+
+- Commits and PRs only when I ask.
+- Branch names: follow this repo's
+  CONTRIBUTING / AGENTS.md.
+- Follow the **open repo's** commit-hook
+  rules. Do not invent a global always
+  or never `--no-verify`.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">09 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="10">
+                <p class="kicker reveal"><span class="num">10</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s09-h2">Three writing lines.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s09-p">No preamble. No trailing summary of the diff. State each finding once. Keep those three in shared.md as the default writing style.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s09-w">Personal markdown is context, not a compiler. Short, repeated rules are followed more reliably than a long style essay. The Lab B load check is quoting Precedence, not adding a new closing sentence on every reply.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://code.claude.com/docs/en/claude-md" target="_blank" rel="noopener">Claude Code — how you write instructions matters</a>
+                            <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Anthropic — lean instructions</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/instructions/shared.md</p>
+                        <pre class="snip">## How I work
+
+- Be short. No preamble. No trailing
+  summary of the diff.
+- State each finding once.
+- Name tradeoffs in 1–2 sentences;
+  I decide.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">10 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="11">
+                <p class="kicker reveal"><span class="num">11</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s10-h2">Main thread plans.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s10-p">The chat you keep using is the orchestrator. Do not explore in the main loop. Spike unknowns in a subagent or a second session. Return a short finding. Use a cheaper model for mechanical work.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s10-w">Huge-file reads and API probing in the main thread fill the window you still need for the plan. Skills load more detail only when the task calls for it. A second session or subagent keeps that cost off the orchestrator.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://agentskills.io/specification" target="_blank" rel="noopener">Agent Skills — progressive disclosure</a>
+                            <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener">Anthropic — diminishing returns on context</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/instructions/shared.md</p>
+                        <pre class="snip">## Context cost
+
+- The main thread plans and decomposes.
+  Do not explore in the main loop.
+- Spike unknowns (API probing, huge-file
+  reads) in a subagent or a second
+  session. Return a short finding.
+- New chat or `/clear` at phase
+  boundaries.
+- Cheaper model for mechanical work.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">11 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="12">
+                <p class="kicker reveal"><span class="num">12</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s11-h2">Same three checks for every product.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s11-p">File on disk. Product lists the prefs. Smoke test: same PR prompt in an app repo (Goal / Ran / Doubt) and in this clone (What / Why this repo / Verify). Skip products you do not use. Android Studio Gemini is not Gemini CLI.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s11-w">A wrapper file can exist and still not load. Naming the file path in the quote prompt lets the agent Read it and fake a pass. Ask for the Precedence line from personal prefs. The real test is the second PR draft: does this clone’s What / Why this repo / Verify beat personal Goal / Ran / Doubt?</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://code.claude.com/docs/en/claude-md" target="_blank" rel="noopener">Claude — /memory lists loaded files</a>
+                            <a href="https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html" target="_blank" rel="noopener">Gemini — /memory show</a>
+                            <a href="https://developer.android.com/studio/gemini/agent-files" target="_blank" rel="noopener">Android Studio Gemini — not Gemini CLI</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/verify.md</p>
+                        <pre class="snip">| **Wire** — --check ok | Yes |
+| **Cursor** — Precedence quote | Yes |
+| **Claude** — /memory lists CLAUDE.md | Yes |
+| **Gemini CLI** — /memory show | Yes |
+| **Smoke test** — personal vs workshop PR headings | Yes |
+
+1. App repo, no PR headings. Draft a PR body. Do not open a PR.
+2. This clone open. Same prompt.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">12 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="13">
+                <p class="kicker reveal"><span class="num">13</span> Practice</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s12-h2">A personal skill is one job plus a script.</h2>
+                <div class="col-l">
+                    <div class="reveal">
+                        <p class="lbl">The practice</p>
+                        <p class="plain" data-ed="d3-s12-p">Repo skills stay in the clone. A personal skill is a step-by-step that is yours: SKILL.md tells the agent when to run; a script does the deterministic work. Do not re-author a repo skill under the same name.</p>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:36px">Why</p>
+                        <p class="why" data-ed="d3-s12-w">If the agent reimplements git worktree every time, the steps drift. The script is cheaper and repeatable. If you copy create-worktree into an application repo, you have forked a laptop layout into the team harness.</p>
+                    </div>
+                </div>
+                <div class="col-r">
+                    <div class="reveal">
+                        <p class="lbl">Sources</p>
+                        <div class="sources">
+                            <a href="https://agentskills.io/specification" target="_blank" rel="noopener">Agent Skills specification</a>
+                            <a href="https://code.claude.com/docs/en/features-overview" target="_blank" rel="noopener">Claude Code — skills vs repo CLAUDE.md</a>
+                        </div>
+                    </div>
+                    <div class="reveal">
+                        <p class="lbl" style="margin-top:20px">Example</p>
+                        <p class="path">example/home-agents/skills/create-worktree/SKILL.md</p>
+                        <pre class="snip">A **personal** skill: your laptop layout.
+Do not copy this into an application
+repo's `.agents/skills/`.
+
+2. **Run the bundled script.** Do not
+   reimplement `git worktree` by hand.
+
+   bash ~/.agents/skills/create-worktree/
+     scripts/create_worktree.sh TICKET
+
+4. Never `git checkout` another ticket's
+   branch in the primary working tree.</pre>
+                    </div>
+                </div>
+                <p class="slide-num">13 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="14">
+                <p class="kicker reveal"><span class="num">14</span> Lab A</p>
+                <p class="lab-time reveal">10 minutes</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-laba-h2">Write personal prefs.</h2>
+                <p class="lab-goal reveal" data-ed="d3-laba-g">One file: ~/.agents/instructions/shared.md. Skip unused products. Work in an app repo that already has AGENTS.md.</p>
+                <div class="lab-stack">
+                    <pre class="lab-pre reveal" data-ed="d3-laba-cmd">mkdir -p ~/.agents/instructions ~/.agents/rules ~/.cursor/rules
+cp templates/shared.md ~/.agents/instructions/shared.md
+cp templates/creating-pull-requests.mdc ~/.agents/rules/creating-pull-requests.mdc
+ln -sfn ~/.agents/rules/creating-pull-requests.mdc ~/.cursor/rules/creating-pull-requests.mdc
+cp templates/agents.gitignore ~/.agents/.gitignore
+git -C ~/.agents init</pre>
+                    <p class="lab-keep reveal" data-ed="d3-laba-k">From the cloned lab/ folder. Keep Precedence first. Keep: no preamble; no trailing summary of the diff; state each finding once. The last two commands are required: copy agents.gitignore, then git init. Save only shared.md for cross-tool prefs. Do not copy-paste into each product.</p>
+                </div>
+                <p class="lab-done reveal" data-ed="d3-laba-d">Done when: shared.md starts with Precedence, ~/.agents/.gitignore exists, and git -C ~/.agents status works.</p>
+                <p class="slide-num">14 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="15">
+                <p class="kicker reveal"><span class="num">15</span> Lab B</p>
+                <p class="lab-time reveal">10 minutes</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-labb-h2">Wire and verify.</h2>
+                <p class="lab-goal reveal" data-ed="d3-labb-g">Each product you use gets a wrapper. A new session can quote or list those prefs. Smoke test is Lab C. Cloud Agents do not load laptop files.</p>
+                <div class="lab-b-pre reveal">
+                    <pre class="lab-pre" data-ed="d3-labb-cmd">bash wire-personal-agents.sh
+bash wire-personal-agents.sh --check
+# optional: --tools=claude,cursor   names: claude, cursor, gemini, firebender</pre>
+                </div>
+                <div class="lab-b-grid">
+                    <div class="lab-prod reveal">
+                        <h3 data-ed="d3-labb-c1">Cursor</h3>
+                        <p data-ed="d3-labb-c1p">ls ~/.cursor/rules/personal-instructions.mdc<br>New Agent chat: Quote the Precedence line from my personal prefs (no path).</p>
+                    </div>
+                    <div class="lab-prod reveal">
+                        <h3 data-ed="d3-labb-c2">Claude Code</h3>
+                        <p data-ed="d3-labb-c2p">--check already confirmed the @ import.<br>New session: /memory or /context — personal CLAUDE.md or the @ line.</p>
+                    </div>
+                    <div class="lab-prod reveal">
+                        <h3 data-ed="d3-labb-c3">Gemini CLI</h3>
+                        <p data-ed="d3-labb-c3p">Not Android Studio. head -20 ~/.gemini/GEMINI.md<br>/memory refresh then /memory show — GEMINI.md and repo AGENTS.md.</p>
+                    </div>
+                    <div class="lab-prod reveal">
+                        <h3 data-ed="d3-labb-c4">Firebender</h3>
+                        <p data-ed="d3-labb-c4p">ls -l ~/.firebender/rules/personal-instructions.mdc<br>New chat: Quote the Precedence line from my personal prefs.</p>
+                    </div>
+                </div>
+                <p class="lab-done reveal" data-ed="d3-labb-d">Done when: file check and load check pass for each product you use.</p>
+                <p class="slide-num">15 / 19</p>
+            </section>
+
+            <section class="slide" data-slide="16">
+                <p class="kicker reveal"><span class="num">16</span> Lab C</p>
+                <p class="lab-time reveal">8 minutes</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-labc-h2">Smoke test.</h2>
+                <p class="lab-goal reveal" data-ed="d3-labc-g">Same prompt twice. Do not open or push a PR. Switch which folder is open.</p>
+                <div class="lab-prompts">
+                    <div class="lab-prompt reveal" data-ed="d3-labc-p1">1. App repo with no PR headings: Draft a PR body for my current branch. Do not open or push a PR. Expect Goal / Ran / Doubt.</div>
+                    <div class="lab-prompt reveal" data-ed="d3-labc-p2">2. Open ai-workshops (clone root or this workshop folder, not lab/): same prompt. Expect What / Why this repo / Verify.</div>
+                </div>
+                <p class="lab-pass reveal" data-ed="d3-labc-pf">Pass: workshop clone uses What / Why this repo / Verify. Fail: it still uses Goal / Ran / Doubt there. If you fail, the workspace is still the app repo.</p>
+                <p class="lab-done reveal" data-ed="d3-labc-d">Done when: C1 is Goal / Ran / Doubt and C2 is What / Why this repo / Verify in at least one product you use daily.</p>
+                <p class="slide-num">16 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="17">
+                <p class="kicker reveal"><span class="num">17</span> Lab D</p>
+                <p class="lab-time reveal">7 minutes</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-labd-h2">Main thread plans.</h2>
+                <p class="lab-goal reveal" data-ed="d3-labd-g">Open your application repo. Context cost in shared.md says spike unknowns in a subagent or a second session. Do not paste file bodies into this chat.</p>
+                <div class="lab-prompts">
+                    <div class="lab-prompt reveal" data-ed="d3-labd-p1">Keep this chat as the planner. Spike this unknown: commits, PR bodies, and Cloud Agents in this repo vs my personal PR headings. Short finding only. Do not paste file bodies.</div>
+                </div>
+                <p class="lab-pass reveal" data-ed="d3-labd-pf">Cursor / Claude: a Task or subagent appears, then a short finding. Gemini CLI: second session (no subagent tool). Fail: this chat greps and pastes files. If nobody spawns, prefs did not load. Fallback: Spike that unknown in a subagent.</p>
+                <p class="lab-done reveal" data-ed="d3-labd-d">Done when: you see a spawned worker in Cursor or Claude, or a second session in Gemini, in at least one product you use.</p>
+                <p class="slide-num">17 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="18">
+                <p class="kicker reveal"><span class="num">18</span> Exit</p>
+                <p class="lab-time reveal">10 minutes</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-exit-h2">Fill the checklist.</h2>
+                <p class="lab-goal reveal" data-ed="d3-exit-g">Leave with a filled checklist, not only memory. Skip any product you do not use.</p>
+                <div class="lab-stack">
+                    <pre class="lab-pre reveal" data-ed="d3-exit-cmd">Open lab/verify-checklist.md</pre>
+                    <p class="lab-keep reveal" data-ed="d3-exit-k">Mark Yes / No / N/A for: Precedence file on disk, wire --check, each product’s load check, Lab C headings, and Lab D spawn. Step-by-step is lab/lab-walkthrough.md in the participant repo.</p>
+                </div>
+                <p class="lab-done reveal" data-ed="d3-exit-d">Done when: every row you use is filled. Success is a file on disk plus completed rows — not tip notes alone.</p>
+                <p class="slide-num">18 / 19</p>
+            </section>
+
+            <section class="slide dark" data-slide="19">
+                <p class="kicker reveal"><span class="num">19</span> Resources</p>
+                <h2 class="bp-h2 reveal" data-ed="d3-s13-h2">Best-practice sources</h2>
+                <div class="ref-grid reveal">
+                    <div>
+                        <a href="https://agents.md/" data-ed="d3-s13-a1">agents.md</a>
+                        <span class="hint" data-ed="d3-s13-h1">Cross-tool AGENTS.md standard</span>
+                    </div>
+                    <div>
+                        <a href="https://cursor.com/docs/rules" data-ed="d3-s13-a2">Cursor Rules</a>
+                        <span class="hint" data-ed="d3-s13-h2b">.mdc rules and AGENTS.md</span>
+                    </div>
+                    <div>
+                        <a href="https://agentskills.io/specification" data-ed="d3-s13-a3">Agent Skills spec</a>
+                        <span class="hint" data-ed="d3-s13-h3">Portable SKILL.md format</span>
+                    </div>
+                    <div>
+                        <a href="https://cursor.com/docs/cloud-agent/setup" data-ed="d3-s13-a4">Cursor Cloud setup</a>
+                        <span class="hint" data-ed="d3-s13-h4">Cloud environments and AGENTS.md</span>
+                    </div>
+                    <div>
+                        <a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" data-ed="d3-s13-a5">Context engineering</a>
+                        <span class="hint" data-ed="d3-s13-h5">Anthropic — lean instructions</span>
+                    </div>
+                    <div>
+                        <a href="https://code.claude.com/docs/en/features-overview" data-ed="d3-s13-a6">Claude Code features</a>
+                        <span class="hint" data-ed="d3-s13-h6">CLAUDE.md, skills, hooks, subagents</span>
+                    </div>
+                    <div>
+                        <a href="https://www.aibuilderclub.com/blog/reviewing-ai-generated-pull-requests" data-ed="d3-s13-a7">Review AI PRs</a>
+                        <span class="hint" data-ed="d3-s13-h7">Goal / Ran / Doubt author packet</span>
+                    </div>
+                    <div>
+                        <a href="https://code.claude.com/docs/en/claude-md" data-ed="d3-s13-a8">Claude Code memory</a>
+                        <span class="hint" data-ed="d3-s13-h8">CLAUDE.md and @AGENTS.md</span>
+                    </div>
+                    <div>
+                        <a href="https://developer.android.com/studio/gemini/agent-files" data-ed="d3-s13-a9">Android Studio Gemini</a>
+                        <span class="hint" data-ed="d3-s13-h9">Studio reads AGENTS.md</span>
+                    </div>
+                    <div>
+                        <a href="https://google-gemini.github.io/gemini-cli/docs/cli/gemini-md.html" data-ed="d3-s13-a10">Gemini CLI context</a>
+                        <span class="hint" data-ed="d3-s13-h10">GEMINI.md and context.fileName</span>
+                    </div>
+                    <div>
+                        <a href="https://antigravity.google/docs/ide/rules/" data-ed="d3-s13-a11">Antigravity rules</a>
+                        <span class="hint" data-ed="d3-s13-h11">~/.gemini/GEMINI.md</span>
+                    </div>
+                    <div>
+                        <a href="https://docs.firebender.com/api-reference/rules" data-ed="d3-s13-a12">Firebender rules</a>
+                        <span class="hint" data-ed="d3-s13-h12">~/.firebender/rules/</span>
+                    </div>
+                </div>
+                <p class="slide-num">19 / 19</p>
+            </section>
+
+        </main>
+    </div>
+
+
+    <nav class="deck-controls" aria-label="Slide progress">
+        <div id="dots"></div>
+        <span class="counter" id="counter">1 / 19</span>
+    </nav>
+
+    <script>
+        class SlidePresentation {
+            constructor() {
+                this.slides = document.querySelectorAll('.slide');
+                this.currentSlide = 0;
+                this.stage = document.getElementById('deckStage');
+                this.dotsRoot = document.getElementById('dots');
+                this.counter = document.getElementById('counter');
+                this.setupStageScale();
+                this.setupDots();
+                this.setupKeyboardNav();
+                this.setupTouchNav();
+                this.setupWheelNav();
+                this.showSlide(this.startSlideFromUrl());
+            }
+            startSlideFromUrl() {
+                const params = new URLSearchParams(window.location.search);
+                const n = parseInt(params.get('slide') || '1', 10);
+                if (Number.isNaN(n)) return 0;
+                return Math.max(0, Math.min(n - 1, this.slides.length - 1));
+            }
+            setupStageScale() {
+                const scale = () => {
+                    const availH = window.innerHeight;
+                    const factor = Math.min(window.innerWidth / 1920, availH / 1080);
+                    const x = (window.innerWidth - 1920 * factor) / 2;
+                    const y = (availH - 1080 * factor) / 2;
+                    this.stage.style.transform = 'translate(' + x + 'px, ' + y + 'px) scale(' + factor + ')';
+                };
+                this.rescale = scale;
+                scale();
+                window.addEventListener('resize', scale);
+            }
+            setupDots() {
+                this.slides.forEach((_, i) => {
+                    const b = document.createElement('button');
+                    b.className = 'dot';
+                    b.type = 'button';
+                    b.setAttribute('aria-label', 'Go to slide ' + (i + 1));
+                    b.addEventListener('click', () => this.showSlide(i));
+                    this.dotsRoot.appendChild(b);
+                });
+                this.dots = this.dotsRoot.querySelectorAll('.dot');
+            }
+            setupKeyboardNav() {
+                document.addEventListener('keydown', (e) => {
+                    if (e.target && e.target.getAttribute('contenteditable') === 'true') return;
+                    if (e.key === 'ArrowRight' || e.key === ' ' || e.key === 'PageDown' || e.key === 'ArrowDown') {
+                        e.preventDefault();
+                        this.showSlide(this.currentSlide + 1);
+                    } else if (e.key === 'ArrowLeft' || e.key === 'PageUp' || e.key === 'ArrowUp') {
+                        e.preventDefault();
+                        this.showSlide(this.currentSlide - 1);
+                    } else if (e.key === 'Home') {
+                        e.preventDefault();
+                        this.showSlide(0);
+                    } else if (e.key === 'End') {
+                        e.preventDefault();
+                        this.showSlide(this.slides.length - 1);
+                    }
+                });
+            }
+            setupTouchNav() {
+                let x0 = null;
+                this.stage.addEventListener('touchstart', (e) => {
+                    x0 = e.changedTouches[0].screenX;
+                }, { passive: true });
+                this.stage.addEventListener('touchend', (e) => {
+                    if (x0 === null) return;
+                    const dx = e.changedTouches[0].screenX - x0;
+                    if (Math.abs(dx) > 50) this.showSlide(this.currentSlide + (dx < 0 ? 1 : -1));
+                    x0 = null;
+                }, { passive: true });
+            }
+            setupWheelNav() {
+                let locked = false;
+                window.addEventListener('wheel', (e) => {
+                    if (document.body.classList.contains('editing')) return;
+                    if (locked) return;
+                    if (Math.abs(e.deltaY) < 30) return;
+                    locked = true;
+                    this.showSlide(this.currentSlide + (e.deltaY > 0 ? 1 : -1));
+                    setTimeout(() => { locked = false; }, 450);
+                }, { passive: true });
+            }
+            showSlide(index) {
+                this.currentSlide = Math.max(0, Math.min(index, this.slides.length - 1));
+                this.slides.forEach((slide, i) => {
+                    slide.classList.toggle('active', i === this.currentSlide);
+                    slide.classList.toggle('visible', i === this.currentSlide);
+                });
+                this.dots.forEach((d, i) => d.classList.toggle('on', i === this.currentSlide));
+                this.counter.textContent = (this.currentSlide + 1) + ' / ' + this.slides.length;
+            }
+        }
+        class InlineEditor {
+            constructor() {
+                this.isActive = false;
+                this.storageKey = 'customizing-agent-workflow-slides-v1';
+                this.toggleBtn = document.getElementById('editToggle');
+                this.restore();
+            }
+            editableNodes() {
+                return document.querySelectorAll('[data-ed], h1, h2, h3, .plain, .why, .sub, .byline');
+            }
+            toggleEditMode() {
+                this.isActive = !this.isActive;
+                document.body.classList.toggle('editing', this.isActive);
+                this.toggleBtn.classList.toggle('active', this.isActive);
+                this.toggleBtn.textContent = this.isActive ? 'Editing' : 'Edit';
+                this.editableNodes().forEach((el) => {
+                    el.setAttribute('contenteditable', this.isActive ? 'true' : 'false');
+                });
+                if (!this.isActive) this.save();
+            }
+            save() {
+                const data = {};
+                document.querySelectorAll('[data-ed]').forEach((el) => {
+                    data[el.getAttribute('data-ed')] = el.innerHTML;
+                });
+                try { localStorage.setItem(this.storageKey, JSON.stringify(data)); } catch (err) {}
+            }
+            restore() {
+                try {
+                    const raw = localStorage.getItem(this.storageKey);
+                    if (!raw) return;
+                    const data = JSON.parse(raw);
+                    Object.keys(data).forEach((id) => {
+                        const el = document.querySelector('[data-ed="' + id + '"]');
+                        if (el) el.innerHTML = data[id];
+                    });
+                } catch (err) {}
+            }
+        }
+        const deck = new SlidePresentation();
+        const editor = new InlineEditor();
+        document.getElementById('editToggle').addEventListener('click', () => editor.toggleEditMode());
+        const hotzone = document.querySelector('.edit-hotzone');
+        const editToggle = document.getElementById('editToggle');
+        let hideTimeout = null;
+        hotzone.addEventListener('mouseenter', () => {
+            clearTimeout(hideTimeout);
+            editToggle.classList.add('show');
+        });
+        hotzone.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                if (!editor.isActive) editToggle.classList.remove('show');
+            }, 400);
+        });
+        editToggle.addEventListener('mouseenter', () => clearTimeout(hideTimeout));
+        editToggle.addEventListener('mouseleave', () => {
+            hideTimeout = setTimeout(() => {
+                if (!editor.isActive) editToggle.classList.remove('show');
+            }, 400);
+        });
+        hotzone.addEventListener('click', () => editor.toggleEditMode());
+        document.addEventListener('keydown', (e) => {
+            if ((e.key === 'e' || e.key === 'E') && !e.target.getAttribute('contenteditable')) {
+                editor.toggleEditMode();
+            }
+            if ((e.metaKey || e.ctrlKey) && e.key === 's') {
+                e.preventDefault();
+                editor.save();
+            }
+        });
+    </script>
+</body>
+</html>

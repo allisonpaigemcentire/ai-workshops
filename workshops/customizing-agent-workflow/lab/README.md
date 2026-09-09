@@ -4,7 +4,7 @@ Participant-facing starter kit. Write prefs once in `~/.agents/`, point each
 product at that file, then verify the products you use.
 
 **Step-by-step walkthrough:** [lab-walkthrough.md](lab-walkthrough.md) (Labs A,
-B, C, and exit checks with time boxes).
+B, C, D, and exit checks with time boxes).
 
 ## Clone this lab
 
@@ -22,16 +22,26 @@ cd ai-workshops/workshops/customizing-agent-workflow/lab
 ## Step 1 — Write the canonical file
 
 ```bash
-mkdir -p ~/.agents/instructions
+mkdir -p ~/.agents/instructions ~/.agents/rules ~/.cursor/rules
 cp templates/shared.md ~/.agents/instructions/shared.md
-cp templates/agents.gitignore ~/.agents/.gitignore
-git -C ~/.agents init
-# Edit shared.md. Keep Precedence. Keep the three writing lines.
-# Private remote only. Never commit secrets.
+cp templates/creating-pull-requests.mdc ~/.agents/rules/creating-pull-requests.mdc
+ln -sfn ~/.agents/rules/creating-pull-requests.mdc ~/.cursor/rules/creating-pull-requests.mdc
 ```
 
-This is the only file you edit for cross-tool personal prefs. It is **not** a
-replacement for repo `AGENTS.md` or repo `.agents/skills/`.
+Then copy the gitignore and initialize git (**required**):
+
+```bash
+cp templates/agents.gitignore ~/.agents/.gitignore
+git -C ~/.agents init
+```
+
+Edit `shared.md`. Keep Precedence. Keep the three writing lines. Private
+remote only. Never commit secrets.
+
+`shared.md` is the only file you edit for cross-tool personal prefs. The
+`.mdc` is the Cursor description-match gate for Lab C when the open repo
+has no PR headings. Neither file replaces repo `AGENTS.md` or repo
+`.agents/skills/`.
 
 ## Step 2 — Point each product at that file
 
@@ -79,7 +89,8 @@ your laptop.
 
 ### Cursor
 
-1. File on disk: `ls ~/.cursor/rules/personal-instructions.mdc`.
+1. File on disk: `ls ~/.cursor/rules/personal-instructions.mdc` and
+   `ls -l ~/.cursor/rules/creating-pull-requests.mdc`.
 2. Product lists files: new Agent chat — quote the Precedence line from
    personal prefs. Do not put the file path in the prompt.
 3. Smoke test: see [verify-checklist.md](verify-checklist.md).
@@ -114,8 +125,9 @@ default. Workshop default is `shared.md` plus `wire-personal-agents.sh`.
 ## Reference
 
 - [Handout](../handout.md) — full guide (precedence, Cloud Agents, skills)
-- [Example setup](../example/) — sample `~/.agents/` plus product wrappers
-- [Slides (Draft 2)](../customizing-your-agent-workflow-slides-draft-2.html) — 26 slides; practices, labs, then best-practice sources
+- [Example setup](../example/) — sample `~/.agents/` plus product wrappers; [walkthrough](../example/walkthrough.md)
+- [Slides](../slides.html) — 19 slides, no speaker notes; practices, Labs A–D, exit, sources
+- [Lab D prompt](lab-d-prompt.md) — main-thread / subagent spawn test
 - [PR author packet](../pr-author-packet-rule.md) — Goal / Ran / Doubt example
 
 ## Script source

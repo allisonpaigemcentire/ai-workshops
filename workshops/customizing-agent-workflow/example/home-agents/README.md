@@ -14,8 +14,10 @@ product does not scan that folder. Do not copy it into an application repo.
 
 ```bash
 # After you clone *your* private copy of this tree to ~/.agents:
-mkdir -p ~/.agents/instructions ~/.agents/skills
-# copy instructions/shared.md, .gitignore, and skills/create-worktree here
+mkdir -p ~/.agents/instructions ~/.agents/rules ~/.agents/skills ~/.cursor/rules
+# copy instructions/shared.md, rules/creating-pull-requests.mdc, .gitignore,
+# and skills/create-worktree here
+ln -sfn ~/.agents/rules/creating-pull-requests.mdc ~/.cursor/rules/creating-pull-requests.mdc
 git -C ~/.agents init   # if this is a fresh folder
 ```
 

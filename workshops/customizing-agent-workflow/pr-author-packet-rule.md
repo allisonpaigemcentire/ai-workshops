@@ -28,20 +28,17 @@ product's home folder point at that file. They do **not** commit to git.
 
 ### 1. Canonical file
 
-Put Goal / Ran / Doubt requirements in `~/.agents/instructions/shared.md` (or
-in a Cursor-only extra `.mdc` if they should not load in every product).
+Put Goal / Ran / Doubt in `~/.agents/instructions/shared.md` (the workshop
+template already does). Copy
+[`lab/templates/creating-pull-requests.mdc`](lab/templates/creating-pull-requests.mdc)
+to `~/.agents/rules/creating-pull-requests.mdc` and symlink
+`~/.cursor/rules/creating-pull-requests.mdc` to that path so Cursor loads the
+full gate on PR tasks (`alwaysApply: false`).
 
-For always-on prefs, keep them in `shared.md`. For Cursor-only PR workflow
-with `alwaysApply: false`, keep a separate `~/.cursor/rules/creating-pull-requests.mdc`
-and do not put that whole file in `shared.md`.
-
-`creating-pull-requests.mdc` step 0 is a hard gate for `r15-services-customer`:
-do not create a branch, push, or open a PR until the name is valid. No ticket:
-`am-no-ticket-<slug>` with hyphens only (copy
-`am-no-ticket-cx-agents-4-uncovered-context`). Ticketed:
-`am/<ticket>-<description>` per that repo's `CONTRIBUTING.md`. Never
-`am/no-ticket/...` and never the GitHub login `allisonpaigemcentire`. If the
-current name is wrong, stop and ask. Do not use GitHub's branch-rename API.
+Do **not** copy a repo-specific branch-name gate (for example services
+`am-no-ticket-…` rules) into the workshop template. Those stay on your laptop
+if you need them. The workshop file only ships the Goal / Ran / Doubt packet
+and draft default.
 
 Previously this lived in three files (`pr-author-packet.mdc`,
 `draft-pr-default.mdc`, and `creating-pull-requests.mdc`). They duplicated the
@@ -80,8 +77,10 @@ the Precedence line.
 
 ### 5. Smoke test
 
-Ask local Agent: "Draft a PR body for my current branch." Confirm output has
-`## Goal`, `## Ran`, and `## Doubt`.
+Same prompt twice. Do not open or push a PR.
+
+1. App repo with no PR headings: `## Goal`, `## Ran`, `## Doubt`.
+2. This clone open: `## What`, `## Why this repo`, `## Verify`.
 
 ---
 
@@ -189,7 +188,7 @@ from home.
 |------|----------|
 | `~/.agents/instructions/shared.md` | Canonical personal prefs (all local products via wrappers) |
 | `~/.cursor/rules/personal-instructions.mdc` | Cursor wrapper |
-| `~/.cursor/rules/creating-pull-requests.mdc` | Cursor-only extras (optional; `alwaysApply: false`) |
+| `~/.cursor/rules/creating-pull-requests.mdc` | Goal / Ran / Doubt gate (`alwaysApply: false`; Lab A symlink) |
 | `~/.claude/CLAUDE.md` | Claude — `@` import of `shared.md` |
 | `~/.gemini/GEMINI.md` | Gemini CLI (global) |
 | `~/.firebender/rules/personal-instructions.mdc` | Firebender |

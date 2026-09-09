@@ -1,6 +1,6 @@
 # Lab walkthrough — Customizing Your Agent Workflow
 
-Step-by-step guide for Labs A, B, and C. Time boxes match the 60-minute
+Step-by-step guide for Labs A, B, C, and D. Time boxes match the 60-minute
 workshop. Run only the steps for products you actually use.
 
 **Before you start**
@@ -22,22 +22,28 @@ workshop. Run only the steps for products you actually use.
 
 **Goal:** Create **one** personal instruction file. Keep the Precedence block
 and the three writing lines (no preamble, no trailing summary, state each
-finding once). Add tool and cost lines that do not repeat your repo's
-`AGENTS.md`.
+finding once). Copy `creating-pull-requests.mdc` so Lab C in an app repo with
+no PR headings gets Goal / Ran / Doubt the same way Cursor does on a machine
+that already has that gate. Copy `agents.gitignore` and `git init` so
+`~/.agents/` is a git tree with secrets blocked. Add tool and cost lines
+that do not repeat your repo's `AGENTS.md`.
 
 ### Step 1 — Copy the starter
 
 From the `lab/` directory:
 
 ```bash
-mkdir -p ~/.agents/instructions
+mkdir -p ~/.agents/instructions ~/.agents/rules ~/.cursor/rules
 cp templates/shared.md ~/.agents/instructions/shared.md
-cp templates/agents.gitignore ~/.agents/.gitignore
-git -C ~/.agents init
+cp templates/creating-pull-requests.mdc ~/.agents/rules/creating-pull-requests.mdc
+ln -sfn ~/.agents/rules/creating-pull-requests.mdc ~/.cursor/rules/creating-pull-requests.mdc
 ```
 
-Do **not** copy this file into each product's home folder by hand. Lab B
-points Claude, Cursor, Gemini, and Firebender at this one file.
+Do **not** copy `shared.md` into each product's home folder by hand. Lab B
+points Claude, Cursor, Gemini, and Firebender at that one file. The
+`creating-pull-requests.mdc` symlink is how Cursor loads the full Goal / Ran /
+Doubt gate (`alwaysApply: false`, description match). The same headings are
+already in `shared.md` so Claude, Gemini, and Firebender see them after Lab B.
 
 ### Step 2 — Keep the Precedence block at the top
 
@@ -61,16 +67,29 @@ These lines are personal prefs for this machine. On conflict, follow the repo.
 4. Lab B load check is quoting the Precedence line. Do not add “end every reply
    with what happens next.”
 
-### Step 4 — Save
+### Step 4 — Copy `.gitignore` and `git init`
+
+From the `lab/` directory:
+
+```bash
+cp templates/agents.gitignore ~/.agents/.gitignore
+git -C ~/.agents init
+```
+
+This step is required. The template blocks `.env`, keys, tokens, and secrets
+if you later add a private remote. Do not push `~/.agents` to a public GitHub
+repo.
+
+### Step 5 — Save
 
 Save only at `~/.agents/instructions/shared.md`.
 
-**Lab A done when:** That file exists on disk and starts with the Precedence
-block.
+**Lab A done when:** That file exists and starts with the Precedence block,
+`~/.agents/.gitignore` exists, and `git -C ~/.agents status` works.
 
 ---
 
-## Lab B — Wire and verify (17 minutes)
+## Lab B — Wire and verify (10 minutes)
 
 **Goal:** For each product you use, run the same three steps:
 
@@ -214,49 +233,94 @@ files.
 
 ---
 
-## Lab C — Smoke test (7 minutes)
+## Lab C — Smoke test (10 minutes)
 
-**Goal:** Confirm the **repo** wins when a personal habit could conflict.
+**Goal:** Confirm personal Goal / Ran / Doubt applies only when the **open
+repo** does not name a PR body, and that **this workshop's** headings win
+when it does.
 
-Use the **same two prompts** in each product you verified in Lab B. Open your
-application repo in that product before you start.
-
-### Step C1 — Prompt 1 (personal habit)
-
-```
-Draft a PR body for my current branch.
-```
-
-If you have a PR author-packet personal rule, confirm `## Goal`, `## Ran`, and
-`## Doubt` appear. If not, any structured body is fine for this workshop.
-
-### Step C2 — Prompt 2 (repo must win)
+Use the **same prompt** twice. Do **not** open or push a pull request. Switch
+which folder is the project (File → Open Folder) between the two runs.
 
 ```
-What does AGENTS.md say about commits? Should you commit without me asking?
+Draft a PR body for my current branch. Do not open or push a PR.
 ```
 
-**Pass:** The agent cites the **repo** rule — for example, do not commit unless
-you explicitly ask.
+### Step C1 — No repo PR template (personal format)
 
-**Fail:** The agent follows only your personal line (for example, “commit when
-I ask”) and ignores what `AGENTS.md` says.
+Open an **application** repo whose `AGENTS.md` and `.cursor/rules/` do **not**
+name PR body headings.
 
-If you fail, check whether your personal Defaults section duplicates commit
-policy from the repo. Remove the duplicate from `shared.md` or align the
-wording with the Precedence block. Re-run the wire script if you use Gemini
-or Firebender.
+**Pass:** `## Goal`, `## Ran`, and `## Doubt`. Lab A put that format in
+`shared.md` and in `~/.agents/rules/creating-pull-requests.mdc`.
+
+If that application repo already requires Goal / Ran / Doubt, C1 still
+matches the personal format. The contrast is C2.
+
+### Step C2 — Workshop repo (repo template wins)
+
+Open the cloned **ai-workshops** folder: the clone root, or
+`workshops/customizing-agent-workflow`. Do **not** open `lab/` alone (that
+folder has no `AGENTS.md`).
+
+Same prompt.
+
+**Pass:** `## What`, `## Why this repo`, and `## Verify`. Those headings live
+in this repo's `AGENTS.md` and `.cursor/rules/pr-descriptions.mdc`.
+
+**Fail:** The agent still uses Goal / Ran / Doubt and ignores the workshop
+files.
+
+If you fail, confirm the product’s workspace is the workshop clone (not the
+app repo). Re-run the wire script if you use Cursor, Gemini, or Firebender
+and you changed `shared.md`.
 
 ### Step C3 — Repeat in each product
 
-Run both prompts in Cursor, Claude, Gemini CLI, and/or Firebender — whichever
+Run C1 and C2 in Cursor, Claude, Gemini CLI, and/or Firebender — whichever
 you verified in Lab B.
 
-**Lab C done when:** Prompt 2 passes in at least one product you use daily.
+**Lab C done when:** C1 shows Goal / Ran / Doubt and C2 shows What / Why this
+repo / Verify in at least one product you use daily.
 
 ---
 
-## Exit checks (8 minutes)
+## Lab D — Main thread plans (7 minutes)
+
+**Goal:** Prove the Context cost lines in `shared.md` are loaded. The chat
+you type in stays the planner. A **worker** explores.
+
+Open your **application** repo (the large daily tree), not `lab/`.
+
+### Step D1 — Paste this prompt
+
+Do **not** add the word subagent unless nothing spawns. The Lab A template
+already says spike unknowns in a subagent or a second session.
+
+```
+Keep this chat as the planner. Spike this unknown: commits, PR bodies, and Cloud Agents in this repo vs my personal PR headings. Short finding only. Do not paste file bodies.
+```
+
+Copy: [lab-d-prompt.md](lab-d-prompt.md).
+
+### Step D2 — What pass looks like
+
+| Product | Pass | Fail |
+|---------|------|------|
+| **Cursor** | A Task or subagent appears in the trace, then a short finding | This chat greps and pastes files |
+| **Claude Code** | A Task or subagent runs; this chat stays the plan | Same dump in the main session |
+| **Gemini CLI** | A **second session**, or a plan plus a short finding with no dump (this product has no subagent tool) | Huge exploration in the same session |
+| **Firebender** | A worker if you see one; else same as Gemini | Same dump in this chat |
+
+If nobody spawns, Lab B did not load the prefs. Re-check the wrapper, then
+retry with: `Spike that unknown in a subagent.`
+
+**Lab D done when:** Cursor or Claude shows a spawned worker, or Gemini uses a
+second session, in at least one product you use daily.
+
+---
+
+## Exit checks (10 minutes)
 
 **Goal:** Record what you verified. Leave with files on disk, not notes alone.
 
@@ -274,7 +338,8 @@ Open [verify-checklist.md](verify-checklist.md).
 | **Claude** — `/memory` lists personal `CLAUDE.md` or the `@` import | Yes / No / N/A |
 | **Gemini CLI** — `/memory show` lists `GEMINI.md` and `AGENTS.md` | Yes / No / N/A |
 | **Firebender** — `ls -l` ok; chat quotes Precedence | Yes / No / N/A |
-| **Smoke test** — repo `AGENTS.md` wins on commits | Yes / No |
+| **Smoke test** — personal PR headings vs workshop repo headings | Yes / No |
+| **Lab D** — worker spawned (Cursor/Claude Task) or Gemini second session | Yes / No / N/A |
 | Products verified today | _____________ |
 
 Mark **N/A** for tools you do not use.

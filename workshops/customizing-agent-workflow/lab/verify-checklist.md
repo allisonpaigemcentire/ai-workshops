@@ -12,12 +12,21 @@ product you verify.
 | **Claude** — `/memory` lists personal `CLAUDE.md` or the `@` import | Yes / No / N/A |
 | **Gemini CLI** — `/memory show` lists `GEMINI.md` and `AGENTS.md` | Yes / No / N/A |
 | **Firebender** — `ls -l ~/.firebender/rules/*.mdc` ok; chat quotes Precedence | Yes / No / N/A |
-| **Smoke test** — repo `AGENTS.md` wins on commits | Yes / No |
+| **Smoke test** — personal PR headings vs workshop repo headings | Yes / No |
+| **Lab D** — worker spawned (Cursor/Claude Task) or Gemini second session | Yes / No / N/A |
 | Products verified today | _____________ |
 
 ## Smoke test prompts
 
-1. `Draft a PR body for my current branch.`
-2. `What does AGENTS.md say about commits? Should you commit without me asking?`
+Same prompt twice. Do **not** open or push a PR. Switch the open folder
+between runs.
 
-Pass on prompt 2: the agent cites the **repo** rule, not only your personal habit.
+```
+Draft a PR body for my current branch. Do not open or push a PR.
+```
+
+1. Application repo **without** PR body headings in `AGENTS.md` / `.cursor/rules/`.
+2. Cloned **ai-workshops** (clone root or `workshops/customizing-agent-workflow`, not `lab/` alone).
+
+Pass on (1): `## Goal`, `## Ran`, and `## Doubt`.
+Pass on (2): `## What`, `## Why this repo`, and `## Verify`. Fail: still Goal / Ran / Doubt in the workshop clone.

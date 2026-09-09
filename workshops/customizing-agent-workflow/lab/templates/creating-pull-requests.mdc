@@ -1,0 +1,101 @@
+---
+description: When creating, drafting, or updating pull requests (gh, GitHub MCP, create-pr skills)—use Goal/Ran/Doubt body, open as draft by default
+alwaysApply: false
+---
+
+# Creating pull requests (personal)
+
+This file is **local to this machine**. Copy it to
+`~/.agents/rules/creating-pull-requests.mdc` and symlink
+`~/.cursor/rules/creating-pull-requests.mdc` to that path. Do not commit it
+into an application repo.
+
+Use the **`gh` command** via the Shell tool for GitHub tasks (issues, pull
+requests, checks, releases).
+
+Packet idea: [How to Review AI-Generated Pull Requests](https://www.aibuilderclub.com/blog/reviewing-ai-generated-pull-requests).
+
+## When this applies
+
+Whenever you **draft, create, or update a pull request description**, including:
+
+- `gh pr create` / `gh pr edit` / `gh pr ready`
+- GitHub MCP create/update PR
+- Repo `create-pr` skills
+- The user asks to write a PR description, draft a PR body, or open a PR
+
+Do **not** use the TodoWrite or Task tools for the PR-create ritual.
+
+## Draft default
+
+Open PRs as **draft** unless the user explicitly asks for a ready-for-review PR
+in the same turn. Say one line when you use the exception.
+
+## PR body format (required)
+
+Every PR description must include **Goal**, **Ran**, and **Doubt**. **Test plan**
+is optional and does not replace them. Placeholder comments alone do not count.
+
+| Section | Required | Content |
+|---------|----------|---------|
+| **Goal** | Yes | What changed and why, in your words — not the file list |
+| **Ran** | Yes | Commands/checks you ran and outcomes — not "CI is green" alone |
+| **Doubt** | Yes | Where a miss would hurt; what you still do not know |
+| **Test plan** | Optional | Checklist only |
+
+**Hard gates**
+
+- If the open repo's `AGENTS.md` or `.cursor/rules/` names different PR
+  headings, use those. Do not use Goal, Ran, or Doubt in that repo.
+- Do not open or finalize a PR body missing Goal, Ran, and Doubt with real content
+  when this personal format applies.
+- When updating an existing PR, preserve or add the three sections.
+- Never drop Goal, Ran, or Doubt for a shorter description or test checklist alone.
+
+## When the user asks you to create a pull request
+
+1. Gather git status, diff, and commits since the base branch.
+2. Draft a concise title (why, not what) and a body with Goal, Ran, and Doubt.
+3. Create only if the user asked. Push only if they asked to push. Use `--draft`
+   unless they asked for ready in the same turn.
+
+```bash
+gh pr create --draft --title "..." --body "$(cat <<'EOF'
+## Goal
+
+<!-- What changed and why, in your words. Not the file list. -->
+
+## Ran
+
+<!-- Commands/checks and outcomes. Not only CI green. -->
+
+## Doubt
+
+<!-- Where a miss would hurt; what you still do not know. -->
+
+## Test plan
+
+<!-- Optional checklist. Does not replace Goal, Ran, Doubt. -->
+EOF
+)"
+```
+
+Branch names: follow the **open repo's** `CONTRIBUTING.md` / `AGENTS.md`. If the
+current name is wrong, stop and ask. Do not rename the branch on GitHub.
+
+## Git safety
+
+- NEVER update the git config
+- NEVER run destructive git commands unless the user explicitly requests them
+- NEVER skip hooks unless the user explicitly requests it or repo policy allows
+- NEVER force push to main/master; warn if requested
+- DO NOT push unless the user explicitly asks
+- DO NOT commit unless the user explicitly asks
+- Treat PR creation as permission to open a PR, not as permission to push,
+  unless the user also asked to push
+
+## Cloud
+
+Cursor Cloud Agents do **not** load `~/.agents/` or `~/.cursor/rules/`. If a
+team wants this format on Cloud, put it in the repo harness, a project rule, or
+Team Rules. See the workshop file `pr-author-packet-rule.md`.

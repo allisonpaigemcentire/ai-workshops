@@ -1,8 +1,9 @@
 # AI Workshops
 
-This repository holds facilitator and participant material for hands-on AI workshops.
-It is separate from any internal planning or strategy repository — everything under
-`workshops/` is written to be shared with, and cloned by, workshop participants.
+This clone is workshop material, not an application codebase.
+[AGENTS.md](AGENTS.md) and `.cursor/rules/pr-descriptions.mdc` require PR
+bodies to use **What / Why this repo / Verify**, not personal Goal / Ran /
+Doubt. That contrast is Lab C. `CLAUDE.md` is a symlink to `AGENTS.md`.
 
 ## Layout
 

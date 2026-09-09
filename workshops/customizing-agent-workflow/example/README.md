@@ -3,12 +3,15 @@
 A finished personal setup that matches the practices in this workshop.
 It is a **sample**, not something to drop into an application repo.
 
+**Walk through the files in order:** [walkthrough.md](walkthrough.md).
+
 Map on your machine:
 
 | In this folder | On your laptop |
 |----------------|----------------|
 | `home-agents/` | `~/.agents/` |
 | `home-agents/instructions/shared.md` | `~/.agents/instructions/shared.md` |
+| `home-agents/rules/creating-pull-requests.mdc` | `~/.agents/rules/creating-pull-requests.mdc` |
 | `home-agents/skills/create-worktree/` | `~/.agents/skills/create-worktree/` |
 | `wrappers/claude/CLAUDE.md` | `~/.claude/CLAUDE.md` |
 | `wrappers/cursor/personal-instructions.mdc` | `~/.cursor/rules/personal-instructions.mdc` |
@@ -55,7 +58,7 @@ Cursor/Claude discovery dirs if needed (see that skill's README).
 
 - More personal skills than this one sample
 - A Claude subagent roster under `~/.agents/agents/`
-- Extra Cursor-only `.mdc` files (`lab/sync-personal-rules.sh` is optional)
+- Extra Cursor-only `.mdc` files beyond the Lab C PR gate (`lab/sync-personal-rules.sh` is optional)
 
 Those stay in the handout for after class.
 
@@ -64,8 +67,10 @@ Those stay in the handout for after class.
 From this `example/` directory, after you have cloned the workshop:
 
 ```bash
-mkdir -p ~/.agents/instructions ~/.agents/skills
+mkdir -p ~/.agents/instructions ~/.agents/rules ~/.agents/skills ~/.cursor/rules
 cp home-agents/instructions/shared.md ~/.agents/instructions/shared.md
+cp home-agents/rules/creating-pull-requests.mdc ~/.agents/rules/creating-pull-requests.mdc
+ln -sfn ~/.agents/rules/creating-pull-requests.mdc ~/.cursor/rules/creating-pull-requests.mdc
 cp home-agents/.gitignore ~/.agents/.gitignore
 cp home-agents/README.md ~/.agents/README.md
 cp -R home-agents/skills/create-worktree ~/.agents/skills/create-worktree

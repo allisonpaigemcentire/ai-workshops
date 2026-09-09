@@ -1,0 +1,24 @@
+---
+description: When drafting or creating a pull request in this repo—use What / Why this repo / Verify, not Goal/Ran/Doubt
+alwaysApply: true
+---
+
+# Pull request descriptions (this repository)
+
+This project rule applies in the **ai-workshops** clone. It wins over personal
+Goal / Ran / Doubt prefs when those conflict.
+
+When you draft, create, or update a pull request **in this repository**:
+
+| Section | Required | Content |
+|---------|----------|---------|
+| **What** | Yes | What changed in these workshop files |
+| **Why this repo** | Yes | Why it belongs here, not in an application repo |
+| **Verify** | Yes | How a participant or facilitator checks it |
+
+Use headings `## What`, `## Why this repo`, and `## Verify`.
+
+**Hard gate:** Do not use `## Goal`, `## Ran`, or `## Doubt` here.
+
+Do not open or push a pull request unless the user explicitly asks.
+This file is the Lab C contrast with personal Goal / Ran / Doubt.

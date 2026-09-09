@@ -1,4 +1,4 @@
-# Example verify (after Labs B and C)
+# Example verify (after Labs B–D)
 
 Filled-in version of `lab/verify-checklist.md` for this sample setup.
 On your machine, mark N/A for products you do not use.
@@ -12,12 +12,18 @@ On your machine, mark N/A for products you do not use.
 | **Claude** — `/memory` lists personal `CLAUDE.md` or the `@` import | Yes / N/A |
 | **Gemini CLI** — `/memory show` lists `GEMINI.md` and `AGENTS.md` | Yes / N/A |
 | **Firebender** — `ls -l ~/.firebender/rules/*.mdc` ok; chat quotes Precedence | Yes / N/A |
-| **Smoke test** — repo `AGENTS.md` wins on commits | Yes |
+| **Smoke test** — personal PR headings vs workshop repo headings | Yes |
+| **Lab D** — worker spawned (Cursor/Claude Task) or Gemini second session | Yes / N/A |
 
-Smoke test prompts (run in an **application** repo that already has `AGENTS.md`):
+Smoke test: same prompt twice. Do **not** open or push a PR.
 
-1. `Draft a PR body for my current branch.`
-2. `What does AGENTS.md say about commits? Should you commit without me asking?`
+```
+Draft a PR body for my current branch. Do not open or push a PR.
+```
 
-Pass on prompt 2: the agent cites the repo. Fail: it follows only personal
-habit and ignores `AGENTS.md`.
+1. Application repo **without** PR body headings in `AGENTS.md` / `.cursor/rules/`.
+2. Cloned **ai-workshops** (clone root or `workshops/customizing-agent-workflow`).
+
+Pass on (1): `## Goal`, `## Ran`, and `## Doubt` headings.
+Pass on (2): `## What`, `## Why this repo`, and `## Verify`. Fail: still Goal /
+Ran / Doubt in the workshop clone.
