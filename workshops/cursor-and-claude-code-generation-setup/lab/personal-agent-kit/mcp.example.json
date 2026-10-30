@@ -23,7 +23,7 @@
     "token-server-via-keychain": {
       "command": "bash",
       "args": [
-        "~/.agents/scripts/mcp-env-from-keychain.sh",
+        "${userHome}/.agents/scripts/mcp-env-from-keychain.sh",
         "SERVICE_API_TOKEN=service-api-token",
         "--",
         "docker", "run", "-i", "--rm", "-e", "SERVICE_API_TOKEN", "<image>"

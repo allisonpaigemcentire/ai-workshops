@@ -11,7 +11,7 @@ You don't need this kit to start. Repo skills and Cursor Cloud work with no
 setup. It's for people who use AI tools locally and want one place for their
 own preferences.
 
-**Download:** [personal-agent-kit-v2.zip](https://github.com/allisonpaigemcentire/ai-workshops/tree/main/workshops/cursor-and-claude-code-generation-setup/lab)
+**Download:** [personal-agent-kit-v2.zip](https://github.com/allisonpaigemcentire/ai-workshops/raw/main/workshops/cursor-and-claude-code-generation-setup/lab/personal-agent-kit-v2.zip)
 
 ## Before you start
 
@@ -29,6 +29,7 @@ own preferences.
 Unzip into `~/src`, then run:
 
 ```bash
+mkdir -p ~/src && unzip ~/Downloads/personal-agent-kit-v2.zip -d ~/src
 bash ~/src/personal-agent-kit/scripts/install.sh
 ```
 
@@ -80,6 +81,16 @@ How it stays safe:
 
 In Gemini CLI, trust your project folder (Gemini asks on first run), or
 Gemini keeps every MCP server off.
+
+Cursor finds `~/.cursor/rules/` by walking up from the folder you open, so
+these rules load only for projects inside your home folder (for example
+`~/src/...`). For a project elsewhere, paste the rule text into Cursor's
+Customize → Rules → User Rules instead.
+
+Session memory: the installer links the `session-memory` rule and stop hook,
+but not the `~/.ai-memory/` store or the `session-memory` skill. To use it,
+follow steps 1 and 2 of `companion/personal-session-memory-setup.html`; skip
+its later steps, which the installer already did.
 
 ## Undo
 

@@ -5,9 +5,10 @@
 # Store a secret once (you are prompted for the value; it never hits shell history):
 #   security add-generic-password -a "$USER" -s jira-api-token -w
 #
-# Use in mcp.json:
+# Use in ~/.cursor/mcp.json (Cursor expands ${userHome}; it does not expand ~,
+# and Gemini settings need the full /Users/<you>/... path instead):
 #   "command": "bash",
-#   "args": ["~/.agents/scripts/mcp-env-from-keychain.sh",
+#   "args": ["${userHome}/.agents/scripts/mcp-env-from-keychain.sh",
 #            "JIRA_API_TOKEN=jira-api-token",
 #            "--", "docker", "run", "-i", "--rm", "-e", "JIRA_API_TOKEN", "<image>"]
 #

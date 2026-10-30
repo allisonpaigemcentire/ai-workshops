@@ -116,7 +116,8 @@ footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex;
 <div class="col">
   <section class="panel">
     <h2><span class="n">4</span>Install (one command)</h2>
-    <p>Download <a href="https://github.com/allisonpaigemcentire/ai-workshops/tree/main/workshops/cursor-and-claude-code-generation-setup/lab">personal-agent-kit-v2.zip</a>, unzip it into <code>~/src</code>, then run:</p>
+    <p>Download <a href="https://github.com/allisonpaigemcentire/ai-workshops/raw/main/workshops/cursor-and-claude-code-generation-setup/lab/personal-agent-kit-v2.zip">personal-agent-kit-v2.zip</a>, unzip it into <code>~/src</code>, then run:</p>
+    <pre><code>mkdir -p ~/src &amp;&amp; unzip ~/Downloads/personal-agent-kit-v2.zip -d ~/src</code></pre>
     <pre><code>bash ~/src/personal-agent-kit/scripts/install.sh</code></pre>
     <p class="note">It shows a preview, asks once, then installs: copies the kit into <code>~/.agents/</code>, links rules, hooks and the status line, writes the Cursor, Claude Code and Gemini wrappers, and merges the hooks, status line and MCP servers into your config files. It backs up every file first (<code>~/.agent-kit-backups/</code>), adds only what is missing and is safe to re-run. Preview only: add <code>--dry-run</code>.</p>
   </section>

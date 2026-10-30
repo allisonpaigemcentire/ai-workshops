@@ -184,7 +184,17 @@ steps() {
     if (( DRY )); then
       say "would: mirror ~/.cursor/rules/*.mdc into ~/.claude/rules/ as links (sync-personal-rules.sh)"
     else
+      # Record the mirror links sync creates so uninstall.sh removes them too
+      # (including links to your own ~/.cursor/rules/*.mdc). Links that were
+      # already there before this run are not recorded and stay yours.
+      local before l
+      before="$(for l in "$HOME"/.claude/rules/*.md; do [[ -L "$l" ]] && printf '%s\n' "$l"; done; true)"
       bash "$KIT/scripts/sync-personal-rules.sh" 2>&1 | sed 's/^/  /' || CONFLICTS=$((CONFLICTS + 1))
+      for l in "$HOME"/.claude/rules/*.md; do
+        [[ -L "$l" ]] || continue
+        printf '%s\n' "$before" | grep -Fxq -- "$l" && continue
+        record link "$l" "$(readlink "$l")"
+      done
     fi
   fi
 

@@ -25,4 +25,11 @@
 - Uninstall removes config files the installer created when nothing else is
   in them, keeps its record when a config file was SKIPPED, and no longer
   leaves an extra blank line in `CLAUDE.md` / `GEMINI.md`.
+- Uninstall now also removes the Claude rule links the installer made in
+  `~/.claude/rules/`.
+- `mcp.example.json` uses `${userHome}` instead of `~`, which Cursor does not
+  expand.
+- The installer prints a note when only one of `KIT_SKILLS_FROM` and
+  `KIT_SKILLS_ENTRY` is set, instead of skipping `team-skills` silently.
+- `sync-personal-rules.sh --check` no longer creates `~/.claude/rules/`.
 - Supported tools: Cursor, Claude Code and Gemini CLI only.

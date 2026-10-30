@@ -80,7 +80,8 @@ lists, and anything team-wide. Team skills come from the team skills MCP
 - No token, password, or API key in `mcp.json`, `settings.json`, `hooks.json`,
   `shared.md`, or anything under `~/.agents/`.
 - Prefer OAuth MCP servers (no secret on disk). For Jira and Confluence reads,
-  prefer the `acli`-backed team skills over an MCP.
+  prefer a command-line tool (for example Atlassian's `acli`) over an MCP
+  server.
 - When a server needs a token, use `${env:VAR}` in `mcp.json` or
   `scripts/mcp-env-from-keychain.sh`.
 - Pin the team skills MCP to a tag or `main`, never a feature branch.

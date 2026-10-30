@@ -8,8 +8,10 @@ Supported tools: **Cursor, Claude Code and Gemini CLI.**
 **Workshop default:** [`scripts/wire-personal-agents.sh`](../scripts/wire-personal-agents.sh).
 `scripts/install.sh` runs it for you.
 
-**Optional extra:** [`scripts/sync-personal-rules.sh`](../scripts/sync-personal-rules.sh)
-mirrors additional Cursor-only `~/.cursor/rules/*.mdc` files into Claude.
+**Also run by the installer:** [`scripts/sync-personal-rules.sh`](../scripts/sync-personal-rules.sh)
+mirrors every `~/.cursor/rules/*.mdc` (the kit's and your own) into
+`~/.claude/rules/`, except stems listed in `.claude-exclude`. `install.sh`
+runs it whenever Claude Code is one of the selected tools.
 
 ---
 
@@ -75,12 +77,14 @@ replaced.
 
 ---
 
-## Optional: extra Cursor-only `.mdc` files
+## Your own Cursor-only `.mdc` files
 
 If you keep situational Cursor rules under `~/.cursor/rules/*.mdc` that should
-**not** live in `shared.md`, `sync-personal-rules.sh` still mirrors those extras
-into `~/.claude/rules/` (except stems in `.claude-exclude`). That is not the
-workshop default.
+**not** live in `shared.md`, the installer (through `sync-personal-rules.sh`)
+mirrors them into `~/.claude/rules/` too, except stems in `.claude-exclude`.
+Add a stem to `~/.agents/rules/.claude-exclude` to keep a rule Cursor-only.
+Re-run the installer (or `sync-personal-rules.sh`) after adding or removing a
+rule file.
 
 ---
 

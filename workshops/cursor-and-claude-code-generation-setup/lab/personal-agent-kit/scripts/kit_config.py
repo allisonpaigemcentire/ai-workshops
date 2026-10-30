@@ -257,6 +257,9 @@ def apply(path: str, step, dry: bool, state: list) -> int:
 def do_merge(args) -> int:
     tools = set(args.tools.split(","))
     want_skills = bool(SKILLS_FROM and SKILLS_ENTRY)
+    if args.mcp and bool(SKILLS_FROM) != bool(SKILLS_ENTRY):
+        print("  note: set both KIT_SKILLS_FROM and KIT_SKILLS_ENTRY to add the %s MCP server;"
+              " only one is set, so it is not added." % SKILLS_NAME)
     if args.mcp and want_skills and shutil.which("uvx") is None:
         print("  note: 'uvx' not found, so the %s MCP server is not added. Install uv, then re-run." % SKILLS_NAME)
         want_skills = False

@@ -46,7 +46,10 @@ missing=0
 conflicts=0
 drift_msgs=()
 
-mkdir -p "$CLAUDE_RULES"
+# --check only reports; it must not create anything.
+if [[ "$MODE" != "check" ]]; then
+  mkdir -p "$CLAUDE_RULES"
+fi
 
 # Resolve absolute path for symlink targets (portable; no GNU realpath required).
 abs_path() {
