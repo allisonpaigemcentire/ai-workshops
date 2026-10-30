@@ -1,0 +1,54 @@
+---
+description: Before any git push, scan tracked files for leftover REVIEW(context) PR-review annotations and refuse to push until they are removed
+alwaysApply: true
+---
+
+# REVIEW(context) before push (Local Only)
+
+This rule is **local to this machine** (`~/.agents/rules/`, linked into
+`~/.cursor/rules/`) and applies across all repos. Claude Code loads the same
+file via `scripts/sync-personal-rules.sh`.
+
+## Gate
+
+When the user explicitly asks you to **push** (including push as part of opening
+a PR), **do not run `git push` until a `REVIEW(context):` scan is clean** on
+what would be pushed.
+
+Temporary PR-review annotations use `REVIEW(context):` in any language, for
+example:
+
+- Python / shell / YAML / Markdown: `# REVIEW(context):`
+- Swift / Kotlin / TypeScript: `// REVIEW(context):`
+
+## Workflow
+
+1. **Scan** tracked files (full repo, not only the diff):
+
+```bash
+git grep -n 'REVIEW(context):' || true
+```
+
+2. **If any hits** — stop. Do not push. List each `path:line` and the matching
+   line. Tell the user to remove or resolve those annotations first, or to say
+   `push with review context` in the same turn to override.
+3. **If clean** — proceed with the push (still obey all other push/commit
+   policies).
+
+Run this scan even when push is bundled with PR creation. A PR open request
+alone is not permission to push; when push is explicitly requested, this gate
+runs first.
+
+## Skip only when explicit
+
+Skip this gate only if the user says `push with review context`,
+`skip review context check`, or equivalent in the **same turn** as the push
+request. Say one line that the gate was skipped.
+
+## Do not
+
+- Push while `REVIEW(context):` remains in tracked files (unless the user
+  explicitly skipped in the same turn).
+- Commit `REVIEW(context):` annotations — a local pre-commit review step
+  (for example a personal review skill) writes them for review only; remove them before commit or push.
+- Treat PR creation as permission to push unless the user also asked to push.

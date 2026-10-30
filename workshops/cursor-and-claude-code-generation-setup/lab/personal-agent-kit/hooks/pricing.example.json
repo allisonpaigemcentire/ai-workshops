@@ -1,0 +1,11 @@
+{
+  "_comment": "Copy to ~/.agents/hooks/pricing.json and fill in current list prices per million tokens for the models you use. Without this file the cost guard still counts turns and tokens but shows the cost as '?'.",
+  "models": {
+    "example-model-id": {
+      "input_per_million_usd": 0,
+      "output_per_million_usd": 0,
+      "cache_read_per_million_usd": 0,
+      "cache_write_per_million_usd": 0
+    }
+  }
+}

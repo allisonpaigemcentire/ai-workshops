@@ -1,0 +1,1480 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Personal session memory setup — Cursor ↔ Claude</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0c1218;
+    --panel: #141c26;
+    --panel-2: #1b2633;
+    --border: #2a3a4c;
+    --text: #e9eef4;
+    --muted: #8fa3b8;
+    --accent: #2fbfa5;
+    --accent-dim: rgba(47, 191, 165, 0.14);
+    --info: #5b9fd4;
+    --info-dim: rgba(91, 159, 212, 0.14);
+    --warn: #d9a441;
+    --warn-dim: rgba(217, 164, 65, 0.14);
+    --code-bg: #0a0f14;
+    --font: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: var(--font);
+    color: var(--text);
+    background:
+      radial-gradient(ellipse 70% 45% at 0% 0%, rgba(47, 191, 165, 0.14), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 100% 10%, rgba(91, 159, 212, 0.12), transparent 50%),
+      var(--bg);
+    overflow: hidden;
+  }
+
+  #deck {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 2.25rem 3rem 5rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(18px);
+    transition: opacity 180ms ease, transform 180ms ease;
+    overflow: auto;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.65rem;
+  }
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  h2 {
+    margin: 0 0 0.85rem;
+    font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+    letter-spacing: -0.015em;
+  }
+  p, li { color: var(--muted); font-size: 1.02rem; line-height: 1.55; }
+  .lead { max-width: 62ch; color: var(--text); font-size: 1.12rem; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+    margin-top: 1.25rem;
+  }
+  @media (max-width: 900px) {
+    .slide { padding: 1.5rem 1.25rem 5rem; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+  }
+  .card h3 {
+    margin: 0 0 0.4rem;
+    font-size: 0.98rem;
+    color: var(--text);
+  }
+  .card p, .card li { font-size: 0.92rem; margin: 0; }
+  .card ul { margin: 0.35rem 0 0; padding-left: 1.1rem; }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    margin-bottom: 0.45rem;
+  }
+  .tag.info { background: var(--info-dim); color: var(--info); }
+  .tag.warn { background: var(--warn-dim); color: var(--warn); }
+
+  .cmd-block {
+    position: relative;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 0.85rem 0;
+    overflow: hidden;
+  }
+  .cmd-block .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-2);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .cmd-block pre {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    overflow: auto;
+    max-height: min(52vh, 520px);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: #d7e4ef;
+    white-space: pre;
+  }
+  .cmd-block.tall pre { max-height: min(72vh, 780px); }
+  .copy-btn {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.92rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  td code, p code, li code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    color: #b8d4c8;
+  }
+
+  .steps {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+  }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 0.7rem 0.7rem 0.7rem 3rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel);
+    margin-bottom: 0.55rem;
+    color: var(--text);
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0.7rem;
+    top: 0.7rem;
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    display: grid;
+    place-items: center;
+  }
+  .steps li span { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem; }
+
+  .title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
+  }
+  .title-slide .brand {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .title-slide h1 { font-size: clamp(2rem, 4.5vw, 3rem); max-width: 16ch; }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: rgba(20, 28, 38, 0.7);
+  }
+
+  #chrome {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(12, 18, 24, 0.92);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  #chrome .nav {
+    display: flex;
+    gap: 0.45rem;
+  }
+  #chrome button {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  #chrome button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  #chrome button:disabled { opacity: 0.35; cursor: default; }
+  #progress {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-width: 7ch;
+    text-align: center;
+  }
+  #dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    justify-content: center;
+    flex: 1;
+  }
+  #dots button {
+    width: 0.55rem;
+    height: 0.55rem;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: var(--border);
+  }
+  #dots button.active { background: var(--accent); }
+  #dots button:hover { background: var(--info); }
+
+  .hint {
+    margin-top: 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .ref-label {
+    margin: 2rem 0 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ref-link {
+    margin: 0;
+    max-width: 62ch;
+  }
+  .ref-link a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(47, 191, 165, 0.35);
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+  .ref-link a:hover {
+    border-bottom-color: var(--accent);
+  }
+  .warn-box {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(217, 164, 65, 0.35);
+    background: var(--warn-dim);
+    color: #f0d9a0;
+    font-size: 0.92rem;
+  }
+  .tx-card {
+    border: 2px solid var(--info);
+    background: var(--info-dim);
+    border-radius: 12px;
+    padding: 0.95rem 1.1rem;
+    margin: 0 0 1rem;
+  }
+  .tx-card .label {
+    margin: 0 0 0.45rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--info);
+    font-weight: 600;
+  }
+  .tx-card .twenty {
+    margin: 0 0 0.7rem;
+    color: var(--text);
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+  .tx-card .push {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .tx-card .push li { margin: 0.28rem 0; }
+  .tx-card .dosay {
+    width: 100%;
+    margin: 0.75rem 0 0;
+    font-size: 0.82rem;
+  }
+  .tx-card .dosay th,
+  .tx-card .dosay td {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid rgba(91, 159, 212, 0.25);
+  }
+  .tx-card .dosay th { color: var(--info); }
+</style>
+</head>
+<body>
+<div id="deck">
+
+
+
+
+
+
+
+  <!-- 1 -->
+  <section class="slide title-slide active" data-title="Title">
+    <div class="brand">Nuuly Engineering · AI Adoption Initiative</div>
+    <p class="eyebrow">Setup walkthrough</p>
+    <h1>Personal session memory for Cursor and Claude</h1>
+    <p class="lead">Machine-local durable learnings in <code>~/.ai-memory/</code>, loaded by both tools. Personal Cursor rules mirrored into Claude with one sync script.</p>
+    <div class="meta-row">
+      <span class="chip">Jul 2026</span>
+      <span class="chip">Cursor + Claude Code</span>
+      <span class="chip">Personal only — not git</span>
+      <span class="chip">← → or click to navigate</span>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 2 -->
+  <section class="slide" data-title="Architecture">
+    <p class="eyebrow">Slide 02 · Overview</p>
+    <h2>What you are installing</h2>
+    <div class="grid-3">
+      <div class="card">
+        <div class="tag">Shared store</div>
+        <h3><code>~/.ai-memory/</code></h3>
+        <p>Both tools read and write the same lessons. No copy step between Cursor and Claude.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Rules bridge</div>
+        <h3><code>sync-personal-rules.sh</code></h3>
+        <p>Cursor <code>~/.cursor/rules/*.mdc</code> becomes Claude <code>~/.claude/rules/*.md</code> via symlinks.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Optional nudge</div>
+        <h3>Cursor stop hook</h3>
+        <p>If a correction was marked and wrap-up was skipped, nudge the agent to run the skill.</p>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Piece</th><th>Path</th><th>Role</th></tr></thead>
+      <tbody>
+        <tr><td>Index</td><td><code>~/.ai-memory/MEMORY.md</code></td><td>Active lesson bullets</td></tr>
+        <tr><td>Lessons</td><td><code>~/.ai-memory/lessons/</code></td><td>One durable lesson per file</td></tr>
+        <tr><td>Skill</td><td><code>~/.cursor/skills/session-memory/</code></td><td>Write / load workflow</td></tr>
+        <tr><td>Rule</td><td><code>~/.cursor/rules/session-memory.mdc</code></td><td>Always-on load + wrap-up triggers</td></tr>
+        <tr><td>Sync</td><td><code>scripts/sync-personal-rules.sh</code></td><td>Cursor rules → Claude</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+
+
+
+
+
+
+  <!-- 3 -->
+  <section class="slide" data-title="Prerequisites">
+    <p class="eyebrow">Slide 03 · Before you start</p>
+    <h2>Prerequisites</h2>
+    <ol class="steps">
+      <li>Cursor Desktop with user rules and skills enabled<span>You will write under <code>~/.cursor/rules/</code> and <code>~/.cursor/skills/</code></span></li>
+      <li>Claude Code (for dual-tool use)<span>Loads <code>~/.claude/rules/</code> and <code>~/.claude/CLAUDE.md</code></span></li>
+      <li>A checkout that contains <code>scripts/sync-personal-rules.sh</code><span>Or keep a local copy of the script anywhere on disk</span></li>
+      <li>Python 3 on PATH<span>Only needed for the optional Cursor stop hook</span></li>
+    </ol>
+  </section>
+
+
+
+
+
+
+
+  <!-- 4 -->
+  <section class="slide" data-title="Create store">
+    <p class="eyebrow">Slide 04 · Step 1</p>
+    <h2>Create the memory store</h2>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>mkdir -p ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks</pre>
+    </div>
+    <p>Seed the index and staging file:</p>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>~/.ai-memory/MEMORY.md</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre># Personal AI memory (machine-local)
+
+Cross-tool distilled lessons for Cursor and Claude on this machine.
+Canonical store: `~/.ai-memory/`. **Not** Claude project auto-memory and **not**
+git-tracked journals.
+
+## Size budget (hard)
+
+- Keep this index ≤ **80 lines** and ≤ **~4000 characters** of active lessons.
+- One bullet per active lesson: short constraint + link to `lessons/&lt;slug&gt;.md`.
+- Prefer **when X, never Y / always Z** over narrative.
+- Deduplicate: update an existing lesson file; do not add near-duplicates.
+- Archive: set `status: archived` in the lesson file and **remove** its bullet here.
+
+## Active lessons
+
+<!-- Agents append bullets here after wrap-up. -->
+
+## How agents use this file
+
+1. **Load** — Read this file early in a session (always-on `session-memory` rule).
+2. **Apply** — Obey active lessons before repeating a past mistake class.
+3. **Write** — Only via the `session-memory` skill after real corrections or an explicit wrap-up. Never invent lessons.</pre>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>~/.ai-memory/STAGED.md</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre># Staged promotions (human review)
+
+Candidates for promotion out of personal memory into:
+
+- `~/.cursor/rules/*.mdc` (personal workflow prefs — then run `sync-personal-rules.sh`)
+- A repo’s `AGENTS.md` (team/repo conventions)
+
+Agents **append** rows; they do not silently edit shared repos.
+
+| Date | Kind | Source lesson | Proposed destination | One-liner | Status |
+|------|------|---------------|----------------------|-----------|--------|
+| _(none yet)_ | | | | | |</pre>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 5 -->
+  <section class="slide" data-title="Install skill">
+    <p class="eyebrow">Slide 05 · Step 2</p>
+    <h2>Install the session-memory skill</h2>
+    <section class="tx-card">
+      <p class="label">For executive conversations · 20-second card</p>
+      <p class="twenty">The skill is the detailed runbook — you only open it when it is time to write a lesson down. Think of it as the long checklist for one pipeline stage, not something that runs on every build. That keeps everyday chat cheap and still gives a repeatable write path when someone says wrap up.</p>
+      <ul class="push">
+        <li><strong>Proof:</strong> Without a runbook, wrap-up becomes guesswork and people invent “lessons” that were never corrected.</li>
+        <li><strong>Safety:</strong> The gate is hard: store only explicit corrections — no silent memory from noisy chat.</li>
+        <li><strong>Ask:</strong> Install this skill once, then treat wrap-up as a normal close-out step after a correction.</li>
+      </ul>
+      <table class="dosay">
+        <thead><tr><th>Don’t say</th><th>Do say</th></tr></thead>
+        <tbody>
+          <tr><td>SKILL.md / on-demand agent skill</td><td>A detailed runbook you open only when writing memory</td></tr>
+          <tr><td>Token budget / always-on context</td><td>Don’t carry the long checklist into every conversation</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <p class="lead">Canonical body under Cursor. Claude discovers the same files through a symlink.</p>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>mkdir -p ~/.cursor/skills/session-memory
+# Place SKILL.md at: ~/.cursor/skills/session-memory/SKILL.md
+# (full body on the next slide — or copy from a teammate’s template)
+
+mkdir -p ~/.claude/skills
+ln -sfn ~/.cursor/skills/session-memory ~/.claude/skills/session-memory
+
+ls -la ~/.claude/skills/session-memory
+# expect: …/session-memory -> …/.cursor/skills/session-memory</pre>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Triggers</div>
+        <ul>
+          <li><code>done</code> / <code>wrap up</code> / <code>update memory</code></li>
+          <li>Stop-hook follow-up</li>
+          <li>User correction (“never do that again”)</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tag info">Hard rule</div>
+        <p>Never invent lessons. Only store explicit corrections or confirmed “do it this way.”</p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 6 -->
+  <section class="slide" data-title="SKILL.md">
+    <p class="eyebrow">Slide 06 · Skill body</p>
+    <h2>Full <code>SKILL.md</code></h2>
+    <p>Write this file to <code>~/.cursor/skills/session-memory/SKILL.md</code>.</p>
+    <div class="cmd-block tall" data-copy>
+      <div class="bar"><span>~/.cursor/skills/session-memory/SKILL.md</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>---
+name: session-memory
+description: &gt;-
+  Update personal cross-tool session memory under ~/.ai-memory/. Use when the
+  user says done, wrap up, capture learnings, or update memory; when a stop-hook
+  follow-up asks to update session memory; or after user corrections that should
+  not be repeated. Also use when loading or searching personal lessons before
+  related work.
+---
+
+# Session memory — personal cross-tool learnings
+
+Machine-local durable memory for **Cursor and Claude**. Canonical store:
+`~/.ai-memory/`. This is not Claude project auto-memory and not a git journal.
+
+## When to use
+
+| Trigger | Action |
+|---------|--------|
+| "done", "wrap up", "capture learnings", "update memory" | **Write** wrap-up |
+| Stop-hook follow-up about session memory | **Write** wrap-up |
+| User correction / “never do that again” | Mark `needs-wrapup`, then wrap up (same turn if natural) |
+| "what did we learn about X?", starting related work | **Read** `MEMORY.md` + matching `lessons/` |
+
+## Paths
+
+| Path | Role |
+|------|------|
+| `~/.ai-memory/MEMORY.md` | Active lesson index (≤80 lines / ~4k chars) |
+| `~/.ai-memory/lessons/&lt;slug&gt;.md` | One durable lesson |
+| `~/.ai-memory/sessions/YYYY-MM-DD-&lt;tool&gt;.md` | Optional raw session note |
+| `~/.ai-memory/STAGED.md` | Promotion candidates |
+| `~/.ai-memory/.hooks/&lt;conversation_id&gt;/` | `needs-wrapup`, `wrapped-up`, `prompt-attempts` |
+
+Conversation id: use a stable chat/conversation id when known; otherwise `unknown`.
+
+## Write workflow
+
+### 1. Gather only real lessons
+
+From this chat, list:
+
+- Explicit user corrections
+- Failed approaches the user rejected
+- “Do it this way next time” confirmations
+
+**Do not invent.** If nothing qualifies, say so, clear any stale `needs-wrapup`
+only if the user confirms there is nothing to store, and stop.
+
+### 2. Dedupe / upsert lessons
+
+For each lesson:
+
+1. Scan `~/.ai-memory/lessons/*.md` and `MEMORY.md` for near-duplicates.
+2. If a match exists: update that file (`last_seen`, body). Keep `status: active`.
+3. If new: create `lessons/&lt;slug&gt;.md` with kebab-case slug.
+
+Lesson file template:
+
+```markdown
+---
+slug: example-slug
+status: active
+created: YYYY-MM-DD
+last_seen: YYYY-MM-DD
+repos: [optional-repo-name]
+---
+
+# Short title
+
+## Lesson
+
+When X, never Y / always Z.
+
+## When
+
+Context where this applies.
+
+## Do / Don't
+
+- …
+```
+
+Prefer **negative constraints** over narrative.
+
+### 3. Refresh `MEMORY.md`
+
+- One bullet per **active** lesson: short constraint + markdown link to the lesson file.
+- Remove bullets for `status: archived` lessons.
+- Enforce the size budget in `MEMORY.md`. If over budget, archive the least
+  recently seen or least actionable lesson (set `status: archived`, drop bullet).
+
+### 4. Optional session note
+
+Append or create `sessions/YYYY-MM-DD-cursor.md` or `…-claude.md` with 2–5 lines
+summarizing what was stored. Append-only; do not rewrite older session files.
+
+### 5. Promotion ladder
+
+| Kind | Action |
+|------|--------|
+| Personal never-again | Done after steps 2–3 |
+| Personal workflow habit (draft PRs, commit gates, shorthand) | Propose edit under `~/.cursor/rules/`; remind user to run `bash …/scripts/sync-personal-rules.sh` |
+| Repo / team convention | Append a row to `STAGED.md`; ask before editing that repo’s `AGENTS.md` |
+
+### 6. Clear stop-nudge markers
+
+After a successful wrap-up (including “nothing to store” confirmed by user):
+
+```bash
+CONV_ID="&lt;conversation_id_or_unknown&gt;"
+DIR="$HOME/.ai-memory/.hooks/$CONV_ID"
+mkdir -p "$DIR"
+rm -f "$DIR/needs-wrapup"
+printf '%s\n' "$(date -u +%Y-%m-%dT%H:%M:%SZ)" &gt; "$DIR/wrapped-up"
+```
+
+Do not commit `~/.ai-memory/` anywhere unless the user explicitly asks.
+
+## Mark correction (without full wrap-up yet)
+
+When you must defer wrap-up:
+
+```bash
+CONV_ID="&lt;conversation_id_or_unknown&gt;"
+DIR="$HOME/.ai-memory/.hooks/$CONV_ID"
+mkdir -p "$DIR"
+printf '%s\n' "correction noted" &gt; "$DIR/needs-wrapup"
+rm -f "$DIR/wrapped-up"
+```
+
+## Load / search
+
+1. Read `~/.ai-memory/MEMORY.md`.
+2. Open linked lesson files as needed.
+3. For keyword search: `rg -i '&lt;query&gt;' ~/.ai-memory/lessons ~/.ai-memory/MEMORY.md`.
+
+## Output to the user
+
+After wrap-up, report briefly:
+
+- Lessons added / updated (slugs)
+- Whether anything was staged for promotion
+- Reminder to re-run personal-rules sync if a `~/.cursor/rules/` file changed</pre>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 7 -->
+  <section class="slide" data-title="Install rule">
+    <p class="eyebrow">Slide 07 · Step 3</p>
+    <h2>Install the always-on Cursor rule</h2>
+    <section class="tx-card">
+      <p class="label">For executive conversations · 20-second card</p>
+      <p class="twenty">The rule is the standing order that rides with every chat — load past lessons, mark a correction when it happens, and call the runbook at wrap-up. Same idea as a lint gate that always runs: small, always on, and it tells you when to open the longer checklist. You need both: the gate alone has no write procedure; the runbook alone never gets opened unless someone remembers.</p>
+      <ul class="push">
+        <li><strong>Proof:</strong> Without an always-on standing order, Cursor and Claude forget last week’s “never do that again.”</li>
+        <li><strong>Safety:</strong> Blast radius stays personal — lessons live on the engineer’s machine until a human promotes a team convention.</li>
+        <li><strong>Ask:</strong> Keep this rule always on, and re-run the rules sync after you add or remove personal rule files.</li>
+      </ul>
+      <table class="dosay">
+        <thead><tr><th>Don’t say</th><th>Do say</th></tr></thead>
+        <tbody>
+          <tr><td>alwaysApply rule / session-memory.mdc</td><td>A standing order that loads with every conversation</td></tr>
+          <tr><td>needs-wrapup marker / stop hook</td><td>A sticky note that the close-out checklist still needs to run</td></tr>
+        </tbody>
+      </table>
+    </section>
+    <p>Write this to <code>~/.cursor/rules/session-memory.mdc</code>.</p>
+    <div class="cmd-block tall" data-copy>
+      <div class="bar"><span>~/.cursor/rules/session-memory.mdc</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>---
+description: Load and update personal cross-tool session memory (~/.ai-memory)
+alwaysApply: true
+---
+
+# Session memory (Local Only)
+
+This rule is **local to this machine** (`~/.cursor/rules/`) and applies across
+all repos opened in this Cursor workspace. Claude mirrors it via
+`scripts/sync-personal-rules.sh`.
+
+## Canonical store
+
+`~/.ai-memory/` — personal, machine-local. Not Claude project auto-memory and
+not git-tracked journals.
+
+| Path | Role |
+|------|------|
+| `~/.ai-memory/MEMORY.md` | Distilled active-lesson index (always load) |
+| `~/.ai-memory/lessons/*.md` | One durable lesson per file |
+| `~/.ai-memory/sessions/` | Optional raw wrap-up notes |
+| `~/.ai-memory/STAGED.md` | Promotion candidates (human review) |
+| `~/.ai-memory/.hooks/` | Stop-nudge markers (do not invent lessons here) |
+
+## Load (every session)
+
+1. **Read** `~/.ai-memory/MEMORY.md` early in the session (or before acting on
+   a task that could repeat a past mistake class).
+2. Obey active lessons. Open linked `lessons/&lt;slug&gt;.md` when the one-liner is
+   not enough.
+3. Keep the index under its documented size budget when you edit it.
+
+## Mark corrections
+
+When the user corrects you (or you discover a durable “never do X again”):
+
+1. Resolve a conversation id if available (`conversation_id` / chat id from the
+   environment or hook payload). If unknown, use `unknown`.
+2. Ensure `~/.ai-memory/.hooks/&lt;conversation_id&gt;/` exists.
+3. Write or touch `needs-wrapup` in that directory (content can be a one-line
+   reason). Do **not** invent a full lesson yet — wait for wrap-up.
+
+## Wrap-up triggers
+
+Run the **`session-memory`** skill (read `~/.cursor/skills/session-memory/SKILL.md`
+or the Claude symlink) when any of these happen:
+
+- User says **done**, **wrap up**, **capture learnings**, or **update memory**
+- Stop-hook follow-up asks you to update session memory
+- You are about to end a session that has a `needs-wrapup` marker
+
+## Write rules
+
+- Never invent lessons. Only write what the user corrected or explicitly confirmed.
+- Prefer negative constraints: “when X, never Y / always Z.”
+- Deduplicate against existing `lessons/` before adding a new slug.
+- After a successful wrap-up, remove `needs-wrapup` and write `wrapped-up` for
+  that conversation id so the stop nudge stays quiet.
+
+## Promotion ladder (do not dump everything into always-on rules)
+
+| Kind | Destination |
+|------|-------------|
+| Personal “never do X again” | `~/.ai-memory/lessons/` + `MEMORY.md` |
+| Personal workflow habit | Propose `~/.cursor/rules/*.mdc` + remind to run `sync-personal-rules.sh` |
+| Repo / team convention | Ask before editing that repo’s `AGENTS.md`; stage in `STAGED.md` if unsure |
+
+## Do not
+
+- Treat Claude `~/.claude/projects/*/memory/` as the shared store
+- Auto-commit learnings into shared repos without explicit user instruction
+- Grow `MEMORY.md` past its size budget</pre>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 8 -->
+  <section class="slide" data-title="Run sync">
+    <p class="eyebrow">Slide 08 · Step 4</p>
+    <h2>Bridge Cursor rules into Claude</h2>
+    <p class="lead">From the repo (or directory) that contains the sync script:</p>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>cd /path/to/repo-with-sync-script
+bash scripts/sync-personal-rules.sh
+bash scripts/sync-personal-rules.sh --check</pre>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">What sync does</div>
+        <ul>
+          <li>Symlinks each <code>~/.cursor/rules/*.mdc</code> → <code>~/.claude/rules/&lt;stem&gt;.md</code></li>
+          <li>Removes broken Claude rule symlinks</li>
+          <li>Rewrites managed <code>~/.claude/CLAUDE.md</code> (if marked)</li>
+          <li>Never overwrites a real non-symlink file</li>
+        </ul>
+      </div>
+      <div class="card">
+        <div class="tag info">When to re-run</div>
+        <ul>
+          <li>After <strong>adding</strong> a personal rule file</li>
+          <li>After <strong>removing</strong> a personal rule file</li>
+          <li>Not needed for edits to an existing <code>.mdc</code> (symlink content is live)</li>
+        </ul>
+      </div>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>optional alias</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>alias sync-personal-rules='bash ~/path/to/repo-with-sync-script/scripts/sync-personal-rules.sh'</pre>
+    </div>
+    <p class="hint">Full script on the next slide.</p>
+  </section>
+
+
+
+
+
+
+
+
+
+  <!-- 9 -->
+  <section class="slide" data-title="Full sync script">
+    <p class="eyebrow">Slide 09 · Full script</p>
+    <h2><code>scripts/sync-personal-rules.sh</code></h2>
+    <p class="lead">Complete script — scroll inside the box, then Copy.</p>
+    <div class="cmd-block tall" data-copy>
+      <div class="bar"><span>scripts/sync-personal-rules.sh (complete)</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre id="full-script">#!/usr/bin/env bash
+# Mirror personal Cursor user rules into Claude Code&#x27;s user rules directory.
+#
+# Canonical: ~/.cursor/rules/*.mdc
+# Claude:    ~/.claude/rules/&lt;stem&gt;.md  -&gt; symlink to each .mdc
+# Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script)
+#
+# Usage:
+#   bash scripts/sync-personal-rules.sh          # create/update links
+#   bash scripts/sync-personal-rules.sh --check  # report drift; exit 1 if out of sync
+#   bash scripts/sync-personal-rules.sh --help
+
+set -euo pipefail
+
+CURSOR_RULES=&quot;${CURSOR_RULES:-$HOME/.cursor/rules}&quot;
+CLAUDE_RULES=&quot;${CLAUDE_RULES:-$HOME/.claude/rules}&quot;
+CLAUDE_MD=&quot;${CLAUDE_MD:-$HOME/.claude/CLAUDE.md}&quot;
+MANAGED_MARKER=&quot;&lt;!-- managed-by: sync-personal-rules --&gt;&quot;
+
+MODE=&quot;sync&quot;
+for arg in &quot;$@&quot;; do
+  case &quot;$arg&quot; in
+    --check) MODE=&quot;check&quot; ;;
+    -h|--help)
+      sed -n &#x27;2,14p&#x27; &quot;$0&quot; | sed &#x27;s/^# \{0,1\}//&#x27;
+      exit 0
+      ;;
+    *)
+      echo &quot;Unknown argument: $arg (try --help)&quot; &gt;&amp;2
+      exit 2
+      ;;
+  esac
+done
+
+added=0
+removed=0
+updated=0
+missing=0
+conflicts=0
+drift_msgs=()
+
+mkdir -p &quot;$CLAUDE_RULES&quot;
+
+# Resolve absolute path for symlink targets (portable; no GNU realpath required).
+abs_path() {
+  local path=&quot;$1&quot;
+  local dir base
+  dir=&quot;$(cd &quot;$(dirname &quot;$path&quot;)&quot; &amp;&amp; pwd)&quot;
+  base=&quot;$(basename &quot;$path&quot;)&quot;
+  printf &#x27;%s/%s
+&#x27; &quot;$dir&quot; &quot;$base&quot;
+}
+
+stem_of_mdc() {
+  local base
+  base=&quot;$(basename &quot;$1&quot;)&quot;
+  printf &#x27;%s
+&#x27; &quot;${base%.mdc}&quot;
+}
+
+link_path_for_stem() {
+  printf &#x27;%s/%s.md
+&#x27; &quot;$CLAUDE_RULES&quot; &quot;$1&quot;
+}
+
+desired_target_for_mdc() {
+  abs_path &quot;$1&quot;
+}
+
+# Phase 1: remove broken symlinks under Claude rules.
+shopt -s nullglob
+for link in &quot;$CLAUDE_RULES&quot;/*; do
+  [[ -L &quot;$link&quot; ]] || continue
+  if [[ ! -e &quot;$link&quot; ]]; then
+    if [[ &quot;$MODE&quot; == &quot;check&quot; ]]; then
+      drift_msgs+=(&quot;broken symlink: $link&quot;)
+      ((missing++)) || true
+    else
+      rm &quot;$link&quot;
+      ((removed++)) || true
+    fi
+  fi
+done
+
+# Phase 2: ensure each Cursor .mdc has a Claude .md symlink.
+declare -a linked_stems=()
+for mdc in &quot;$CURSOR_RULES&quot;/*.mdc; do
+  [[ -f &quot;$mdc&quot; ]] || continue
+  stem=&quot;$(stem_of_mdc &quot;$mdc&quot;)&quot;
+  link=&quot;$(link_path_for_stem &quot;$stem&quot;)&quot;
+  target=&quot;$(desired_target_for_mdc &quot;$mdc&quot;)&quot;
+  linked_stems+=(&quot;$stem&quot;)
+
+  if [[ -e &quot;$link&quot; || -L &quot;$link&quot; ]]; then
+    if [[ -L &quot;$link&quot; ]]; then
+      current=&quot;$(readlink &quot;$link&quot; || true)&quot;
+      # Normalize relative readlink results against CLAUDE_RULES.
+      if [[ &quot;$current&quot; != /* ]]; then
+        current=&quot;$(cd &quot;$CLAUDE_RULES&quot; &amp;&amp; abs_path &quot;$current&quot;)&quot;
+      fi
+      if [[ &quot;$current&quot; == &quot;$target&quot; ]]; then
+        continue
+      fi
+      if [[ &quot;$MODE&quot; == &quot;check&quot; ]]; then
+        drift_msgs+=(&quot;wrong target: $link -&gt; $current (want $target)&quot;)
+        ((missing++)) || true
+      else
+        ln -sfn &quot;$target&quot; &quot;$link&quot;
+        ((updated++)) || true
+      fi
+    else
+      # Real file — never overwrite.
+      drift_msgs+=(&quot;conflict (not a symlink, left alone): $link&quot;)
+      ((conflicts++)) || true
+    fi
+    continue
+  fi
+
+  if [[ &quot;$MODE&quot; == &quot;check&quot; ]]; then
+    drift_msgs+=(&quot;missing link: $link -&gt; $target&quot;)
+    ((missing++)) || true
+  else
+    ln -sfn &quot;$target&quot; &quot;$link&quot;
+    ((added++)) || true
+  fi
+done
+
+# Phase 3: managed CLAUDE.md index (sync only; check reports if managed and stale).
+should_write_claude_md=0
+if [[ ! -f &quot;$CLAUDE_MD&quot; ]]; then
+  should_write_claude_md=1
+elif grep -qF &quot;$MANAGED_MARKER&quot; &quot;$CLAUDE_MD&quot; 2&gt;/dev/null; then
+  should_write_claude_md=1
+fi
+
+write_claude_md() {
+  local stem link mdc
+  {
+    printf &#x27;%s
+&#x27; &quot;$MANAGED_MARKER&quot;
+    cat &lt;&lt;&#x27;EOF&#x27;
+# Personal Claude instructions (local only)
+
+These preferences apply across projects on this machine. Canonical copies live
+in `~/.cursor/rules/`; this Claude setup mirrors them via symlinks under
+`~/.claude/rules/`.
+
+Regenerate this file with `scripts/sync-personal-rules.sh` from the
+repo that ships this script (or your local copy).
+
+## Always-on personal rules
+
+Claude loads every file in `~/.claude/rules/` at session start. Edit the Cursor
+sources; the Claude links update automatically. After **adding or removing** a
+Cursor rule file, re-run the sync script.
+
+| Rule | Source |
+|------|--------|
+EOF
+    for stem in &quot;${linked_stems[@]:-}&quot;; do
+      [[ -n &quot;$stem&quot; ]] || continue
+      mdc=&quot;$CURSOR_RULES/${stem}.mdc&quot;
+      printf &#x27;| `%s` | `%s` |
+&#x27; &quot;$stem&quot; &quot;$mdc&quot;
+    done
+    cat &lt;&lt;&#x27;EOF&#x27;
+
+## Cross-tool session memory
+
+Personal durable learnings live in `~/.ai-memory/MEMORY.md` (not Claude project
+auto-memory under `~/.claude/projects/*/memory/`). At session start, **read**
+that file. On wrap-up / corrections, use the `session-memory` skill
+(`~/.claude/skills/session-memory` → `~/.cursor/skills/session-memory`).
+
+## Notes
+
+- Cursor frontmatter (`alwaysApply`, `globs`, `description`) is harmless noise
+  for Claude; follow the markdown body.
+- Repo-shared conventions still come from each project’s `AGENTS.md` /
+  `CLAUDE.md` when working in that repo.
+- To confirm load: in Claude Code run `/memory` or `/context` and check
+  Memory / rules files.
+EOF
+} &gt;&quot;$CLAUDE_MD&quot;
+}
+
+if (( should_write_claude_md )); then
+  if [[ &quot;$MODE&quot; == &quot;check&quot; ]]; then
+    if [[ ! -f &quot;$CLAUDE_MD&quot; ]]; then
+      drift_msgs+=(&quot;missing managed index: $CLAUDE_MD&quot;)
+      ((missing++)) || true
+    fi
+  else
+    write_claude_md
+  fi
+fi
+
+# Reporting
+if [[ &quot;$MODE&quot; == &quot;check&quot; ]]; then
+  if (( ${#drift_msgs[@]} &gt; 0 )); then
+    echo &quot;Personal rules bridge: out of sync&quot; &gt;&amp;2
+    for msg in &quot;${drift_msgs[@]}&quot;; do
+      echo &quot;  - $msg&quot; &gt;&amp;2
+    done
+    exit 1
+  fi
+  echo &quot;Personal rules bridge: ok (${#linked_stems[@]} Cursor rule(s))&quot;
+  exit 0
+fi
+
+if (( added &gt; 0 || removed &gt; 0 || updated &gt; 0 || conflicts &gt; 0 )); then
+  echo &quot;Personal rules sync: +${added} added, ~${updated} updated, -${removed} removed, !${conflicts} conflicts&quot;
+  if (( conflicts &gt; 0 )); then
+    for msg in &quot;${drift_msgs[@]}&quot;; do
+      echo &quot;  - $msg&quot; &gt;&amp;2
+    done
+  fi
+fi
+</pre>
+    </div>
+  </section>
+
+
+
+  <!-- 10 -->
+  <section class="slide" data-title="Stop hook">
+    <p class="eyebrow">Slide 10 · Step 5 (optional)</p>
+    <h2>Cursor stop nudge</h2>
+    <p class="lead">Skip this for minimum setup. Wrap-up still works if you say <code>wrap up</code> / <code>update memory</code>.</p>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>~/.cursor/hooks/session-memory-stop.sh</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>#!/usr/bin/env bash
+# Cursor stop hook wrapper — session-memory wrap-up nudge (fail open).
+set -euo pipefail
+exec python3 "$HOME/.cursor/hooks/session-memory-stop.py"</pre>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · install</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>mkdir -p ~/.cursor/hooks
+# write session-memory-stop.sh and session-memory-stop.py (next slide)
+chmod +x ~/.cursor/hooks/session-memory-stop.sh</pre>
+    </div>
+    <p>Register in <code>~/.cursor/hooks.json</code> under <code>hooks.stop</code>:</p>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>hooks.json fragment</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>"stop": [
+  {
+    "command": "./hooks/session-memory-stop.sh",
+    "loop_limit": 2
+  }
+]</pre>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 11 -->
+  <section class="slide" data-title="Stop hook Python">
+    <p class="eyebrow">Slide 11 · Stop hook Python</p>
+    <h2>Full <code>session-memory-stop.py</code></h2>
+    <div class="cmd-block tall" data-copy>
+      <div class="bar"><span>~/.cursor/hooks/session-memory-stop.py</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>#!/usr/bin/env python3
+"""Cursor stop hook: nudge session-memory wrap-up after corrections (capped).
+
+Fails open. Never invents or writes lessons — only optionally returns
+followup_message so the agent runs the session-memory skill.
+"""
+
+from __future__ import annotations
+
+import json
+import os
+import sys
+from pathlib import Path
+
+MAX_PROMPT_ATTEMPTS = 2
+MEMORY_ROOT = Path.home() / ".ai-memory"
+HOOKS_ROOT = MEMORY_ROOT / ".hooks"
+
+FOLLOWUP = (
+    "A correction was marked earlier in this chat and session memory was not "
+    "updated yet. Run the session-memory skill now: read "
+    "~/.cursor/skills/session-memory/SKILL.md, capture durable lessons into "
+    "~/.ai-memory/, refresh MEMORY.md, and clear the needs-wrapup marker for "
+    "this conversation. Do not invent lessons — only store what the user "
+    "corrected or confirmed."
+)
+
+
+def _conversation_id(payload: dict) -&gt; str | None:
+    for key in (
+        "conversation_id",
+        "conversationId",
+        "session_id",
+        "sessionId",
+        "chat_id",
+        "chatId",
+        "composerId",
+        "composer_id",
+    ):
+        value = payload.get(key)
+        if isinstance(value, str) and value.strip():
+            return value.strip()
+    # Nested common shapes
+    for nest in ("conversation", "session", "composer"):
+        block = payload.get(nest)
+        if isinstance(block, dict):
+            for key in ("id", "conversation_id", "session_id"):
+                value = block.get(key)
+                if isinstance(value, str) and value.strip():
+                    return value.strip()
+    return None
+
+
+def _read_attempts(conv_dir: Path) -&gt; int:
+    path = conv_dir / "prompt-attempts"
+    if not path.is_file():
+        return 0
+    try:
+        return int(path.read_text(encoding="utf-8").strip() or "0")
+    except (OSError, ValueError):
+        return 0
+
+
+def _bump_attempts(conv_dir: Path) -&gt; None:
+    conv_dir.mkdir(parents=True, exist_ok=True)
+    attempts = _read_attempts(conv_dir) + 1
+    (conv_dir / "prompt-attempts").write_text(f"{attempts}\n", encoding="utf-8")
+
+
+def main() -&gt; int:
+    try:
+        raw = sys.stdin.read()
+        payload = json.loads(raw) if raw.strip() else {}
+    except json.JSONDecodeError:
+        print("{}")
+        return 0
+
+    if not isinstance(payload, dict):
+        print("{}")
+        return 0
+
+    status = payload.get("status") or "completed"
+    if status != "completed":
+        print("{}")
+        return 0
+
+    try:
+        loop_count = int(payload.get("loop_count") or 0)
+    except (TypeError, ValueError):
+        loop_count = 0
+    if loop_count &gt;= 1:
+        # Already in a follow-up loop from a prior nudge — stay quiet.
+        print("{}")
+        return 0
+
+    conv_id = _conversation_id(payload)
+    if not conv_id:
+        print("{}")
+        return 0
+
+    conv_dir = HOOKS_ROOT / conv_id
+    needs = conv_dir / "needs-wrapup"
+    wrapped = conv_dir / "wrapped-up"
+
+    if wrapped.is_file() or not needs.is_file():
+        print("{}")
+        return 0
+
+    if _read_attempts(conv_dir) &gt;= MAX_PROMPT_ATTEMPTS:
+        print("{}")
+        return 0
+
+    try:
+        _bump_attempts(conv_dir)
+    except OSError:
+        print("{}")
+        return 0
+
+    print(json.dumps({"followup_message": FOLLOWUP}))
+    return 0
+
+
+if __name__ == "__main__":
+    try:
+        raise SystemExit(main())
+    except Exception:  # noqa: BLE001 — hooks must fail open
+        print("{}")
+        raise SystemExit(0)</pre>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 12 -->
+  <section class="slide" data-title="Verify">
+    <p class="eyebrow">Slide 12 · Verify</p>
+    <h2>Confirm the install</h2>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre># Store
+ls -la ~/.ai-memory
+ls -la ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks
+
+# Skill + Claude symlink
+ls -la ~/.cursor/skills/session-memory/SKILL.md
+ls -la ~/.claude/skills/session-memory
+
+# Rule + Claude symlink
+ls -la ~/.cursor/rules/session-memory.mdc
+ls -la ~/.claude/rules/session-memory.md
+
+# Bridge
+bash /path/to/repo-with-sync-script/scripts/sync-personal-rules.sh --check
+
+# Optional stop hook
+ls -la ~/.cursor/hooks/session-memory-stop.py ~/.cursor/hooks/session-memory-stop.sh
+python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
+    </div>
+    <table>
+      <thead><tr><th>UI check</th><th>Expect</th></tr></thead>
+      <tbody>
+        <tr><td>New Cursor chat</td><td>Always-on <code>session-memory</code> rule applies; agent can read <code>MEMORY.md</code></td></tr>
+        <tr><td>Claude Code <code>/memory</code> or <code>/context</code></td><td>Personal rules + managed <code>CLAUDE.md</code> listed</td></tr>
+        <tr><td>Say “update memory” after a correction</td><td>New or updated file under <code>lessons/</code>; bullet in <code>MEMORY.md</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+
+
+
+
+
+
+  <!-- 13 -->
+  <section class="slide" data-title="Day to day">
+    <p class="eyebrow">Slide 13 · Usage</p>
+    <h2>Day-to-day habit</h2>
+    <ol class="steps">
+      <li>Correct the agent when it does the wrong thing<span>Agent should mark <code>.hooks/&lt;id&gt;/needs-wrapup</code></span></li>
+      <li>Say <code>wrap up</code> or <code>update memory</code><span>Or rely on the Cursor stop nudge if installed</span></li>
+      <li>Start a fresh chat<span>Agent loads <code>MEMORY.md</code> and obeys active lessons</span></li>
+      <li>Promote only when needed<span>Personal never-again stays in <code>~/.ai-memory/</code>. Workflow habits go to <code>~/.cursor/rules/</code> then re-run sync. Team facts: ask before editing repo <code>AGENTS.md</code>.</span></li>
+    </ol>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Minimum install</div>
+        <p><code>~/.ai-memory/</code> + skill + rule + <code>sync-personal-rules.sh</code></p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Full install</div>
+        <p>Minimum + Cursor stop hook + <code>hooks.json</code> registration</p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+
+  <!-- 14 -->
+  <section class="slide title-slide" data-title="Done">
+    <p class="eyebrow">Done</p>
+    <h1>You are set up when both tools read the same <code>MEMORY.md</code></h1>
+    <p class="lead">Edit personal rules in Cursor. Re-run <code>sync-personal-rules.sh</code> after adding or removing rule files. Lessons stay on disk under <code>~/.ai-memory/</code>.</p>
+    <div class="meta-row">
+      <span class="chip">Companion: personal-rules-bridge.md</span>
+      <span class="chip">Script: scripts/sync-personal-rules.sh</span>
+      <span class="chip">Nuuly Engineering · AI Adoption Initiative</span>
+    </div>
+    <p class="ref-label">Reference</p>
+    <p class="ref-link">
+      <a href="https://blog.buildbetter.ai/how-engineering-teams-share-ai-coding-context-across-claude-code-cursor-codex-2026/" target="_blank" rel="noopener noreferrer">How Engineering Teams Share AI Coding Context Across Claude Code, Cursor &amp; Codex (2026)</a>
+    </p>
+  </section>
+
+</div>
+
+<div id="chrome">
+  <div class="nav">
+    <button type="button" id="prev" aria-label="Previous slide">← Prev</button>
+    <button type="button" id="next" aria-label="Next slide">Next →</button>
+  </div>
+  <div id="dots" aria-label="Slide navigation"></div>
+  <div id="progress">1 / 1</div>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const progress = document.getElementById("progress");
+  const dots = document.getElementById("dots");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
+  let i = 0;
+
+  slides.forEach((slide, idx) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.title = slide.dataset.title || `Slide ${idx + 1}`;
+    b.addEventListener("click", () => go(idx));
+    dots.appendChild(b);
+  });
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+    Array.from(dots.children).forEach((d, idx) => d.classList.toggle("active", idx === i));
+    progress.textContent = `${i + 1} / ${slides.length}`;
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === slides.length - 1;
+    history.replaceState(null, "", `#${i + 1}`);
+  }
+
+  prevBtn.addEventListener("click", () => go(i - 1));
+  nextBtn.addEventListener("click", () => go(i + 1));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+      e.preventDefault();
+      go(i + 1);
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      e.preventDefault();
+      go(i - 1);
+    } else if (e.key === "Home") {
+      go(0);
+    } else if (e.key === "End") {
+      go(slides.length - 1);
+    }
+  });
+
+  document.querySelectorAll("[data-copy]").forEach((block) => {
+    const btn = block.querySelector(".copy-btn");
+    const pre = block.querySelector("pre");
+    if (!btn || !pre) return;
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(pre.textContent);
+        btn.textContent = "Copied";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "Copy";
+          btn.classList.remove("copied");
+        }, 1200);
+      } catch (_) {
+        btn.textContent = "Select & copy";
+      }
+    });
+  });
+
+  const hash = parseInt((location.hash || "").replace("#", ""), 10);
+  go(Number.isFinite(hash) && hash >= 1 ? hash - 1 : 0);
+})();
+</script>
+
+
+
+</body>
+</html>

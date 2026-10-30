@@ -1,0 +1,28 @@
+---
+description: Map spoken repo shorthand ("frontend repos", "services repos") to workspace paths
+alwaysApply: true
+---
+
+# Repo shorthand (template — fill in, then rename to repo-shorthand.mdc)
+
+When the user says one of these phrases, resolve it to the paths below. Do not
+ask which repos they mean unless the request clearly excludes some of them.
+Keep this file short: it loads in every chat.
+
+## "<group name, e.g. frontend repos>"
+
+| Informal / spoken | Workspace path |
+|-------------------|----------------|
+| <web> | `<repo-folder>` |
+| <iOS> | `<repo-folder>` |
+| <admin UI> | `<monorepo>/<subfolder>` |
+
+## "<group name, e.g. services repos>"
+
+| Informal / spoken | Workspace path |
+|-------------------|----------------|
+| <domain A services> | `<monorepo>/<domain-a>` |
+| <domain B services> | `<monorepo>/<domain-b>` |
+
+Do **not** include `<folders that are not part of the group>` unless the user
+names them explicitly.

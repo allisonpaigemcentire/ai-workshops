@@ -1,0 +1,42 @@
+{
+  "_comment": [
+    "Example ~/.cursor/mcp.json. Merge the servers you want; never paste a token here.",
+    "Prefer OAuth servers (no secret on disk). For token servers, use ${env:VAR} or the Keychain wrapper.",
+    "Team skills MCP: pin a tag or main. Never pin a feature branch; it disappears when its PR merges and the server then fails quietly."
+  ],
+  "mcpServers": {
+    "atlassian": {
+      "type": "http",
+      "url": "https://mcp.atlassian.com/v1/mcp"
+    },
+
+    "token-server-via-env": {
+      "command": "docker",
+      "args": ["run", "-i", "--rm", "-e", "SERVICE_URL", "-e", "SERVICE_USERNAME", "-e", "SERVICE_API_TOKEN", "<image>"],
+      "env": {
+        "SERVICE_URL": "https://<your-site>",
+        "SERVICE_USERNAME": "${env:SERVICE_USERNAME}",
+        "SERVICE_API_TOKEN": "${env:SERVICE_API_TOKEN}"
+      }
+    },
+
+    "token-server-via-keychain": {
+      "command": "bash",
+      "args": [
+        "~/.agents/scripts/mcp-env-from-keychain.sh",
+        "SERVICE_API_TOKEN=service-api-token",
+        "--",
+        "docker", "run", "-i", "--rm", "-e", "SERVICE_API_TOKEN", "<image>"
+      ]
+    },
+
+    "nuuly-skills": {
+      "command": "uvx",
+      "args": [
+        "--from",
+        "git+https://github.com/urbn/r15-tech-skills.git@<REF>#subdirectory=mcp-server",
+        "nuuly-tech-skills-mcp"
+      ]
+    }
+  }
+}

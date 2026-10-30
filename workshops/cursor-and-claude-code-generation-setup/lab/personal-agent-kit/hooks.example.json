@@ -1,0 +1,12 @@
+{
+  "_comment": "Example ~/.cursor/hooks.json. install.sh links the scripts into ~/.cursor/hooks/. The cost guard is optional and stays silent without a hook event log (see hooks/cursor/session_cost_lib.py).",
+  "version": 1,
+  "hooks": {
+    "stop": [
+      { "command": "bash ~/.cursor/hooks/session-memory-stop.sh" }
+    ],
+    "postToolUse": [
+      { "command": "bash ~/.cursor/hooks/session-cost-guard.sh" }
+    ]
+  }
+}
