@@ -907,11 +907,14 @@ bash scripts/sync-personal-rules.sh --check</pre>
     <div class="cmd-block tall" data-copy>
       <div class="bar"><span>scripts/sync-personal-rules.sh (complete)</span><button type="button" class="copy-btn">Copy</button></div>
       <pre id="full-script">#!/usr/bin/env bash
-# Mirror personal Cursor user rules into Claude Code&#x27;s user rules directory.
+# OPTIONAL: mirror extra Cursor-only ~/.cursor/rules/*.mdc into Claude.
+# Workshop default is ~/.agents/instructions/shared.md + wire-personal-agents.sh.
 #
-# Canonical: ~/.cursor/rules/*.mdc
+# Canonical for this extra bridge: ~/.cursor/rules/*.mdc
 # Claude:    ~/.claude/rules/&lt;stem&gt;.md  -&gt; symlink to each .mdc
-# Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script)
+# Exclude:    ~/.cursor/rules/.claude-exclude (stems to skip)
+# Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script;
+#            never once wire-personal-agents.sh manages it)
 #
 # Usage:
 #   bash scripts/sync-personal-rules.sh          # create/update links
@@ -923,7 +926,11 @@ set -euo pipefail
 CURSOR_RULES=&quot;${CURSOR_RULES:-$HOME/.cursor/rules}&quot;
 CLAUDE_RULES=&quot;${CLAUDE_RULES:-$HOME/.claude/rules}&quot;
 CLAUDE_MD=&quot;${CLAUDE_MD:-$HOME/.claude/CLAUDE.md}&quot;
+CLAUDE_EXCLUDE=&quot;${CLAUDE_EXCLUDE:-$CURSOR_RULES/.claude-exclude}&quot;
 MANAGED_MARKER=&quot;&lt;!-- managed-by: sync-personal-rules --&gt;&quot;
+# wire-personal-agents.sh owns CLAUDE.md once it has added its region; never
+# rewrite that file, or the @-import of shared.md is lost.
+WIRE_MARKER=&quot;&lt;!-- managed-by: wire-personal-agents --&gt;&quot;
 
 MODE=&quot;sync&quot;
 for arg in &quot;$@&quot;; do
@@ -955,30 +962,44 @@ abs_path() {
   local dir base
   dir=&quot;$(cd &quot;$(dirname &quot;$path&quot;)&quot; &amp;&amp; pwd)&quot;
   base=&quot;$(basename &quot;$path&quot;)&quot;
-  printf &#x27;%s/%s
-&#x27; &quot;$dir&quot; &quot;$base&quot;
+  printf &#x27;%s/%s\n&#x27; &quot;$dir&quot; &quot;$base&quot;
 }
 
 stem_of_mdc() {
   local base
   base=&quot;$(basename &quot;$1&quot;)&quot;
-  printf &#x27;%s
-&#x27; &quot;${base%.mdc}&quot;
+  printf &#x27;%s\n&#x27; &quot;${base%.mdc}&quot;
 }
 
 link_path_for_stem() {
-  printf &#x27;%s/%s.md
-&#x27; &quot;$CLAUDE_RULES&quot; &quot;$1&quot;
+  printf &#x27;%s/%s.md\n&#x27; &quot;$CLAUDE_RULES&quot; &quot;$1&quot;
 }
 
 desired_target_for_mdc() {
   abs_path &quot;$1&quot;
 }
 
-# Phase 1: remove broken symlinks under Claude rules.
+is_excluded() {
+  local stem=&quot;$1&quot;
+  local line
+  [[ -f &quot;$CLAUDE_EXCLUDE&quot; ]] || return 1
+  while IFS= read -r line || [[ -n &quot;$line&quot; ]]; do
+    line=&quot;${line%%#*}&quot;
+    line=&quot;$(printf &#x27;%s&#x27; &quot;$line&quot; | sed &#x27;s/^[[:space:]]*//;s/[[:space:]]*$//&#x27;)&quot;
+    [[ -n &quot;$line&quot; ]] || continue
+    if [[ &quot;$line&quot; == &quot;$stem&quot; ]]; then
+      return 0
+    fi
+  done &lt;&quot;$CLAUDE_EXCLUDE&quot;
+  return 1
+}
+
+# Step 1: remove broken symlinks under Claude rules that this script made
+# (they point into the Cursor rules folder). Other links are left alone.
 shopt -s nullglob
 for link in &quot;$CLAUDE_RULES&quot;/*; do
   [[ -L &quot;$link&quot; ]] || continue
+  case &quot;$(readlink &quot;$link&quot;)&quot; in &quot;$CURSOR_RULES&quot;/*) ;; *) continue ;; esac
   if [[ ! -e &quot;$link&quot; ]]; then
     if [[ &quot;$MODE&quot; == &quot;check&quot; ]]; then
       drift_msgs+=(&quot;broken symlink: $link&quot;)
@@ -990,11 +1011,29 @@ for link in &quot;$CLAUDE_RULES&quot;/*; do
   fi
 done
 
-# Phase 2: ensure each Cursor .mdc has a Claude .md symlink.
+# Step 1b: remove symlinks for excluded stems.
+for link in &quot;$CLAUDE_RULES&quot;/*.md; do
+  [[ -L &quot;$link&quot; ]] || continue
+  stem=&quot;$(basename &quot;$link&quot; .md)&quot;
+  if is_excluded &quot;$stem&quot;; then
+    if [[ &quot;$MODE&quot; == &quot;check&quot; ]]; then
+      drift_msgs+=(&quot;excluded stem still linked: $link&quot;)
+      ((missing++)) || true
+    else
+      rm &quot;$link&quot;
+      ((removed++)) || true
+    fi
+  fi
+done
+
+# Step 2: ensure each Cursor .mdc has a Claude .md symlink (unless excluded).
 declare -a linked_stems=()
 for mdc in &quot;$CURSOR_RULES&quot;/*.mdc; do
   [[ -f &quot;$mdc&quot; ]] || continue
   stem=&quot;$(stem_of_mdc &quot;$mdc&quot;)&quot;
+  if is_excluded &quot;$stem&quot;; then
+    continue
+  fi
   link=&quot;$(link_path_for_stem &quot;$stem&quot;)&quot;
   target=&quot;$(desired_target_for_mdc &quot;$mdc&quot;)&quot;
   linked_stems+=(&quot;$stem&quot;)
@@ -1033,10 +1072,12 @@ for mdc in &quot;$CURSOR_RULES&quot;/*.mdc; do
   fi
 done
 
-# Phase 3: managed CLAUDE.md index (sync only; check reports if managed and stale).
+# Step 3: managed CLAUDE.md index (sync only; check reports if managed and stale).
 should_write_claude_md=0
 if [[ ! -f &quot;$CLAUDE_MD&quot; ]]; then
   should_write_claude_md=1
+elif grep -qxF &quot;$WIRE_MARKER&quot; &quot;$CLAUDE_MD&quot; 2&gt;/dev/null; then
+  should_write_claude_md=0
 elif grep -qF &quot;$MANAGED_MARKER&quot; &quot;$CLAUDE_MD&quot; 2&gt;/dev/null; then
   should_write_claude_md=1
 fi
@@ -1044,8 +1085,7 @@ fi
 write_claude_md() {
   local stem link mdc
   {
-    printf &#x27;%s
-&#x27; &quot;$MANAGED_MARKER&quot;
+    printf &#x27;%s\n&#x27; &quot;$MANAGED_MARKER&quot;
     cat &lt;&lt;&#x27;EOF&#x27;
 # Personal Claude instructions (local only)
 
@@ -1056,11 +1096,19 @@ in `~/.cursor/rules/`; this Claude setup mirrors them via symlinks under
 Regenerate this file with `scripts/sync-personal-rules.sh` from the
 repo that ships this script (or your local copy).
 
-## Always-on personal rules
+## Precedence
+
+Repo `AGENTS.md`, `.agents/skills/`, repo hooks, and repo rules win over
+personal prefs. On conflict, follow the repo. Personal files are how you like
+answers, commits, and PRs — not how to build a given tree.
+
+## Mirrored personal rules
 
 Claude loads every file in `~/.claude/rules/` at session start. Edit the Cursor
 sources; the Claude links update automatically. After **adding or removing** a
-Cursor rule file, re-run the sync script.
+Cursor rule file, re-run the sync script. Stems listed in
+`~/.cursor/rules/.claude-exclude` are not mirrored (Claude ignores
+`alwaysApply: false`; exclude situational Cursor-only rules there).
 
 | Rule | Source |
 |------|--------|
@@ -1068,17 +1116,23 @@ EOF
     for stem in &quot;${linked_stems[@]:-}&quot;; do
       [[ -n &quot;$stem&quot; ]] || continue
       mdc=&quot;$CURSOR_RULES/${stem}.mdc&quot;
-      printf &#x27;| `%s` | `%s` |
-&#x27; &quot;$stem&quot; &quot;$mdc&quot;
+      printf &#x27;| `%s` | `%s` |\n&#x27; &quot;$stem&quot; &quot;$mdc&quot;
     done
     cat &lt;&lt;&#x27;EOF&#x27;
+
+## Situational rules (Cursor-only sources)
+
+Stems in `.claude-exclude` do not load every session. When the task matches,
+**read the full Cursor source file** under `~/.cursor/rules/` before you act
+(for example a long PR-authoring rule: read it only when you draft, create, or
+update a PR).
 
 ## Cross-tool session memory
 
 Personal durable learnings live in `~/.ai-memory/MEMORY.md` (not Claude project
 auto-memory under `~/.claude/projects/*/memory/`). At session start, **read**
 that file. On wrap-up / corrections, use the `session-memory` skill
-(`~/.claude/skills/session-memory` → `~/.cursor/skills/session-memory`).
+(`~/.claude/skills/session-memory` → `~/.agents/skills/session-memory`), if installed.
 
 ## Notes
 
@@ -1123,8 +1177,7 @@ if (( added &gt; 0 || removed &gt; 0 || updated &gt; 0 || conflicts &gt; 0 )); t
       echo &quot;  - $msg&quot; &gt;&amp;2
     done
   fi
-fi
-</pre>
+fi</pre>
     </div>
   </section>
 

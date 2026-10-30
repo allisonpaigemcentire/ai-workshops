@@ -11,6 +11,10 @@
 #   --no-mcp                       do not add MCP servers
 #   -h, --help
 #
+# Optional team skills MCP server (added only when both are set, needs uv):
+#   KIT_SKILLS_FROM='git+https://github.com/<org>/<repo>.git@main#subdirectory=<dir>'
+#   KIT_SKILLS_ENTRY='<console-script-name>'
+#
 # What it does, in order:
 #   1. Copies the kit into ~/.agents/ (your shared.md and rules are never
 #      overwritten; kit scripts, hooks and status line are updated, old copy
@@ -36,7 +40,8 @@ STATE="$AGENTS/.kit-installed"
 STAMP="$(date +%Y%m%d-%H%M%S)"
 export KIT_BACKUP_DIR="${KIT_BACKUP_DIR:-$HOME/.agent-kit-backups/$STAMP}"
 export AGENTS_HOME="$AGENTS"
-SKILLS_REF="${KIT_SKILLS_REF:-main}"
+SKILLS_FROM="${KIT_SKILLS_FROM:-}"
+SKILLS_ENTRY="${KIT_SKILLS_ENTRY:-}"
 ATLASSIAN_URL="https://mcp.atlassian.com/v1/mcp"
 
 PREVIEW_ONLY=0
@@ -49,7 +54,7 @@ for arg in "$@"; do
     -y|--yes) YES=1 ;;
     --no-mcp) MCP=0 ;;
     --tools=*) TOOLS="${arg#--tools=}" ;;
-    -h|--help) sed -n '2,30p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unknown argument: $arg (try --help)" >&2; exit 2 ;;
   esac
 done
@@ -191,9 +196,8 @@ steps() {
   if want claude && (( MCP )); then
     if command -v claude >/dev/null 2>&1; then
       claude_mcp atlassian --transport http atlassian "$ATLASSIAN_URL"
-      if command -v uvx >/dev/null 2>&1; then
-        claude_mcp nuuly-skills nuuly-skills -- uvx --from \
-          "git+https://github.com/urbn/r15-tech-skills.git@${SKILLS_REF}#subdirectory=mcp-server" nuuly-tech-skills-mcp
+      if [[ -n "$SKILLS_FROM" && -n "$SKILLS_ENTRY" ]] && command -v uvx >/dev/null 2>&1; then
+        claude_mcp team-skills team-skills -- uvx --from "$SKILLS_FROM" "$SKILLS_ENTRY"
       fi
     else
       say "note: claude CLI not on PATH; Claude Code MCP servers not added (re-run after installing Claude Code)."

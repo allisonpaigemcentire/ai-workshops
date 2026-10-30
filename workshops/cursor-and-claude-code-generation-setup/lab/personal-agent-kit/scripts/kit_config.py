@@ -39,7 +39,13 @@ STATE = os.path.join(AGENTS, ".kit-installed")
 BACKUP_DIR = os.environ.get("KIT_BACKUP_DIR") or os.path.join(
     HOME, ".agent-kit-backups", time.strftime("%Y%m%d-%H%M%S")
 )
-SKILLS_REF = os.environ.get("KIT_SKILLS_REF", "main")  # tag or main, never a feature branch
+# Optional team skills MCP server. Off unless both are set, for example
+#   KIT_SKILLS_FROM='git+https://github.com/<org>/<repo>.git@main#subdirectory=<dir>'
+#   KIT_SKILLS_ENTRY='<console-script-name>'
+# Pin a tag or main in KIT_SKILLS_FROM, never a feature branch.
+SKILLS_FROM = os.environ.get("KIT_SKILLS_FROM", "").strip()
+SKILLS_ENTRY = os.environ.get("KIT_SKILLS_ENTRY", "").strip()
+SKILLS_NAME = "team-skills"
 
 CURSOR_HOOKS = os.path.join(HOME, ".cursor", "hooks.json")
 CURSOR_MCP = os.path.join(HOME, ".cursor", "mcp.json")
@@ -50,21 +56,14 @@ ATLASSIAN_URL = "https://mcp.atlassian.com/v1/mcp"
 
 
 def skills_server() -> dict:
-    return {
-        "command": "uvx",
-        "args": [
-            "--from",
-            "git+https://github.com/urbn/r15-tech-skills.git@%s#subdirectory=mcp-server" % SKILLS_REF,
-            "nuuly-tech-skills-mcp",
-        ],
-    }
+    return {"command": "uvx", "args": ["--from", SKILLS_FROM, SKILLS_ENTRY]}
 
 
 def mcp_servers(want_skills: bool) -> dict:
     """The only MCP servers the installer adds: no tokens, no placeholders."""
     servers = {"atlassian": {"type": "http", "url": ATLASSIAN_URL}}  # OAuth; same shape for Cursor and Gemini
     if want_skills:
-        servers["nuuly-skills"] = skills_server()
+        servers[SKILLS_NAME] = skills_server()
     return servers
 
 
@@ -135,6 +134,9 @@ def backup(path: str) -> str:
 
 
 def save_json(path: str, data: dict) -> None:
+    # Write through a symlink (dotfile managers link these files); replacing
+    # the link itself would silently detach the file from its real copy.
+    path = os.path.realpath(path)
     existed = os.path.exists(path)
     if existed:
         print("  backed up %s -> %s" % (short(path), short(backup(path))))
@@ -246,15 +248,18 @@ def apply(path: str, step, dry: bool, state: list) -> int:
         print("            - %s" % desc)
     if not dry:
         save_json(path, new)
+        if data is None:
+            state.append(["json", path, "created", "", ""])
         state.extend(row for _, row in changes)
     return 0
 
 
 def do_merge(args) -> int:
     tools = set(args.tools.split(","))
-    want_skills = shutil.which("uvx") is not None
-    if args.mcp and not want_skills:
-        print("  note: 'uvx' not found, so the nuuly-skills MCP server is not added. Install uv, then re-run.")
+    want_skills = bool(SKILLS_FROM and SKILLS_ENTRY)
+    if args.mcp and want_skills and shutil.which("uvx") is None:
+        print("  note: 'uvx' not found, so the %s MCP server is not added. Install uv, then re-run." % SKILLS_NAME)
+        want_skills = False
     state = read_state()
     skipped = 0
     if "cursor" in tools:
@@ -271,6 +276,17 @@ def do_merge(args) -> int:
 
 
 # ---------- remove ----------
+
+def _only_kit_scaffold(data: dict) -> bool:
+    """True when only the empty containers the kit itself adds are left."""
+    rest = dict(data)
+    for key in ("hooks", "mcpServers"):
+        if rest.get(key) == {}:
+            del rest[key]
+    if rest.get("version") == 1 and "hooks" in data:
+        del rest["version"]
+    return not rest
+
 
 def do_remove(args) -> int:
     rows = [r for r in read_state() if r and r[0] == "json"]
@@ -291,9 +307,21 @@ def do_remove(args) -> int:
             continue
         new = copy.deepcopy(data)
         done = []
-        for _, _, kind, key, value in items:
+        created = False
+        for row in items:
+            if len(row) < 5:
+                continue
+            kind, key, value = row[2], row[3], row[4]
+            if kind == "created":
+                created = True
+                continue
+            hooks = new.get("hooks")
+            if kind in ("cursor-hook", "claude-hook") and not isinstance(hooks, dict):
+                continue
             if kind == "cursor-hook":
-                lst = new.get("hooks", {}).get(key, [])
+                lst = hooks.get(key, [])
+                if not isinstance(lst, list):
+                    continue
                 kept = [e for e in lst if not (isinstance(e, dict) and e.get("command") == value)]
                 if len(kept) != len(lst):
                     new["hooks"][key] = kept
@@ -301,7 +329,9 @@ def do_remove(args) -> int:
                         del new["hooks"][key]
                     done.append("remove hooks.%s: %s" % (key, value))
             elif kind == "claude-hook":
-                lst = new.get("hooks", {}).get(key, [])
+                lst = hooks.get(key, [])
+                if not isinstance(lst, list):
+                    continue
                 kept = []
                 for g in lst:
                     if isinstance(g, dict) and isinstance(g.get("hooks"), list):
@@ -321,12 +351,20 @@ def do_remove(args) -> int:
                     del new["statusLine"]
                     done.append("remove statusLine")
             elif kind == "mcp":
-                servers = new.get("mcpServers", {})
-                if key in servers:
+                servers = new.get("mcpServers")
+                if isinstance(servers, dict) and key in servers:
                     del servers[key]
                     done.append("remove mcpServers.%s" % key)
                     if not servers:
                         del new["mcpServers"]
+        if created and _only_kit_scaffold(new):
+            # The kit created this file and nothing of yours is in it: remove it.
+            print("  %-7s %s (the kit created it; nothing else is in it)" % (
+                "would remove" if args.dry_run else "remove", short(path)))
+            if not args.dry_run:
+                print("  backed up %s -> %s" % (short(path), short(backup(path))))
+                os.remove(path)
+            continue
         if not done:
             print("  ok      %s (no kit entries left)" % short(path))
             continue

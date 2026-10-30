@@ -73,7 +73,7 @@ to build, test, branch, or lint a given repo; the repo owns that.
 
 Not included on purpose: personal skills, PR-authoring rules with reviewer
 lists, and anything team-wide. Team skills come from the team skills MCP
-(`nuuly-skills`) or the repo.
+(`team-skills`, optional) or the repo.
 
 ## Secrets: never inline
 

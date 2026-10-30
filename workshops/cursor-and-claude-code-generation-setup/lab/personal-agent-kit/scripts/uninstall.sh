@@ -51,9 +51,16 @@ strip_region() {  # strip_region <file>
   [[ -f "$f" ]] && grep -qxF "$BEGIN" "$f" || return 0
   if (( DRY )); then say "would: remove the kit region from $f"; return 0; fi
   tmp="$(mktemp)"
+  # Also drop the one blank line the wire script put before the region, so an
+  # install/uninstall cycle leaves the file as it was.
   awk -v b="$BEGIN" -v e="$END" -v h="$GEMINI_HEADER" '
-    $0 == b { skip=1; next } skip && $0 == e { skip=0; next } skip { next }
-    $0 == h { next } { print }' "$f" >"$tmp"
+    skip { if ($0 == e) skip=0; next }
+    $0 == b { held=0; skip=1; next }
+    $0 == h { next }
+    held { print ""; held=0 }
+    $0 == "" { held=1; next }
+    { print }
+    END { if (held) print "" }' "$f" >"$tmp"
   backup_file "$f"
   if grep -q '[^[:space:]]' "$tmp"; then cat "$tmp" >"$f"; say "removed the kit region from $f"
   else rm -f "$f"; say "removed $f (only the kit region was in it)"; fi
@@ -81,7 +88,7 @@ steps() {
     if (( DRY )); then say "would: remove $mdc"; else backup_file "$mdc"; rm "$mdc"; say "removed $mdc"; fi
   fi
   local pargs=(remove); (( DRY )) && pargs+=(--dry-run)
-  python3 "$HERE/kit_config.py" "${pargs[@]}" || true
+  python3 "$HERE/kit_config.py" "${pargs[@]}" || CONFIG_LEFT=1
   while IFS=$'\t' read -r kind a _; do
     [[ "$kind" == claude-mcp ]] || continue
     if ! command -v claude >/dev/null 2>&1; then say "claude CLI not found; remove MCP '$a' by hand: claude mcp remove --scope user $a"; continue; fi
@@ -92,14 +99,21 @@ steps() {
 }
 
 echo "== Preview: nothing has changed yet =="
-DRY=1; steps
+DRY=1; CONFIG_LEFT=0; steps
 (( PREVIEW_ONLY )) && { echo; echo "Dry run only."; exit 0; }
 if (( ! YES )); then
   if [[ -t 0 ]]; then read -r -p "Undo these changes? [y/N] " r; case "$r" in y|Y|yes|YES) ;; *) echo "Nothing changed."; exit 0 ;; esac
   else echo "No terminal to confirm on. Re-run with --yes." >&2; exit 1; fi
 fi
 echo; echo "== Undoing =="
-DRY=0; steps
+DRY=0; CONFIG_LEFT=0; steps
+if (( CONFIG_LEFT )); then
+  # kit_config.py kept the entries it could not remove in $STATE; keep the
+  # file so a re-run after you fix the SKIPPED file finishes the job.
+  echo
+  echo "Some config entries were left (see SKIPPED above). Fix that file, then re-run this script."
+  exit 3
+fi
 mv "$STATE" "$STATE.removed-$(date +%Y%m%d-%H%M%S)"
 echo
 echo "Done. Left in place: $AGENTS (delete it yourself if you want: rm -rf ~/.agents) and backups in ~/.agent-kit-backups/."

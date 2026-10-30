@@ -15,6 +15,7 @@ mkdir -p "$HOOK_MARKER_DIR"
 python3 << 'PY' || exit 0
 import json
 import os
+import re
 import sys
 from pathlib import Path
 
@@ -34,7 +35,8 @@ except json.JSONDecodeError:
     sys.exit(0)
 
 session_id = extract_session_id(hook_input)
-if not session_id:
+# Used as a marker file name below: no slashes, no "..".
+if not session_id or not re.match(r"^[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}$", session_id):
     sys.exit(0)
 
 stats = get_session_stats(session_id)

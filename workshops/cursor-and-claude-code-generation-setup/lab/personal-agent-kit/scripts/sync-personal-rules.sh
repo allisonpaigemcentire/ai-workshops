@@ -5,7 +5,8 @@
 # Canonical for this extra bridge: ~/.cursor/rules/*.mdc
 # Claude:    ~/.claude/rules/<stem>.md  -> symlink to each .mdc
 # Exclude:    ~/.cursor/rules/.claude-exclude (stems to skip)
-# Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script)
+# Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script;
+#            never once wire-personal-agents.sh manages it)
 #
 # Usage:
 #   bash scripts/sync-personal-rules.sh          # create/update links
@@ -19,13 +20,16 @@ CLAUDE_RULES="${CLAUDE_RULES:-$HOME/.claude/rules}"
 CLAUDE_MD="${CLAUDE_MD:-$HOME/.claude/CLAUDE.md}"
 CLAUDE_EXCLUDE="${CLAUDE_EXCLUDE:-$CURSOR_RULES/.claude-exclude}"
 MANAGED_MARKER="<!-- managed-by: sync-personal-rules -->"
+# wire-personal-agents.sh owns CLAUDE.md once it has added its region; never
+# rewrite that file, or the @-import of shared.md is lost.
+WIRE_MARKER="<!-- managed-by: wire-personal-agents -->"
 
 MODE="sync"
 for arg in "$@"; do
   case "$arg" in
     --check) MODE="check" ;;
     -h|--help)
-      sed -n '2,16p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,14p' "$0" | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *)
@@ -164,6 +168,8 @@ done
 should_write_claude_md=0
 if [[ ! -f "$CLAUDE_MD" ]]; then
   should_write_claude_md=1
+elif grep -qxF "$WIRE_MARKER" "$CLAUDE_MD" 2>/dev/null; then
+  should_write_claude_md=0
 elif grep -qF "$MANAGED_MARKER" "$CLAUDE_MD" 2>/dev/null; then
   should_write_claude_md=1
 fi

@@ -8,6 +8,7 @@ followup_message so the agent runs the session-memory skill.
 from __future__ import annotations
 
 import json
+import re
 import os
 import sys
 from pathlib import Path
@@ -15,6 +16,7 @@ from pathlib import Path
 MAX_PROMPT_ATTEMPTS = 2
 MEMORY_ROOT = Path.home() / ".ai-memory"
 HOOKS_ROOT = MEMORY_ROOT / ".hooks"
+SAFE_ID = re.compile(r"^[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}$")
 
 FOLLOWUP = (
     "A correction was marked earlier in this chat and session memory was not "
@@ -94,7 +96,9 @@ def main() -> int:
         return 0
 
     conv_id = _conversation_id(payload)
-    if not conv_id:
+    # The id becomes a folder name under ~/.ai-memory/.hooks; refuse anything
+    # that could point outside it (a slash, "..", a leading dot).
+    if not conv_id or not SAFE_ID.match(conv_id):
         print("{}")
         return 0
 

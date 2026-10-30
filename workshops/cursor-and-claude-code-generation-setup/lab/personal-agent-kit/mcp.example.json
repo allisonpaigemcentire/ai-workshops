@@ -30,12 +30,12 @@
       ]
     },
 
-    "nuuly-skills": {
+    "team-skills": {
       "command": "uvx",
       "args": [
         "--from",
-        "git+https://github.com/urbn/r15-tech-skills.git@<REF>#subdirectory=mcp-server",
-        "nuuly-tech-skills-mcp"
+        "git+https://github.com/<org>/<skills-repo>.git@<tag-or-main>#subdirectory=<server-dir>",
+        "<server-command>"
       ]
     }
   }

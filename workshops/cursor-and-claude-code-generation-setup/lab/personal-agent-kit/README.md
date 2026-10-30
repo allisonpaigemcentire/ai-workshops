@@ -18,11 +18,11 @@ own preferences.
 - macOS or Linux, with `bash` and `python3` 3.8 or newer. On a new Mac,
   run `xcode-select --install` first if `python3` asks to install tools.
 - At least one of: Cursor, Claude Code (`claude` on your PATH), Gemini CLI.
-- Optional: `jq` for the Claude status line (`brew install jq`), and `uv`
-  (`brew install uv`) for the team skills MCP server. Without `uv`, the
-  installer skips that one server and says so.
-- Optional: GitHub access to `urbn/r15-tech-skills` for the team skills MCP
-  server.
+- Optional: `jq` for the Claude status line (`brew install jq`).
+- Optional: a team skills MCP server. The installer adds it as `team-skills`
+  only when you set `KIT_SKILLS_FROM` (the `uvx --from` source, pinned to a
+  tag or `main`) and `KIT_SKILLS_ENTRY` (its command name) before you run it,
+  and `uv` is installed (`brew install uv`). Your team shares the values.
 
 ## Install: one command
 
@@ -56,13 +56,13 @@ again to link it.
 | `~/.agents/` | New folder with the kit. Your `shared.md` and rules are never overwritten on a re-run. |
 | `~/.cursor/rules/`, `~/.cursor/hooks/` | Links to the kit's rules and hooks, plus `personal-instructions.mdc`. |
 | `~/.cursor/hooks.json` | Adds the session-memory stop hook and the optional cost guard. |
-| `~/.cursor/mcp.json` | Adds `atlassian` (OAuth, no token) and `nuuly-skills` (pinned to `main`). |
+| `~/.cursor/mcp.json` | Adds `atlassian` (OAuth, no token), plus `team-skills` if you set it up (see above). |
 | `~/.claude/CLAUDE.md` | Adds one marked section that imports `shared.md`. Your lines stay. |
 | `~/.claude/rules/`, `~/.claude/hooks/` | Links to the kit's rules and hooks. Your Cursor rules are mirrored here too. |
 | `~/.claude/settings.json` | Adds the stop hook, and the status line if you don't have one. |
-| Claude Code user MCP list | Adds the same two servers with `claude mcp add`, if `claude` is installed. |
+| Claude Code user MCP list | Adds the same servers with `claude mcp add`, if `claude` is installed. |
 | `~/.gemini/GEMINI.md` | Adds one marked section with a copy of `shared.md`. Your lines and Gemini's saved memories stay. |
-| `~/.gemini/settings.json` | Adds the same two MCP servers. |
+| `~/.gemini/settings.json` | Adds the same MCP servers. |
 
 How it stays safe:
 
@@ -99,7 +99,7 @@ was, copy it back from `~/.agent-kit-backups/<time>/`.
 If the installer reports a file as SKIPPED, add these entries yourself.
 The examples are in `hooks.example.json` (Cursor hooks),
 `claude-settings.example.json` (Claude settings) and `mcp.example.json`
-(MCP servers). For Gemini, put the `atlassian` and `nuuly-skills` entries
+(MCP servers). For Gemini, put the `atlassian` (and optional `team-skills`) entries
 under `mcpServers` in `~/.gemini/settings.json`.
 
 ## More

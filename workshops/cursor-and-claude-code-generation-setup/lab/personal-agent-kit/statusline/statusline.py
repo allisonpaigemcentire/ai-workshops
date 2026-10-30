@@ -29,7 +29,6 @@ from rich.text import Text
 CACHE_FILE = Path.home() / ".claude" / ".statusline-cache.json"
 ENTERPRISE_TTL = 300  # 5 minutes
 MONTHLY_TOKENS_TTL = 300  # 5 minutes between incremental updates
-FULL_SCAN_INTERVAL = 86400  # 24 hours between full 30-day rescans
 THIRTY_DAYS = 30 * 24 * 3600
 EIGHTHS = "▁▂▃▄▅▆▇█"
 
@@ -88,18 +87,21 @@ def get_enterprise_usage(cache: dict) -> dict | None:
         return None
 
     try:
+        # The token goes to curl on stdin (-H @-), not in argv, so other
+        # local users cannot read it from the process list.
         result = subprocess.run(
             [
                 "curl",
                 "-sf",
                 "https://api.anthropic.com/api/oauth/usage",
                 "-H",
-                f"Authorization: Bearer {token}",
+                "@-",
                 "-H",
                 "anthropic-beta: oauth-2025-04-20",
                 "-H",
                 "User-Agent: claude-code/statusline",
             ],
+            input=f"Authorization: Bearer {token}\n",
             capture_output=True,
             text=True,
             timeout=10,
@@ -141,51 +143,40 @@ def get_session_tokens(transcript_path: str | None) -> int:
 
 
 def get_monthly_tokens(cache: dict) -> int:
+    """Tokens in transcripts touched in the last 30 days.
+
+    Caches a per-file total keyed by mtime and size, so a transcript that
+    grew since the last run is recounted once instead of added again.
+    """
     now = time.time()
     entry = cache.get("monthly_tokens", {})
-    cutoff_30d = now - THIRTY_DAYS
-    projects = Path.home() / ".claude" / "projects"
-
-    # Full rescan: no cache, or 24h since last full scan (maintains rolling-window accuracy)
-    if not entry or (now - entry.get("full_scan_ts", 0)) > FULL_SCAN_INTERVAL:
-        total = 0
-        try:
-            for jsonl in projects.rglob("*.jsonl"):
-                if jsonl.stat().st_mtime >= cutoff_30d:
-                    total += sum_tokens_in_file(jsonl)
-        except Exception:
-            pass
-        cache["monthly_tokens"] = {
-            "ts": now,
-            "tokens": total,
-            "scanned_through": now,
-            "full_scan_ts": now,
-        }
-        return total
-
-    # Within TTL: return cached total
-    if now - entry.get("ts", 0) < MONTHLY_TOKENS_TTL:
+    if entry.get("files") is not None and now - entry.get("ts", 0) < MONTHLY_TOKENS_TTL:
         return entry.get("tokens", 0)
 
-    # Incremental: only files newer than the last scan high-water mark
-    scanned_through = entry.get("scanned_through", now)
-    delta = 0
+    cutoff_30d = now - THIRTY_DAYS
+    projects = Path.home() / ".claude" / "projects"
+    old_files = entry.get("files") or {}
+    files: dict[str, list] = {}
     try:
         for jsonl in projects.rglob("*.jsonl"):
-            mtime = jsonl.stat().st_mtime
-            if mtime > scanned_through and mtime >= cutoff_30d:
-                delta += sum_tokens_in_file(jsonl)
+            try:
+                st = jsonl.stat()
+            except OSError:
+                continue
+            if st.st_mtime < cutoff_30d:
+                continue
+            key = str(jsonl)
+            prev = old_files.get(key)
+            if prev and prev[0] == st.st_mtime and prev[1] == st.st_size:
+                files[key] = prev
+            else:
+                files[key] = [st.st_mtime, st.st_size, sum_tokens_in_file(jsonl)]
     except Exception:
         pass
 
-    new_total = entry.get("tokens", 0) + delta
-    cache["monthly_tokens"] = {
-        "ts": now,
-        "tokens": new_total,
-        "scanned_through": now,
-        "full_scan_ts": entry.get("full_scan_ts", 0),
-    }
-    return new_total
+    total = sum(v[2] for v in files.values())
+    cache["monthly_tokens"] = {"ts": now, "tokens": total, "files": files}
+    return total
 
 
 # --- Visualization ---

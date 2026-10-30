@@ -13,7 +13,12 @@ DIM=$'\033[2m'
 
 model=$(echo "$input" | jq -r '.model.display_name // empty')
 cwd=$(echo "$input" | jq -r '.workspace.current_dir // .cwd // empty')
-dir_display="${cwd/#$HOME/~}"
+# Not ${cwd/#$HOME/~}: bash 5 expands that ~ back to $HOME.
+case "$cwd" in
+  "$HOME") dir_display="~" ;;
+  "$HOME"/*) dir_display="~${cwd#"$HOME"}" ;;
+  *) dir_display="$cwd" ;;
+esac
 
 repo=$(echo "$input" | jq -r '.workspace.repo | if . then .owner + "/" + .name else empty end')
 
@@ -46,7 +51,7 @@ fi
 used_pct=$(echo "$input" | jq -r '.context_window.used_percentage // empty')
 ctx_info=""
 if [ -n "$used_pct" ]; then
-  ctx_info=$(printf "Ctx %.0f%%" "$used_pct")
+  ctx_info=$(LC_ALL=C printf "Ctx %.0f%%" "$used_pct" 2>/dev/null) || ctx_info=""
 fi
 
 parts=()
