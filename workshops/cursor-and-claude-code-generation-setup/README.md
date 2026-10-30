@@ -25,6 +25,7 @@ Download [personal-agent-kit-v2.zip](lab/personal-agent-kit-v2.zip), unzip it
 into `~/src`, then run:
 
 ```bash
+mkdir -p ~/src && unzip ~/Downloads/personal-agent-kit-v2.zip -d ~/src
 bash ~/src/personal-agent-kit/scripts/install.sh --dry-run   # preview only
 bash ~/src/personal-agent-kit/scripts/install.sh
 ```

@@ -34,7 +34,8 @@
 # Undo: bash ~/.agents/scripts/uninstall.sh
 set -euo pipefail
 
-KIT="$(cd "$(dirname "$0")/.." && pwd)"
+KIT="$(CDPATH='' cd -- "$(dirname "$0")/.." && pwd)"
+[[ -f "$KIT/scripts/kit_config.py" ]] || { echo "Run this from the kit: bash <kit>/scripts/install.sh (not through a symlink)" >&2; exit 1; }
 AGENTS="${AGENTS_HOME:-$HOME/.agents}"
 STATE="$AGENTS/.kit-installed"
 STAMP="$(date +%Y%m%d-%H%M%S)"
@@ -124,6 +125,8 @@ names_in() {  # names_in <subdir> <globs>
 steps() {
   echo "1. Kit files -> $AGENTS"
   local rel dest n=0
+  # The two example JSONs are read by scripts/kit_config.py, so the copy in
+  # ~/.agents/scripts/ can re-run the install on its own.
   while IFS= read -r rel; do
     dest="$AGENTS/$rel"
     if [[ ! -e "$dest" ]]; then
@@ -131,14 +134,14 @@ steps() {
       n=$((n + 1))
     else
       case "$rel" in
-        scripts/*|hooks/*|statusline/*)   # kit code: keep it current
+        scripts/*|hooks/*|statusline/*|*.example.json)   # kit code: keep it current
           if ! cmp -s "$KIT/$rel" "$dest"; then
             if (( DRY )); then say "would: update $dest (old copy backed up)"; else backup_file "$dest"; cp -p "$KIT/$rel" "$dest"; fi
             n=$((n + 1))
           fi ;;
       esac   # instructions/ and rules/ are yours once copied: never overwritten
     fi
-  done < <(cd "$KIT" && find instructions rules hooks scripts statusline -type f ! -name '.DS_Store' ! -name '*.pyc' 2>/dev/null | sort)
+  done < <(cd "$KIT" && find instructions rules hooks scripts statusline hooks.example.json claude-settings.example.json -type f ! -name '.DS_Store' ! -name '*.pyc' 2>/dev/null | sort)
   if [[ ! -f "$AGENTS/instructions/shared.md" ]]; then
     if (( DRY )); then say "would create instructions/shared.md from the template"; else cp "$KIT/instructions/shared.template.md" "$AGENTS/instructions/shared.md"; say "created $AGENTS/instructions/shared.md (fill in the <placeholders>)"; fi
     n=$((n + 1))

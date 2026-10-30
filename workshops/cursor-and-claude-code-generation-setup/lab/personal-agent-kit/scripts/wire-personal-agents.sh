@@ -258,7 +258,13 @@ extract_canonical() {
     $0 == mark { grab=1; next }
     grab && stop == 1 && $0 == end { exit }
     grab { print }
-  ' "$file" | awk 'NR == 1 && $0 == "" { next } { print }' | sed -e :a -e '/^$/{$d;N;ba' -e '}'
+  ' "$file" | awk 'NR == 1 && $0 == "" { next } { print }' | trim_trailing_blanks
+}
+
+# Final newline added, trailing blank lines dropped (what $(...) does to the
+# embed). The old /^$/ form left two or more trailing blank lines in place.
+trim_trailing_blanks() {
+  awk '{ print }' | sed -e :a -e '/^\n*$/{$d;N;ba' -e '}'
 }
 
 # Cursor and Gemini store a copy of shared.md. --check must
@@ -270,7 +276,7 @@ check_embed() {
   if ! check_contains "$file" "$CANONICAL_MARK" "$label"; then
     return
   fi
-  if ! cmp -s "$SHARED" <(extract_canonical "$file" "$stop_at_end"); then
+  if ! cmp -s <(trim_trailing_blanks <"$SHARED") <(extract_canonical "$file" "$stop_at_end"); then
     echo "Wrapper embed stale ($label): $file — re-run wire-personal-agents.sh after editing shared.md" >&2
     errors=$((errors + 1))
     return

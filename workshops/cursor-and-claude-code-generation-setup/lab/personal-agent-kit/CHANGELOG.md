@@ -32,4 +32,8 @@
 - The installer prints a note when only one of `KIT_SKILLS_FROM` and
   `KIT_SKILLS_ENTRY` is set, instead of skipping `team-skills` silently.
 - `sync-personal-rules.sh --check` no longer creates `~/.claude/rules/`.
+- Fixed: `wire-personal-agents.sh --check` reported "Wrapper embed stale"
+  forever when `shared.md` had no final newline or ended in blank lines.
+- Fixed: re-running `~/.agents/scripts/install.sh` crashed while merging
+  hooks, because the example JSON files were never copied to `~/.agents`.
 - Supported tools: Cursor, Claude Code and Gemini CLI only.

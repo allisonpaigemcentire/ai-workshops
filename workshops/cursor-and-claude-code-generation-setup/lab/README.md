@@ -11,6 +11,7 @@ generation*.
 Unzip into `~/src`, then run one command:
 
 ```bash
+mkdir -p ~/src && unzip ~/Downloads/personal-agent-kit-v2.zip -d ~/src
 bash ~/src/personal-agent-kit/scripts/install.sh
 ```
 
