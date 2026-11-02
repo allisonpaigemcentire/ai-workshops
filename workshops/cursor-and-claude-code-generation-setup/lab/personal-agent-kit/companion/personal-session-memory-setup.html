@@ -1436,6 +1436,144 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
 
 
   <!-- 14 -->
+  <section class="slide" data-title="Model tiers">
+    <p class="eyebrow">Slide 14 · Borrowed practice</p>
+    <h2>Match the model to the work</h2>
+    <p class="lead">Pin tiers, not versions. Pick the cheapest tier that clears the bar, and escalate per task, not for the whole session.</p>
+    <table>
+      <thead><tr><th>Tier</th><th>Send it</th><th>Claude Code</th><th>Cursor</th><th>Gemini CLI</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Deep</strong></td><td>Architecture, plans, review, correctness-critical reasoning</td><td><code>opus</code></td><td>Your strongest model</td><td><code>pro</code></td></tr>
+        <tr><td><strong>Workhorse</strong></td><td>Scoped code and doc writing, reading and summarizing</td><td><code>sonnet</code></td><td>A mid-tier model, or Composer</td><td><code>flash</code></td></tr>
+        <tr><td><strong>Fast</strong></td><td>"Where is X?", breadth search, mechanical scans</td><td><code>haiku</code></td><td>Composer, or the Explore subagent</td><td><code>flash-lite</code></td></tr>
+      </tbody>
+    </table>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag info">Keep context lean</div>
+        <p>Every turn resends the whole chat, so early file reads cost you until the session ends. Let the main chat plan, send long reads to a subagent that returns a short digest, and start a new chat or <code>/clear</code> at phase boundaries.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">UNVERIFIED</div>
+        <p>The tier mapping is judgment from a community kit, not vendor guidance. Model names change; check your tool's model list. Details: <code>docs/borrowed-practices.md</code></p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 15 -->
+  <section class="slide" data-title="Read-only helpers">
+    <p class="eyebrow">Slide 15 · Borrowed practice</p>
+    <h2>Read-only helpers that cite file and line</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">examples/agents/code-reader.md</div>
+        <h3>code-reader</h3>
+        <p>Explains one file, module or PR diff: summary, structure, entry points and key functions, each with <code>path:line</code>. Describes, never judges.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">examples/agents/doc-reader.md</div>
+        <h3>doc-reader</h3>
+        <p>Answers one question from a long doc, spec or web page: a direct answer, cited detail, and what the doc does not cover.</p>
+      </div>
+    </div>
+    <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Optional: the installer does not copy them.</p>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>mkdir -p ~/.claude/agents
+cp -n ~/src/personal-agent-kit/examples/agents/*.md ~/.claude/agents/</pre>
+    </div>
+    <table>
+      <thead><tr><th>Tool</th><th>Use it</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code</td><td>Check with <code>/agents</code>, then: "Use the code-reader subagent on <code>src/cart/checkout.ts</code>"</td></tr>
+        <tr><td>Cursor</td><td>Reads <code>~/.claude/agents/</code> too. Call <code>/code-reader</code>, or copy to <code>~/.cursor/agents/</code> to set a Cursor model</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+
+
+
+
+
+
+  <!-- 16 -->
+  <section class="slide" data-title="Permission lessons">
+    <p class="eyebrow">Slide 16 · Borrowed practice</p>
+    <h2>Guardrails only count if you test them</h2>
+    <p class="lead">Text rules advise. Allow lists, deny lists and hooks enforce, so check that they match what you think.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag warn">Keep off the allow-list</div>
+        <h3><code>git push</code> and <code>gh pr create</code></h3>
+        <p>"Stop before push" in a prompt is not a guardrail when settings allow the push. Any agent that can run shell commands could push without asking.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Prefix rules leak</div>
+        <h3><code>git -C &lt;path&gt;</code></h3>
+        <p><code>Bash(git diff *)</code> does not match <code>git -C ../repo diff</code>. Add <code>git -C *</code> patterns for reads you allow. A prefix deny rule may miss it too (UNVERIFIED: test yours).</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Known-bad input</div>
+        <h3>Test every guard</h3>
+        <p>After adding a rule or hook, try one thing it should stop. Example: ask the agent to run <code>git -C . push --dry-run</code> and confirm you get a prompt or a refusal.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Whole value</div>
+        <h3>Match anywhere</h3>
+        <p>A guard for names starting with <code>release/</code> never fires on <code>user/release/x</code>. Match "contains <code>release</code>" instead.</p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 17 -->
+  <section class="slide" data-title="Self-audit prompt">
+    <p class="eyebrow">Slide 17 · Borrowed practice</p>
+    <h2>Ask the agent to audit your setup</h2>
+    <p>Paste into Claude Code, Cursor or Gemini CLI from the kit folder. It reads, ranks and waits for you to pick.</p>
+    <div class="cmd-block tall" data-copy>
+      <div class="bar"><span>prompt</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>Review my personal agent setup and the way I work, read-only, and find ways
+to optimize it. Use a subagent for the reading if you can, to keep this chat
+small. Never print a token or other secret value.
+
+Look at: ~/.agents/instructions/shared.md, ~/.agents/rules/,
+~/.claude/CLAUDE.md, ~/.claude/settings.json, ~/.claude/agents/,
+~/.cursor/rules/, ~/.cursor/agents/, ~/.gemini/GEMINI.md and
+~/.gemini/settings.json. Ask me which repos to include; do not scan my disk.
+
+Compare them with docs/borrowed-practices.md in this kit: model tiers,
+lean context, read-only helpers that cite file and line, and the permission
+lessons. For each idea, say whether it is in place, partly in place, missing
+or not a fit, and cite the file and line.
+
+Give me a ranked shortlist of at most 7 changes, highest impact first. For
+each: what to change, why it helps me, and which file. Change nothing until
+I pick. Show a diff before editing any file. Never commit or push.</pre>
+    </div>
+    <p class="hint">Adapted from a community kit of local agent optimizations. Re-run it after you change your setup.</p>
+  </section>
+
+
+
+
+
+
+
+
+  <!-- 18 -->
   <section class="slide title-slide" data-title="Done">
     <p class="eyebrow">Done</p>
     <h1>You are set up when both tools read the same <code>MEMORY.md</code></h1>

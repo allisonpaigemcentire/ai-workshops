@@ -118,5 +118,9 @@ under `mcpServers` in `~/.gemini/settings.json`.
 - [docs/reference.md](docs/reference.md): what each file does, precedence
   and secrets rules
 - [docs/enable-lsp.md](docs/enable-lsp.md): turn on code intelligence
+- [docs/borrowed-practices.md](docs/borrowed-practices.md): model tiers,
+  read-only helpers that cite file and line, a self-audit prompt and
+  permission lessons
+- [examples/](examples/): optional read-only subagents (not installed)
 - [companion/](companion/): rules bridge notes, session memory walkthrough
   and the cheat sheets

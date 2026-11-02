@@ -141,7 +141,7 @@ footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex;
       <li><strong>Hooks fail open:</strong> a broken hook never blocks work. The memory stop nudge is capped at two tries.</li>
       <li><strong>No tokens in config files.</strong> Use OAuth, <code>${env:VAR}</code>, or <code>scripts/mcp-env-from-keychain.sh</code>.</li>
     </ul>
-    <p class="note">Text rules only advise. Hooks and permission deny lists enforce. Do not allow-list <code>git push</code> or <code>gh pr create</code> in tool permissions.</p>
+    <p class="note">Text rules only advise. Hooks and permission deny lists enforce. Do not allow-list <code>git push</code> or <code>gh pr create</code> in tool permissions. <code>git -C &lt;path&gt;</code> slips past prefix rules, so test every guard with a known-bad input. Model tiers and more: <code>docs/borrowed-practices.md</code>.</p>
   </section>
 </div>
 

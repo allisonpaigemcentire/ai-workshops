@@ -36,4 +36,9 @@
   forever when `shared.md` had no final newline or ended in blank lines.
 - Fixed: re-running `~/.agents/scripts/install.sh` crashed while merging
   hooks, because the example JSON files were never copied to `~/.agents`.
+- New `docs/borrowed-practices.md`, adapted from a community kit: a model
+  tier table for Cursor, Claude Code and Gemini, read-only helpers, a
+  self-audit prompt and permission lessons. Optional example subagents in
+  `examples/agents/` (`code-reader`, `doc-reader`); the installer does not
+  copy them.
 - Supported tools: Cursor, Claude Code and Gemini CLI only.
