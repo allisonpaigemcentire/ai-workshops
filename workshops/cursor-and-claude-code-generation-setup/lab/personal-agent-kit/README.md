@@ -68,11 +68,12 @@ bash ~/.agents/scripts/install.sh --print-user-rule
 ```
 
 Fallback: the installer still writes `~/.cursor/rules/personal-instructions.mdc`
-and links the kit's rules into `~/.cursor/rules/`. Cursor finds that folder
-by walking up from the folder you open, so it loads only for projects inside
-your home folder (for example `~/src/...`). If you use the User Rule and the
-fallback file, a project under your home folder gets the text twice; that
-costs context but does not conflict.
+and links the kit's rules into `~/.cursor/rules/`. Cursor's docs describe
+project rules, not a user-level `~/.cursor/rules/`, so treat this folder as a
+best-effort fallback: expect it to load at most for projects inside your home
+folder (for example `~/src/...`), and use the User Rule everywhere else. If
+the User Rule and the fallback file both load, a project gets the text twice;
+that costs context but does not conflict.
 
 Optional: copy `~/.agents/rules/repo-shorthand.template.mdc` to
 `~/.agents/rules/repo-shorthand.mdc`, fill it in, and run the install command

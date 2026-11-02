@@ -630,7 +630,9 @@ Agents **append** rows; they do not silently edit shared repos.
     <p class="lead">Canonical body in <code>~/.agents/skills/</code> (Gemini CLI reads it there). Cursor and Claude get links: re-run <code>install.sh</code>, or link by hand.</p>
     <div class="cmd-block grow" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>mkdir -p ~/.agents/skills/session-memory
+      <pre># Real ~/.cursor/skills/session-memory/ from before? Move it first (else ln nests):
+# mkdir -p ~/.agents/skills &amp;&amp; mv ~/.cursor/skills/session-memory ~/.agents/skills/
+mkdir -p ~/.agents/skills/session-memory
 # Place SKILL.md at: ~/.agents/skills/session-memory/SKILL.md
 # (full body on the next slide, or copy from a teammate’s template)
 
@@ -1339,7 +1341,7 @@ SAFE_ID = re.compile(r"^[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}$")
 FOLLOWUP = (
     "A correction was marked earlier in this chat and session memory was not "
     "updated yet. Run the session-memory skill now: read "
-    "~/.agents/skills/session-memory/SKILL.md, capture durable lessons into "
+    "~/.cursor/skills/session-memory/SKILL.md, capture durable lessons into "
     "~/.ai-memory/, refresh MEMORY.md, and clear the needs-wrapup marker for "
     "this conversation. Do not invent lessons. Only store what the user "
     "corrected or confirmed."

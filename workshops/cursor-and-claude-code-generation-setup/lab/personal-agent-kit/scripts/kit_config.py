@@ -33,6 +33,7 @@ import argparse
 import copy
 import json
 import os
+import shlex
 import shutil
 import sys
 import tempfile
@@ -174,11 +175,19 @@ def save_json(path: str, data: dict) -> None:
 
 def norm_command(cmd) -> str:
     """Compare hook commands loosely: an older kit wrote the script path
-    without the leading 'bash ', and users may spell ~ as $HOME."""
+    without the leading 'bash ', and users may spell ~ as $HOME, quote the
+    path ("$HOME/..."), or name bash by its full path or through env."""
     if not isinstance(cmd, str):
         return ""
-    parts = cmd.strip().split()
-    if parts and parts[0] in ("bash", "sh", "/bin/bash", "/bin/sh"):
+    if '"~' in cmd or "'~" in cmd:
+        return cmd.strip()   # a quoted ~ is never expanded: not the kit's hook
+    try:
+        parts = shlex.split(cmd)
+    except ValueError:
+        parts = cmd.split()
+    if parts and os.path.basename(parts[0]) == "env":
+        parts = parts[1:]
+    if parts and os.path.basename(parts[0]) in ("bash", "sh"):
         parts = parts[1:]
     home = os.path.expanduser("~")
     out = []
