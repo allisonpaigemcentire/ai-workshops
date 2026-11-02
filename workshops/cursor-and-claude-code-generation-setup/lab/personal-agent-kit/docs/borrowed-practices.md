@@ -52,34 +52,41 @@ for its early file reads until it ends.
 
 ## 2. Read-only helpers that cite file and line
 
-Two optional subagents ship in [`../examples/agents/`](../examples/agents/):
+Three optional subagents ship in [`../examples/agents/`](../examples/agents/):
 
 | File | Use it to | Returns |
 |------|-----------|---------|
 | `code-reader.md` | Understand one file, module or PR diff | Summary, structure, entry points and key functions, each with `file:line` |
 | `doc-reader.md` | Answer one question from a long doc, spec or web page | A one-line answer, cited detail, and what the doc does not cover |
+| `context-checker.md` | Check a change against the repo's `AGENTS.md`, `CLAUDE.md` and skills before a PR | The rules the change touches, likely violations and stale context, each with `file:line` |
 
 Why they help: the reading happens once, in a throwaway context, and only
 the digest comes back. The citations let you spot-check a claim without
-re-reading the source. Both are read-only: they can read and search but
+re-reading the source. All three are read-only: they can read and search but
 cannot edit files.
 
-They are off by default. To install them, add `--with-helpers`:
+They are off by default. To install them with the rest of the kit, add
+`--with-helpers`:
 
 ```bash
 bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers
 ```
+
+To install only the three, for Cursor and Claude Code, run
+`bash ~/src/personal-agent-kit/agents/install-sample-agents.sh` (it runs
+`install.sh --helpers-only --tools=claude,cursor`; add `--check` to report
+drift without changing anything).
 
 The installer copies them into `~/.agents/examples/agents/`, then, for each
 tool in `--tools` (default: all three):
 
 | Tool | Where | Format |
 |------|-------|--------|
-| Claude Code | `~/.claude/agents/` (links) | `examples/agents/*.md`: `tools: Read, Grep, Glob` (plus `WebFetch, WebSearch` for doc-reader), `model: sonnet` |
+| Claude Code | `~/.claude/agents/` (links) | `examples/agents/*.md`: `tools: Read, Grep, Glob` (plus `WebFetch, WebSearch` for doc-reader), `model: sonnet` (`inherit` for context-checker) |
 | Cursor | `~/.cursor/agents/` (copies) | `examples/agents/cursor/*.md`: `model: inherit`, `readonly: true` |
-| Gemini CLI | `~/.gemini/agents/` (copies) | `examples/agents/gemini/*.md`: `kind: local`, `model: inherit`, `tools:` limited to `read_file`, `read_many_files`, `list_directory`, `glob`, `grep_search` (plus `web_fetch`, `google_web_search` for doc-reader) |
+| Gemini CLI | `~/.gemini/agents/` (copies) | `examples/agents/gemini/*.md`, `code-reader` and `doc-reader` only: `kind: local`, `model: inherit`, `tools:` limited to `read_file`, `read_many_files`, `list_directory`, `glob`, `grep_search` (plus `web_fetch`, `google_web_search` for doc-reader) |
 
-If you already have a file or link with either name there, it is backed up
+If you already have a file or link with one of those names there, it is backed up
 to `~/.agent-kit-backups/<time>/` first and then replaced. `uninstall.sh`
 removes only what it added and puts your file back; a kit copy you edited
 since is left in place. Later runs keep the kit's copies current and leave
@@ -124,14 +131,10 @@ Two caveats before you lean on them in Cursor:
 Both quotes are from the [Cursor subagent docs](https://cursor.com/docs/subagents),
 read on 2026-11-02.
 
-In the workshop deck, these helpers sit with the subagent slides, after
-the sample `context-checker` subagent in [`../agents/`](../agents/), and
-you install both once the kit is in place. `context-checker` works
-differently: one file in `~/.agents/agents/`, linked into
-`~/.cursor/agents/` and `~/.claude/agents/` by
-`agents/install-context-checker.sh`. If Cursor does not load the link,
-keep one real file in `~/.claude/agents/`, which Cursor also reads. It is
-not set up for Gemini CLI, which uses different tool names.
+In the workshop deck, all three are the "Try it" slide in Part 1, installed
+with `agents/install-sample-agents.sh`. `context-checker` has no Gemini CLI
+copy: Gemini uses different tool names, and the workshop sample covers
+Cursor and Claude Code only.
 
 To copy them by hand instead (for example into one repo's
 `.claude/agents/`), use `cp -n`, which never overwrites a file you already

@@ -84,12 +84,18 @@
   summary.
 - `docs/borrowed-practices.md`: Cursor caveats on legacy request-based plans
   and on the extra tokens parallel subagents use; Gemini CLI helper notes.
-- New `agents/`: a sample read-only subagent, `context-checker`, that checks
-  a change against the repo's `AGENTS.md`, `CLAUDE.md` and skills before a
-  PR, and `install-context-checker.sh`, which puts it in `~/.agents/agents/`
-  and links it into `~/.cursor/agents/` and `~/.claude/agents/`. It keeps an
-  existing copy, skips any real file or other link in the way, and is safe
-  to re-run. `install.sh` does not install it.
+- New sample read-only subagent, `context-checker`, that checks a change
+  against the repo's `AGENTS.md`, `CLAUDE.md` and skills before a PR. It is
+  the third helper in `examples/agents/` (Claude Code and Cursor formats; no
+  Gemini CLI copy), so `--with-helpers` installs it with `code-reader` and
+  `doc-reader`, and `uninstall.sh` removes it.
+- New `install.sh --helpers-only`: installs just the helpers (plus the kit
+  scripts uninstall needs), and `--check-helpers`, which reports drift and
+  changes nothing. New `agents/install-sample-agents.sh` runs
+  `--helpers-only` for Cursor and Claude Code in one command; its `--check`
+  runs `--check-helpers`. It replaces `agents/install-context-checker.sh`
+  and `agents/context-checker.md`, so there is one installer and one record
+  for uninstall.
 - Review fixes: a helper copy you edited is no longer replaced when you
   re-run with `--with-helpers`; uninstall still puts back your original file
   after you deleted a helper copy and re-ran; the fill-in warning skips

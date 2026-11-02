@@ -11,7 +11,7 @@ This rule is **local to this machine** (`~/.agents/rules/`, linked into
 stop hooks in `~/.cursor/hooks/` and `~/.claude/hooks/`; drop this rule if you do not use them.
 
 Create the store once: `mkdir -p ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks`,
-then add `MEMORY.md` and `STAGED.md` (starter text: `companion/personal-session-memory-setup.html`, step 1).
+then add `MEMORY.md` and `STAGED.md` (starter text: `companion/personal-session-memory-setup.html`, slide 9).
 Never share or commit `~/.ai-memory/`.
 
 ## Canonical store

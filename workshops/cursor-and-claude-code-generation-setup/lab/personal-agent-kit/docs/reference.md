@@ -81,9 +81,9 @@ to build, test, branch, or lint a given repo; the repo owns that.
 | `scripts/uninstall.sh` | Undoes what the installer recorded |
 | `docs/enable-lsp.md` | Turn on LSP code intelligence in Claude Code and Cursor (Python, TS/JS, Swift, Kotlin) |
 | `docs/borrowed-practices.md` | Model tiers per tool, lean context, read-only helpers and a self-audit prompt |
-| `examples/agents/*.md` | Optional read-only `code-reader` and `doc-reader` subagents that cite file and line (Claude Code format); linked into `~/.claude/agents/` only with `install.sh --with-helpers` |
-| `examples/agents/cursor/*.md`, `examples/agents/gemini/*.md` | The same two subagents in Cursor and Gemini CLI format; copied into `~/.cursor/agents/` and `~/.gemini/agents/` only with `--with-helpers` |
-| `agents/context-checker.md`, `agents/install-context-checker.sh` | Optional sample read-only subagent for Cursor and Claude Code that checks a change against the repo's `AGENTS.md`, `CLAUDE.md` and skills. Its own script (not `install.sh`) puts it in `~/.agents/agents/` and links it into `~/.cursor/agents/` and `~/.claude/agents/` |
+| `examples/agents/*.md` | Optional read-only subagents (Claude Code format): `code-reader` and `doc-reader`, which cite file and line, and `context-checker`, which checks a change against the repo's `AGENTS.md`, `CLAUDE.md` and skills; linked into `~/.claude/agents/` only with `install.sh --with-helpers` or `--helpers-only` |
+| `examples/agents/cursor/*.md`, `examples/agents/gemini/*.md` | The same subagents in Cursor format (all three) and Gemini CLI format (`code-reader` and `doc-reader` only); copied into `~/.cursor/agents/` and `~/.gemini/agents/` only with those flags |
+| `agents/install-sample-agents.sh` | Installs only the three subagents for Cursor and Claude Code (runs `install.sh --helpers-only --tools=claude,cursor`); `--check` reports drift and changes nothing; undo with `uninstall.sh` |
 
 Not included on purpose: personal skills, PR-authoring rules with reviewer
 lists, and anything team-wide. Team skills come from the team skills MCP

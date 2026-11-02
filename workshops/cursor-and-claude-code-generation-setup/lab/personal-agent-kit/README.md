@@ -44,8 +44,9 @@ bash ~/src/personal-agent-kit/scripts/install.sh --dry-run
 
 Other options: `--yes` (no prompt), `--tools=cursor,claude` (only some
 tools), `--no-mcp` (skip the optional `team-skills` MCP server), `--with-helpers` (also install the
-optional read-only `code-reader` and `doc-reader` subagents for each selected
-tool; off by default), `--no-clipboard` (see below).
+optional read-only `code-reader`, `doc-reader` and `context-checker`
+subagents for each selected tool; off by default; Gemini CLI gets the first
+two only), `--helpers-only` (just those subagents, nothing else), `--no-clipboard` (see below).
 
 Then fill in the `<placeholders>` in `~/.agents/instructions/shared.md` and
 run the same install command again. Start a new chat in each tool.
@@ -94,9 +95,9 @@ again to link it.
 | Claude Code user MCP list | Same as `~/.cursor/mcp.json`, with `claude mcp add` / `claude mcp remove`, if `claude` is installed. |
 | `~/.gemini/GEMINI.md` | Adds one marked section with a copy of `shared.md`. Your lines and Gemini's saved memories stay. |
 | `~/.gemini/settings.json` | Same as `~/.cursor/mcp.json`. |
-| `~/.claude/agents/` | Only with `--with-helpers` and Claude Code selected: links `code-reader.md` and `doc-reader.md`. |
-| `~/.cursor/agents/` | Only with `--with-helpers` and Cursor selected: copies of both in Cursor's format (`model: inherit`, `readonly: true`). |
-| `~/.gemini/agents/` | Only with `--with-helpers` and Gemini selected: copies of both in Gemini CLI's format, limited to read-only tools. |
+| `~/.claude/agents/` | Only with `--with-helpers` (or `agents/install-sample-agents.sh`) and Claude Code selected: links `code-reader.md`, `doc-reader.md` and `context-checker.md`. |
+| `~/.cursor/agents/` | Only with `--with-helpers` (or `agents/install-sample-agents.sh`) and Cursor selected: copies of all three in Cursor's format (`model: inherit`, `readonly: true`). |
+| `~/.gemini/agents/` | Only with `--with-helpers` and Gemini selected: copies of `code-reader` and `doc-reader` in Gemini CLI's format, limited to read-only tools. `context-checker` has no Gemini copy. |
 
 How it stays safe:
 
@@ -127,8 +128,9 @@ Gemini keeps every MCP server off. Gemini CLI also reads personal skills from
 
 Session memory: the installer links the `session-memory` rule and stop hook,
 but not the `~/.ai-memory/` store or the `session-memory` skill. To use it,
-follow steps 1 and 2 of `companion/personal-session-memory-setup.html`; skip
-its later steps, which the installer already did.
+follow slides 9 and 10 of `companion/personal-session-memory-setup.html`
+(the store, its two seed files and `SKILL.md`); skip the rest, which the
+installer already did.
 
 ## Jira and Confluence: acli, not MCP
 
@@ -168,8 +170,8 @@ bash ~/.agents/scripts/uninstall.sh
 ```
 
 This removes only what the installer recorded: its links, its marked
-sections, its wrapper and its config entries. If `--with-helpers` replaced a
-file of yours in `~/.claude/agents/`, `~/.cursor/agents/` or
+sections, its wrapper and its config entries. If `--with-helpers` or
+`install-sample-agents.sh` replaced a file of yours in `~/.claude/agents/`, `~/.cursor/agents/` or
 `~/.gemini/agents/`, uninstall puts it back; a helper copy you edited is left
 in place, and so is an `atlassian` MCP server from an earlier kit that you
 changed. It cannot see Cursor's User Rules, so delete the pasted rule there
@@ -193,12 +195,13 @@ The examples are in `hooks.example.json` (Cursor hooks),
 - [docs/enable-lsp.md](docs/enable-lsp.md): turn on code intelligence
 - [docs/borrowed-practices.md](docs/borrowed-practices.md): model tiers,
   read-only helpers that cite file and line, and a self-audit prompt
-- [examples/](examples/): optional read-only subagents (installed only
-  with `--with-helpers`)
-- [agents/](agents/): an optional sample subagent, `context-checker`, for
-  Cursor and Claude Code. Install it with
-  `bash ~/src/personal-agent-kit/agents/install-context-checker.sh`, which
-  writes `~/.agents/agents/context-checker.md` and links it into
-  `~/.cursor/agents/` and `~/.claude/agents/`
+- [examples/](examples/): optional read-only subagents, `code-reader`,
+  `doc-reader` and `context-checker` (installed only with `--with-helpers`
+  or the script below)
+- [agents/install-sample-agents.sh](agents/install-sample-agents.sh): one
+  command that installs just those three for Cursor and Claude Code
+  (`bash ~/src/personal-agent-kit/agents/install-sample-agents.sh`; add
+  `--check` to report drift). It runs `install.sh --helpers-only`, so
+  `uninstall.sh` undoes it
 - [companion/](companion/): rules bridge notes, session memory walkthrough
   and the cheat sheets

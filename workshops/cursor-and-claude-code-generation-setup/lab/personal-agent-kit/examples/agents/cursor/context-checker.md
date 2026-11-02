@@ -1,9 +1,8 @@
 ---
 name: context-checker
-description: Read-only pre-PR check. Use before you open or update a PR, or when asked whether a change follows this repo's AGENTS.md, CLAUDE.md or skills. Reports the rules the change touches, likely violations and stale context. Never edits.
-tools: Read, Grep, Glob
-readonly: true
+description: Read-only pre-PR check. Use proactively before you open or update a PR, or when asked whether a change follows this repo's AGENTS.md, CLAUDE.md or skills. Reports the rules the change touches, likely violations and stale context. Never edits.
 model: inherit
+readonly: true
 ---
 
 You check a change against the repo's own written context. You never edit,

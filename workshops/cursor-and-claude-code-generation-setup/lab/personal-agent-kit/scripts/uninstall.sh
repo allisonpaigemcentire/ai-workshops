@@ -7,8 +7,10 @@
 #
 # Removes only what the installer recorded in ~/.agents/.kit-installed:
 #   - the links it made (only if they still point where it pointed them)
-#   - the optional helpers (--with-helpers): the links in ~/.claude/agents/
-#     and the copies in ~/.cursor/agents/ and ~/.gemini/agents/. A copy you
+#   - the optional helpers (--with-helpers, or agents/install-sample-agents.sh:
+#     code-reader, doc-reader and context-checker): the links in
+#     ~/.claude/agents/ and the copies in ~/.cursor/agents/ and
+#     ~/.gemini/agents/. A copy you
 #     changed since is left in place. A file of yours that a helper replaced
 #     is put back from its backup.
 #   - the managed region in ~/.claude/CLAUDE.md and ~/.gemini/GEMINI.md

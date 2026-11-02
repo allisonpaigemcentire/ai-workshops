@@ -11,8 +11,15 @@
 #   --no-mcp                       do not add MCP servers (the kit adds none
 #                                  unless you set up team-skills below)
 #   --with-helpers                 also install the optional read-only subagents
-#                                  code-reader and doc-reader for each tool in
-#                                  --tools (see step 5)
+#                                  code-reader, doc-reader and context-checker
+#                                  for each tool in --tools (see step 5)
+#   --helpers-only                 install only those subagents (step 5) plus
+#                                  the kit scripts uninstall needs; skips steps
+#                                  2 to 4 (agents/install-sample-agents.sh runs
+#                                  this for Cursor and Claude Code)
+#   --check-helpers                report drift in those subagents for each
+#                                  tool in --tools; changes nothing; exit 1 if
+#                                  one is missing or older than the kit's
 #   --print-user-rule              print the text to paste into Cursor's User
 #                                  Rules, then exit (use it after editing
 #                                  shared.md)
@@ -38,11 +45,14 @@
 #      installed) Claude Code's user MCP list. Adds only what is missing;
 #      never replaces your values. It also removes the Atlassian MCP server an
 #      earlier kit version added, if that server is still the kit's own value.
-#   5. Only with --with-helpers, for each tool in --tools:
-#      Claude Code: links code-reader.md and doc-reader.md into ~/.claude/agents/
+#   5. Only with --with-helpers or --helpers-only, for each tool in --tools:
+#      Claude Code: links code-reader.md, doc-reader.md and context-checker.md
+#                   into ~/.claude/agents/
 #      Cursor:      copies examples/agents/cursor/*.md into ~/.cursor/agents/
 #      Gemini CLI:  copies examples/agents/gemini/*.md into ~/.gemini/agents/
-#                   (copies, not links: Gemini skips linked agent files)
+#                   (copies, not links: Gemini skips linked agent files).
+#                   context-checker has no Gemini copy, so Gemini gets
+#                   code-reader and doc-reader only.
 #      A file or link of yours with the same name is backed up, then replaced;
 #      uninstall puts it back. Later runs keep the kit's copies current
 #      and leave alone a Cursor or Gemini copy you changed. The Claude links
@@ -74,7 +84,9 @@ PREVIEW_ONLY=0
 YES=0
 MCP=1
 HELPERS=0
-HELPER_NAMES="code-reader.md doc-reader.md"
+HELPERS_ONLY=0
+CHECK_HELPERS=0
+HELPER_NAMES="code-reader.md doc-reader.md context-checker.md"
 PRINT_RULE=0
 CLIP=1
 TOOLS="claude,cursor,gemini"
@@ -85,6 +97,8 @@ for arg in "$@"; do
     --no-mcp) MCP=0 ;;
     --tools=*) TOOLS="${arg#--tools=}" ;;
     --with-helpers) HELPERS=1 ;;
+    --helpers-only) HELPERS=1; HELPERS_ONLY=1 ;;
+    --check-helpers) CHECK_HELPERS=1 ;;
     --print-user-rule) PRINT_RULE=1 ;;
     --no-clipboard) CLIP=0 ;;
     -h|--help) sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
@@ -135,7 +149,44 @@ if (( PRINT_RULE )); then
   exit 0
 fi
 
+# --check-helpers: read only. For each helper and tool, "ok" when the kit's
+# copy is in place, DRIFT when it is missing or older than this kit's copy,
+# and a note (not drift) when a file of yours is there instead.
+check_helpers() {
+  local h dest t drift=0 src
+  for h in $HELPER_NAMES; do
+    if want claude; then
+      dest="$HOME/.claude/agents/$h" src="$AGENTS/examples/agents/$h"
+      if [[ -L "$dest" && "$(readlink "$dest")" == "$src" ]]; then
+        if [[ -f "$src" ]] && cmp -s "$KIT/examples/agents/$h" "$src"; then echo "ok      $dest"
+        else echo "DRIFT   $dest: its target is missing or older than the kit's (re-run the install)"; drift=1; fi
+      elif [[ -e "$dest" || -L "$dest" ]]; then echo "yours   $dest (not the kit's link; left alone)"
+      else echo "DRIFT   $dest: missing"; drift=1; fi
+    fi
+    for t in cursor gemini; do
+      want "$t" || continue
+      src="$KIT/examples/agents/$t/$h"
+      [[ -f "$src" ]] || continue   # no copy for this tool (context-checker on Gemini)
+      dest="$HOME/.$t/agents/$h"
+      if [[ -f "$dest" && ! -L "$dest" ]] && cmp -s "$src" "$dest"; then echo "ok      $dest"
+      elif [[ ! -e "$dest" && ! -L "$dest" ]]; then echo "DRIFT   $dest: missing"; drift=1
+      elif [[ -f "$STATE" ]] && [[ -f "$dest" && ! -L "$dest" ]] && awk -F'\t' -v d="$dest" -v s="$(cksum <"$dest" | awk '{ print $1 "-" $2 }')" \
+             '$1 == "helper-copy" && $2 == d { last = $5 } END { exit !(last == s) }' "$STATE"; then
+        echo "DRIFT   $dest: the kit's older copy (re-run the install)"; drift=1
+      else echo "yours   $dest (changed by you or not the kit's; left alone)"; fi
+    done
+  done
+  if (( drift )); then echo "Drift found. Fix: re-run the install (agents/install-sample-agents.sh or install.sh --with-helpers)."; return 1; fi
+  echo "No drift."
+}
+if (( CHECK_HELPERS )); then
+  check_helpers
+  exit $?
+fi
+
 # ---------- prerequisites ----------
+# --helpers-only touches no config file, so it needs neither python3 nor acli.
+if (( ! HELPERS_ONLY )); then
 if ! command -v python3 >/dev/null 2>&1 || ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 8))' 2>/dev/null; then
   echo "python3 (3.8 or newer) is required. On macOS run: xcode-select --install" >&2
   exit 1
@@ -183,6 +234,7 @@ if (( ! HAVE_ACLI )); then
     echo "note: acli (Atlassian CLI) not found. Agents use it for Jira; install it any time:"
   fi
   acli_install_hint
+fi
 fi
 
 DRY=1
@@ -242,9 +294,12 @@ steps() {
   # ~/.agents/scripts/ can re-run the install on its own. The optional helpers
   # (examples/agents) are copied with --with-helpers, and kept current on
   # later runs once they are in ~/.agents.
-  local extra=""
+  local extra="" parts="instructions rules hooks scripts statusline"
   if (( HELPERS )) || [[ -d "$AGENTS/examples/agents" ]]; then extra="examples/agents"; fi
-  # shellcheck disable=SC2086  # $extra is empty or one path on purpose
+  # --helpers-only: just the helpers, plus the scripts and the two example
+  # JSONs, so ~/.agents/scripts/uninstall.sh can undo it.
+  (( HELPERS_ONLY )) && parts="scripts"
+  # shellcheck disable=SC2086  # $parts and $extra are lists of paths on purpose
   while IFS= read -r rel; do
     dest="$AGENTS/$rel"
     if [[ ! -e "$dest" ]]; then
@@ -259,15 +314,24 @@ steps() {
           fi ;;
       esac   # instructions/ and rules/ are yours once copied: never overwritten
     fi
-  done < <(cd "$KIT" && find instructions rules hooks scripts statusline hooks.example.json claude-settings.example.json $extra -type f ! -name '.DS_Store' ! -name '*.pyc' 2>/dev/null | sort)
-  if [[ ! -f "$AGENTS/instructions/shared.md" ]]; then
+  done < <(cd "$KIT" && find $parts hooks.example.json claude-settings.example.json $extra -type f ! -name '.DS_Store' ! -name '*.pyc' 2>/dev/null | sort)
+  if (( ! HELPERS_ONLY )) && [[ ! -f "$AGENTS/instructions/shared.md" ]]; then
     if (( DRY )); then say "would create instructions/shared.md from the template"; else cp "$KIT/instructions/shared.template.md" "$AGENTS/instructions/shared.md"; say "created $AGENTS/instructions/shared.md (fill in the <placeholders>)"; fi
     n=$((n + 1))
   fi
   if (( n == 0 )); then say "ok (nothing to copy)"; elif (( ! DRY )); then say "copied or updated $n file(s)"; fi
 
-  echo "2. Links"
+  if (( HELPERS_ONLY )); then
+    echo "2. to 4. Skipped (--helpers-only)"
+  else
+    other_steps
+  fi
+  helper_step
+}
+
+other_steps() {
   local f
+  echo "2. Links"
   LINK_CHANGES=0
   if want cursor || want claude; then
     # Cursor rules folder doubles as the source of the Claude rules mirror.
@@ -339,6 +403,9 @@ steps() {
     fi
   fi
 
+}
+
+helper_step() {
   echo "5. Optional read-only helpers (~/.claude/agents/, ~/.cursor/agents/, ~/.gemini/agents/)"
   local h refresh=0
   HELPER_CHANGES=0
@@ -348,13 +415,14 @@ steps() {
   for h in $HELPER_NAMES; do
     if want claude && (( HELPERS )); then helper "$h"; fi
     if want cursor; then helper_copy cursor "$h" "$HOME/.cursor/agents/$h" "$refresh"; fi
-    if want gemini; then helper_copy gemini "$h" "$HOME/.gemini/agents/$h" "$refresh"; fi
+    # A helper with no Gemini copy in the kit (context-checker) is not for Gemini.
+    if want gemini && [[ -f "$KIT/examples/agents/gemini/$h" ]]; then helper_copy gemini "$h" "$HOME/.gemini/agents/$h" "$refresh"; fi
   done
   if (( HELPER_CHANGES )); then :
   elif (( HELPERS )); then say "ok (helpers in place)"
   elif [[ -f "$STATE" ]] && awk -F'\t' '$1 ~ /^helper/ || ($1 == "link" && index($2, "/.claude/agents/")) { f = 1 } END { exit !f }' "$STATE"; then
     say "ok (installed helpers are current)"
-  else say "skipped (add --with-helpers to install code-reader and doc-reader)"; fi
+  else say "skipped (add --with-helpers to install code-reader, doc-reader and context-checker)"; fi
 }
 
 # helper <file name>: link one optional subagent into ~/.claude/agents/. A real
@@ -572,6 +640,19 @@ if (( CONFLICTS )); then
   echo "Done, with $CONFLICTS item(s) left for you (see 'conflict', 'SKIPPED' or 'Conflict' above)."
 else
   echo "Done."
+fi
+if (( HELPERS_ONLY )); then
+  cat <<MSG
+
+Next:
+  1. Start a new chat in each tool so it loads the subagents. Claude Code
+     picks up later edits within seconds; restart it once if
+     ~/.claude/agents/ did not exist before.
+  2. Try one: "Use the context-checker subagent on my current changes".
+Check for drift any time:  bash $AGENTS/scripts/install.sh --check-helpers --tools=$TOOLS
+Undo:                      bash $AGENTS/scripts/uninstall.sh
+MSG
+  exit 0
 fi
 if want cursor; then
   echo
