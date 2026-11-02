@@ -49,8 +49,7 @@ change the exit code. It cannot see Cursor's User Rules; paste the text again
 after each edit.
 
 Recommended next: turn on code intelligence so the agent navigates by symbol
-and sees its own type errors. See [`enable-lsp.md`](enable-lsp.md)
-(adapted from a community kit).
+and sees its own type errors. See [`enable-lsp.md`](enable-lsp.md).
 
 ## Precedence: the repo wins
 
@@ -81,7 +80,7 @@ to build, test, branch, or lint a given repo; the repo owns that.
 | `scripts/kit_config.py` | Merges (and on uninstall removes) the kit's hook, status line and MCP entries |
 | `scripts/uninstall.sh` | Undoes what the installer recorded |
 | `docs/enable-lsp.md` | Turn on LSP code intelligence in Claude Code and Cursor (Python, TS/JS, Swift, Kotlin) |
-| `docs/borrowed-practices.md` | Model tiers per tool, lean context, a self-audit prompt and permission lessons |
+| `docs/borrowed-practices.md` | Model tiers per tool, lean context, read-only helpers and a self-audit prompt |
 | `examples/agents/*.md` | Optional read-only `code-reader` and `doc-reader` subagents that cite file and line (Claude Code format); linked into `~/.claude/agents/` only with `install.sh --with-helpers` |
 | `examples/agents/cursor/*.md`, `examples/agents/gemini/*.md` | The same two subagents in Cursor and Gemini CLI format; copied into `~/.cursor/agents/` and `~/.gemini/agents/` only with `--with-helpers` |
 

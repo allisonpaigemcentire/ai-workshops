@@ -36,8 +36,7 @@ Markdown advises; hooks and deny lists enforce. A rule that must never break
 belongs in a hook or a permission deny list, not only in this file. Do not
 allow-list `git push` or `gh pr create` in tool permissions (for example
 Claude's `permissions.allow`): a "stop before push" instruction is prompt-only,
-so the permission prompt is the real backstop. (Both points are adapted from a
-community kit.)
+so the permission prompt is the real backstop.
 
 ## How I work
 

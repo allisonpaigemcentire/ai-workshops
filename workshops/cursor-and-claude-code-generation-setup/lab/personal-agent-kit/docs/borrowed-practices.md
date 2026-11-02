@@ -1,12 +1,11 @@
-# Borrowed practices: model tiers, read-only helpers, guardrails
+# Borrowed practices: model tiers, read-only helpers, self-audit
 
-Four ideas for your local agent setup. None of them needs the installer.
+Three ideas for your local agent setup. None of them needs the installer.
 Take the ones that fit how you work.
 
 1. [Match the model to the work](#1-match-the-model-to-the-work)
 2. [Read-only helpers that cite file and line](#2-read-only-helpers-that-cite-file-and-line)
 3. [Ask the agent to audit your setup](#3-ask-the-agent-to-audit-your-setup)
-4. [Permission lessons](#4-permission-lessons)
 
 ## 1. Match the model to the work
 
@@ -151,9 +150,9 @@ Look at: ~/.agents/instructions/shared.md, ~/.agents/rules/,
 include; do not scan my disk.
 
 Compare them with docs/borrowed-practices.md in this kit: model tiers,
-lean context, read-only helpers that cite file and line, and the permission
-lessons. For each idea, say whether it is in place, partly in place, missing
-or not a fit, and cite the file and line.
+lean context and read-only helpers that cite file and line. For each idea,
+say whether it is in place, partly in place, missing or not a fit, and cite
+the file and line.
 
 Give me a ranked shortlist of at most 7 changes, highest impact first. For
 each: what to change, why it helps me, and which file. Change nothing until
@@ -161,26 +160,3 @@ I pick. Show a diff before editing any file. Never commit or push.
 ```
 
 Re-run it after you change your setup or a tool ships a new feature.
-
-## 4. Permission lessons
-
-Text rules only advise. Hooks and permission allow and deny lists enforce,
-so check that they really match what you think.
-
-- **Keep `git push` and `gh pr create` off every allow-list.** A prompt
-  that says "stop before push" is not a guardrail when settings allow the
-  push. Any agent that can run shell commands could push without asking.
-- **`git -C <path>` slips past prefix rules.** `Bash(git diff *)` does not
-  match `git -C ../other-repo diff`. Allow rules miss it, so you get extra
-  prompts; add `git -C *` patterns for the read commands you want allowed.
-- **Match safety patterns against the whole value.** A branch guard that
-  checks for a name starting with `release/` never fires once a prefix such
-  as `user/` is added. Match "contains `release`" instead.
-- **Test every guard with a known-bad input.** After you add a rule, deny
-  entry or hook, try one thing it should stop and confirm it stops it. For
-  example, ask the agent to run `git -C . push --dry-run` and check that you
-  get a prompt or a refusal. For the push gate, add a review-context
-  annotation on a scratch branch and confirm the agent refuses to push.
-- **Audit config changes like code.** Ask a fresh chat or a read-only
-  subagent to review a settings or hook change against your live
-  `settings.json` before you rely on it.

@@ -192,8 +192,7 @@ The examples are in `hooks.example.json` (Cursor hooks),
   and secrets rules
 - [docs/enable-lsp.md](docs/enable-lsp.md): turn on code intelligence
 - [docs/borrowed-practices.md](docs/borrowed-practices.md): model tiers,
-  read-only helpers that cite file and line, a self-audit prompt and
-  permission lessons
+  read-only helpers that cite file and line, and a self-audit prompt
 - [examples/](examples/): optional read-only subagents (installed only
   with `--with-helpers`)
 - [companion/](companion/): rules bridge notes, session memory walkthrough

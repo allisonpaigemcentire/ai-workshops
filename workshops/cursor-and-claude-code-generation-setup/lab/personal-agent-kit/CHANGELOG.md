@@ -51,7 +51,7 @@
   forever when `shared.md` had no final newline or ended in blank lines.
 - Fixed: re-running `~/.agents/scripts/install.sh` crashed while merging
   hooks, because the example JSON files were never copied to `~/.agents`.
-- New `docs/borrowed-practices.md`, adapted from a community kit: a model
+- New `docs/borrowed-practices.md`: a model
   tier table for Cursor, Claude Code and Gemini, read-only helpers, a
   self-audit prompt and permission lessons. Optional example subagents in
   `examples/agents/` (`code-reader`, `doc-reader`).
@@ -66,7 +66,7 @@
   stay current on later runs without the flag.
 - `--help` in `install.sh` and `uninstall.sh` now prints the whole header
   instead of a fixed line range.
-- Credits to the community kit no longer name a person.
+- Credits no longer name a person.
 - Supported tools: Cursor, Claude Code and Gemini CLI only.
 - Cursor's main path is now a User Rule: the installer prints `shared.md`
   between marker lines to paste into Customize > Rules > User Rules, and on
