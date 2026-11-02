@@ -44,6 +44,11 @@
   subagents into `~/.claude/agents/`, which Cursor also reads. A file of
   yours with the same name is backed up first; `uninstall.sh` removes only
   the links it added and restores your file.
+- Fixed: `--with-helpers` backs up a link of yours as a link, so uninstall
+  puts back the link itself (macOS `cp` copied the file it pointed to and
+  stopped the install on a broken link). If a helper replaced your file on
+  more than one run, uninstall restores the newest one. Installed helpers
+  stay current on later runs without the flag.
 - `--help` in `install.sh` and `uninstall.sh` now prints the whole header
   instead of a fixed line range.
 - Credits to the community kit no longer name a person.

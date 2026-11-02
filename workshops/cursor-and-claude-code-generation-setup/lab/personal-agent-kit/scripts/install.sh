@@ -136,9 +136,10 @@ steps() {
   local rel dest n=0
   # The two example JSONs are read by scripts/kit_config.py, so the copy in
   # ~/.agents/scripts/ can re-run the install on its own. The optional helpers
-  # (examples/agents) are copied only with --with-helpers.
+  # (examples/agents) are copied with --with-helpers, and kept current on
+  # later runs once they are in ~/.agents.
   local extra=""
-  if (( HELPERS )); then extra="examples/agents"; fi
+  if (( HELPERS )) || [[ -d "$AGENTS/examples/agents" ]]; then extra="examples/agents"; fi
   # shellcheck disable=SC2086  # $extra is empty or one path on purpose
   while IFS= read -r rel; do
     dest="$AGENTS/$rel"
@@ -269,7 +270,10 @@ helper() {
   rel="${dest#"$HOME"/}"; bk="$KIT_BACKUP_DIR/$rel"
   mkdir -p "$(dirname "$bk")"
   chmod 700 "$KIT_BACKUP_DIR"
-  cp -pP "$dest" "$bk"
+  rm -f "$bk"
+  # A link is kept as a link (BSD cp follows links unless -R is given, and
+  # fails on a dangling one), so uninstall can put back exactly what was here.
+  if [[ -L "$dest" ]]; then ln -s "$(readlink "$dest")" "$bk"; else cp -p "$dest" "$bk"; fi
   say "backed up $dest -> $bk"
   rm -f "$dest"
   ln -s "$target" "$dest"

@@ -70,18 +70,23 @@ strip_region() {  # strip_region <file>
 }
 
 steps() {
-  local kind a b c
+  local kind a b c done_helpers=$'\n'
   while IFS=$'\t' read -r kind a b c _; do
     if [[ "$kind" == link && -L "$a" && "$(readlink "$a")" == "$b" ]]; then
       if (( DRY )); then say "would: remove link $a"; else rm "$a"; say "removed link $a"; fi
     elif [[ "$kind" == helper && -L "$a" && "$(readlink "$a")" == "$b" ]]; then
       # A helper link that replaced a file of yours: put yours back.
+      case "$done_helpers" in *$'\n'"$a"$'\n'*) continue ;; esac
+      done_helpers="$done_helpers$a"$'\n'
       if (( DRY )); then say "would: remove link $a and restore yours from $c"; continue; fi
       rm "$a"
-      if [[ -n "$c" ]] && [[ -e "$c" || -L "$c" ]]; then cp -pP "$c" "$a"; say "removed link $a and restored yours from $c"
+      if [[ -L "$c" ]]; then ln -s "$(readlink "$c")" "$a"; say "removed link $a and restored your link from $c"
+      elif [[ -n "$c" && -e "$c" ]]; then cp -p "$c" "$a"; say "removed link $a and restored yours from $c"
       else say "removed link $a (backup $c not found; nothing to restore)"; fi
     fi
-  done <"$STATE"
+  # Newest record first: if a helper replaced your file on more than one run,
+  # the copy you had most recently is the one put back.
+  done < <(awk '{ l[NR] = $0 } END { for (i = NR; i >= 1; i--) print l[i] }' "$STATE")
   # Claude mirror links that now point at a removed Cursor rule link.
   local l
   for l in "$HOME"/.claude/rules/*.md; do
