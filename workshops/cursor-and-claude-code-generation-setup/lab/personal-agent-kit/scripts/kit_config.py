@@ -172,6 +172,25 @@ def save_json(path: str, data: dict) -> None:
 
 # ---------- merge steps; each returns a list of (description, state-row) ----------
 
+def norm_command(cmd) -> str:
+    """Compare hook commands loosely: an older kit wrote the script path
+    without the leading 'bash ', and users may spell ~ as $HOME."""
+    if not isinstance(cmd, str):
+        return ""
+    parts = cmd.strip().split()
+    if parts and parts[0] in ("bash", "sh", "/bin/bash", "/bin/sh"):
+        parts = parts[1:]
+    home = os.path.expanduser("~")
+    out = []
+    for p in parts:
+        for pre in ("$HOME/", "${HOME}/", home + "/"):
+            if p.startswith(pre):
+                p = "~/" + p[len(pre):]
+                break
+        out.append(p)
+    return " ".join(out)
+
+
 def merge_cursor_hooks(data: dict) -> list:
     changes = []
     example = load_example("hooks.example.json")
@@ -184,7 +203,7 @@ def merge_cursor_hooks(data: dict) -> list:
         if not isinstance(lst, list):
             raise Skip("'hooks.%s' is not a list" % event)
         for entry in entries:
-            if any(isinstance(e, dict) and e.get("command") == entry["command"] for e in lst):
+            if any(isinstance(e, dict) and norm_command(e.get("command")) == norm_command(entry["command"]) for e in lst):
                 continue
             lst.append(copy.deepcopy(entry))
             changes.append(("add hooks.%s: %s" % (event, entry["command"]),
@@ -196,7 +215,7 @@ def claude_has_command(groups: list, command: str) -> bool:
     for g in groups:
         if isinstance(g, dict):
             for h in g.get("hooks", []) or []:
-                if isinstance(h, dict) and h.get("command") == command:
+                if isinstance(h, dict) and norm_command(h.get("command")) == norm_command(command):
                     return True
     return False
 
