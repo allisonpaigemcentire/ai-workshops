@@ -693,13 +693,12 @@ bash ~/src/personal-agent-kit/agents/install-sample-agents.sh</pre>
     </div>
     <p class="hint">Links in <code>~/.claude/agents/</code>, copies in <code>~/.cursor/agents/</code>, nothing else; a same-name file of yours is backed up first. Safe to re-run. <code>--check</code> reports drift. Undo: <code>bash ~/.agents/scripts/uninstall.sh</code>. Start a new chat to load them.</p>
     <div class="cmd-block" data-copy>
-      <div class="bar"><span>prompt · Cursor</span><button type="button" class="copy-btn">Copy</button></div>
+      <div class="bar"><span>prompt · Cursor only (slash command)</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>/context-checker check my current branch against this repo's AGENTS.md, CLAUDE.md and skills before I open the PR.</pre>
     </div>
     <div class="cmd-block" data-copy>
-      <div class="bar"><span>prompt · Claude Code</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>Use the code-reader subagent on src/cart/checkout.ts.
-Return: its summary and key functions with path:line.</pre>
+      <div class="bar"><span>prompt · Claude Code (@ mention, not a slash command)</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>@context-checker check my current branch against this repo's AGENTS.md, CLAUDE.md and skills before I open the PR.</pre>
     </div>
     <p class="hint">Not set up for Gemini CLI. <code>install.sh --with-helpers</code> gives Gemini the two readers.</p>
     </div>
