@@ -461,10 +461,23 @@ def do_remove(args) -> int:
     return 3 if skipped else 0
 
 
+def claude_json() -> str:
+    """The file Claude Code reads its user MCP list from (checked with 2.1.314):
+    a non-empty legacy .config.json in its config folder wins over .claude.json."""
+    legacy = os.path.join(os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(HOME, ".claude"), ".config.json")
+    try:
+        if os.path.isfile(legacy) and os.path.getsize(legacy) > 0:
+            return legacy
+    except OSError:
+        pass
+    return CLAUDE_JSON
+
+
 def claude_mcp_state(name: str) -> str:
     """One word for a server in Claude Code's user list. Prints no values."""
     try:
-        with open(CLAUDE_JSON, encoding="utf-8") as fh:
+        # utf-8-sig: Claude Code reads a file that starts with a BOM.
+        with open(claude_json(), encoding="utf-8-sig") as fh:
             data = json.load(fh)
     except FileNotFoundError:
         return "gone"
