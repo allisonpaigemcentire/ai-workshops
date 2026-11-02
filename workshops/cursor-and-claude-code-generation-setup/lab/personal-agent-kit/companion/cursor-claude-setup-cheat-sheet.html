@@ -116,10 +116,10 @@ footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex;
 <div class="col">
   <section class="panel">
     <h2><span class="n">4</span>Install (one command)</h2>
-    <p>Download <a href="https://github.com/allisonpaigemcentire/ai-workshops/raw/main/workshops/cursor-and-claude-code-generation-setup/lab/personal-agent-kit-v2.zip">personal-agent-kit-v2.zip</a>, unzip it into <code>~/src</code>, then run:</p>
+    <p>Download <a href="https://github.com/allisonpaigemcentire/ai-workshops/raw/main/workshops/cursor-and-claude-code-generation-setup/lab/personal-agent-kit-v2.zip">personal-agent-kit-v2.zip</a>, unzip it into <code>~/src</code>, then run (needs <code>python3</code> 3.8 or newer):</p>
     <pre><code>mkdir -p ~/src &amp;&amp; unzip ~/Downloads/personal-agent-kit-v2.zip -d ~/src</code></pre>
     <pre><code>bash ~/src/personal-agent-kit/scripts/install.sh</code></pre>
-    <p class="note">It shows a preview, asks once, then installs: copies the kit into <code>~/.agents/</code>, links rules, hooks and the status line, writes the Cursor, Claude Code and Gemini wrappers, and merges the hooks and status line into your config files (no Atlassian MCP server: Jira goes through <code>acli</code>; sign in once with <code>acli jira auth login --web</code>). It backs up every file first (<code>~/.agent-kit-backups/</code>), adds only what is missing and is safe to re-run. Preview only: add <code>--dry-run</code>.</p>
+    <p class="note">It shows a preview, asks once, then installs: copies the kit into <code>~/.agents/</code>, links rules, hooks and the status line, writes the Cursor, Claude Code and Gemini wrappers, and merges the hooks and status line into your config files (no Atlassian MCP server: Jira goes through <code>acli</code>; if <code>acli</code> is missing, or installed but not on your PATH, the installer prints the fix; sign in once with <code>acli jira auth login --web</code>). It backs up every file first (<code>~/.agent-kit-backups/</code>), adds only what is missing and is safe to re-run. Preview only: add <code>--dry-run</code>.</p>
   </section>
 
   <section class="panel">
@@ -130,7 +130,7 @@ footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex;
       <li>Start a new chat in each tool. In Gemini CLI, trust your project folder or MCP servers stay off.</li>
       <li>Optional: turn on code intelligence (LSP). See <code>docs/enable-lsp.md</code>.</li>
       <li>Optional: re-run with <code>--with-helpers</code> for two read-only subagents that cite file and line (Claude, Cursor, Gemini).</li>
-      <li>Undo any time: <code>bash ~/.agents/scripts/uninstall.sh</code></li>
+      <li>Undo any time: <code>bash ~/.agents/scripts/uninstall.sh</code>. It cannot see Cursor's User Rules: delete the pasted rule there yourself.</li>
     </ol>
   </section>
 

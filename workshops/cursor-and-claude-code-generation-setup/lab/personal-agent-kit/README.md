@@ -139,6 +139,8 @@ MCP server loads its tool descriptions into every chat.
 1. Install it (the installer only checks for it and prints this if it is
    missing): on macOS, `brew tap atlassian/homebrew-acli && brew install acli`.
    Other systems: [Atlassian's install guide](https://developer.atlassian.com/cloud/acli/guides/install-acli/).
+   If `acli` is in a Homebrew folder (`/opt/homebrew/bin` or `/usr/local/bin`)
+   that is not on your PATH, the installer prints the line that adds it.
 2. Sign in once, in your own terminal: `acli jira auth login --web`. It opens
    your browser; accept, then pick the same site in the terminal. Check with
    `acli jira auth status`.

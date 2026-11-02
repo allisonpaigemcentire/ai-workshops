@@ -463,8 +463,11 @@ def do_remove(args) -> int:
 
 def claude_json() -> str:
     """The file Claude Code reads its user MCP list from (checked with 2.1.314):
-    a non-empty legacy .config.json in its config folder wins over .claude.json."""
-    legacy = os.path.join(os.environ.get("CLAUDE_CONFIG_DIR") or os.path.join(HOME, ".claude"), ".config.json")
+    a non-empty legacy .config.json in its config folder wins over .claude.json.
+    Claude Code finds that folder with CLAUDE_CONFIG_DIR even when it is set
+    to an empty string (unlike .claude.json above, where empty means HOME)."""
+    ccd = os.environ.get("CLAUDE_CONFIG_DIR")
+    legacy = os.path.join(ccd if ccd is not None else os.path.join(HOME, ".claude"), ".config.json")
     try:
         if os.path.isfile(legacy) and os.path.getsize(legacy) > 0:
             return legacy

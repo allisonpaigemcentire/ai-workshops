@@ -142,7 +142,7 @@ steps() {
         kit) ;;
         gone) continue ;;
         yours) say "kept Claude Code MCP 'atlassian': you changed it since the kit added it"; continue ;;
-        *) say "could not read Claude Code's .claude.json; left MCP 'atlassian' alone (remove it by hand: claude mcp remove --scope user atlassian)"; continue ;;
+        *) say "could not read Claude Code's config (.claude.json, or .config.json in its config folder); left MCP 'atlassian' alone (remove it by hand: claude mcp remove --scope user atlassian)"; continue ;;
       esac
     fi
     if ! command -v claude >/dev/null 2>&1; then say "claude CLI not found; remove MCP '$a' by hand: claude mcp remove --scope user $a"; continue; fi

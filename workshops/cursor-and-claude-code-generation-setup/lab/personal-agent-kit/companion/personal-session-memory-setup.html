@@ -497,8 +497,8 @@
       <li>Cursor Desktop<span>Main path: paste the text the installer prints into Customize &gt; Rules &gt; User Rules (every project). Fallback files go under <code>~/.cursor/rules/</code> and <code>~/.cursor/skills/</code></span></li>
       <li>Claude Code (for dual-tool use)<span>Loads <code>~/.claude/rules/</code> and <code>~/.claude/CLAUDE.md</code></span></li>
       <li>A checkout that contains <code>scripts/sync-personal-rules.sh</code><span>Or keep a local copy of the script anywhere on disk</span></li>
-      <li>Python 3 on PATH<span>Only needed for the optional Cursor stop hook</span></li>
-      <li>Optional: Atlassian CLI <code>acli</code> for Jira<span>No Atlassian MCP server. Sign in once with <code>acli jira auth login --web</code>; the agent asks you to re-run it when the sign-in expires</span></li>
+      <li>Python 3.8 or newer on PATH<span>The kit installer needs it. On the manual path below, only the optional Cursor stop hook does</span></li>
+      <li>Optional: Atlassian CLI <code>acli</code> for Jira<span>No Atlassian MCP server. Install on macOS: <code>brew tap atlassian/homebrew-acli &amp;&amp; brew install acli</code> (the installer prints this, or a PATH fix when acli is installed but not on your PATH). Sign in once with <code>acli jira auth login --web</code>; the agent asks you to re-run it when the sign-in expires</span></li>
     </ol>
   </section>
 
@@ -815,9 +815,13 @@ alwaysApply: true
 
 # Session memory (Local Only)
 
-This rule is **local to this machine** (`~/.cursor/rules/`) and applies across
-all repos opened in this Cursor workspace. Claude mirrors it via
-`scripts/sync-personal-rules.sh`.
+This rule is **local to this machine** (`~/.agents/rules/`, linked into
+`~/.cursor/rules/`) and applies across all repos. Claude mirrors it via
+`scripts/sync-personal-rules.sh`. It needs the `session-memory` skill and the
+stop hooks in `hooks/`; drop this rule if you do not use them.
+
+Create the store once: `mkdir -p ~/.ai-memory/lessons &amp;&amp; touch ~/.ai-memory/MEMORY.md`.
+Never share or commit `~/.ai-memory/`.
 
 ## Canonical store
 
@@ -907,7 +911,7 @@ bash scripts/sync-personal-rules.sh --check</pre>
         <div class="tag">What sync does</div>
         <ul>
           <li>Symlinks each <code>~/.cursor/rules/*.mdc</code> → <code>~/.claude/rules/&lt;stem&gt;.md</code></li>
-          <li>Removes broken Claude rule symlinks</li>
+          <li>Removes broken Claude rule links it made (never yours)</li>
           <li>Rewrites managed <code>~/.claude/CLAUDE.md</code> (if marked)</li>
           <li>Never overwrites a real non-symlink file</li>
         </ul>
@@ -1248,7 +1252,7 @@ chmod +x ~/.cursor/hooks/session-memory-stop.sh</pre>
       <div class="bar"><span>hooks.json fragment</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>"stop": [
   {
-    "command": "./hooks/session-memory-stop.sh",
+    "command": "bash ~/.cursor/hooks/session-memory-stop.sh",
     "loop_limit": 2
   }
 ]</pre>
@@ -1277,6 +1281,7 @@ followup_message so the agent runs the session-memory skill.
 from __future__ import annotations
 
 import json
+import re
 import os
 import sys
 from pathlib import Path
@@ -1284,6 +1289,7 @@ from pathlib import Path
 MAX_PROMPT_ATTEMPTS = 2
 MEMORY_ROOT = Path.home() / ".ai-memory"
 HOOKS_ROOT = MEMORY_ROOT / ".hooks"
+SAFE_ID = re.compile(r"^[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}$")
 
 FOLLOWUP = (
     "A correction was marked earlier in this chat and session memory was not "
@@ -1363,7 +1369,9 @@ def main() -&gt; int:
         return 0
 
     conv_id = _conversation_id(payload)
-    if not conv_id:
+    # The id becomes a folder name under ~/.ai-memory/.hooks; refuse anything
+    # that could point outside it (a slash, "..", a leading dot).
+    if not conv_id or not SAFE_ID.match(conv_id):
         print("{}")
         return 0
 

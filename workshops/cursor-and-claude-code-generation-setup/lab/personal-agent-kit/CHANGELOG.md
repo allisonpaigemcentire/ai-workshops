@@ -6,12 +6,15 @@
   Agents use Atlassian's CLI, `acli`; `shared.md` tells them to ask you to run
   `acli jira auth login --web` when the sign-in is missing or expired, and
   never to run it or handle a token themselves. The installer checks that
-  `acli` is on your PATH and prints the Homebrew install line if not. A
+  `acli` is on your PATH and prints the Homebrew install line if not (or,
+  when `acli` is installed in a Homebrew folder that is not on your PATH, the
+  line that adds that folder). A
   re-run removes the `atlassian` MCP server an earlier kit version added
   (Cursor, Claude Code, Gemini) when it is still the kit's value; so does
   `uninstall.sh`, which keeps one you changed. Claude Code's list is read
-  from `CLAUDE_CONFIG_DIR` when that is set, and an unreadable `.claude.json`
-  keeps the record so a later run can finish.
+  from `CLAUDE_CONFIG_DIR` when that is set (and from its legacy
+  `.config.json` when Claude Code uses that), and an unreadable file keeps
+  the record so a later run can finish.
 
 - One command: `scripts/install.sh` now previews, asks once, installs, and
   merges the Cursor hooks, Claude settings and MCP config that used to be

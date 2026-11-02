@@ -148,16 +148,24 @@ ACLI_OFF_PATH=""
 if command -v acli >/dev/null 2>&1; then
   HAVE_ACLI=1
 else
-  # Installed by Homebrew but the brew folder is not on PATH yet.
+  # Installed (Homebrew: /opt/homebrew on Apple silicon, /usr/local on Intel)
+  # but that folder is not on PATH yet.
   for d in /opt/homebrew/bin /usr/local/bin; do
-    if [[ -x "$d/acli" ]]; then ACLI_OFF_PATH="$d"; break; fi
+    if [[ -f "$d/acli" && -x "$d/acli" ]]; then ACLI_OFF_PATH="$d"; break; fi
   done
 fi
 acli_install_hint() {
   if [[ -n "$ACLI_OFF_PATH" ]]; then
+    local profile=.zprofile   # the file in your home folder the line goes in
+    case "${SHELL:-}" in */bash) profile=.bash_profile ;; */zsh) ;; *) profile=.profile ;; esac
     echo "  acli is installed at $ACLI_OFF_PATH/acli, but that folder is not on your PATH."
-    echo "  Add Homebrew to your shell, then open a new terminal:"
-    echo "    echo 'eval \"\$($ACLI_OFF_PATH/brew shellenv)\"' >> ~/.zprofile"
+    if [[ -x "$ACLI_OFF_PATH/brew" ]]; then
+      echo "  Add Homebrew to your shell, then open a new terminal:"
+      echo "    echo 'eval \"\$($ACLI_OFF_PATH/brew shellenv)\"' >> ~/$profile"
+    else
+      echo "  Add that folder to your PATH, then open a new terminal:"
+      echo "    echo 'export PATH=\"$ACLI_OFF_PATH:\$PATH\"' >> ~/$profile"
+    fi
     return 0
   fi
   echo "  macOS (Homebrew): brew tap atlassian/homebrew-acli && brew install acli"
@@ -476,7 +484,7 @@ retire_claude_mcp() {
   local row verdict
   row="claude-mcp"$'\t'"atlassian"
   [[ -f "$STATE" ]] && grep -Fxq -- "$row" "$STATE" || return 0
-  # Reads Claude Code's .claude.json (CLAUDE_CONFIG_DIR aware) for this one
+  # Reads Claude Code's config (CLAUDE_CONFIG_DIR aware) for this one
   # entry and prints one word, never a value. Unreadable keeps the record.
   verdict="$(python3 "$KIT/scripts/kit_config.py" claude-mcp atlassian 2>/dev/null)" || verdict=unknown
   case "$verdict" in
@@ -496,7 +504,7 @@ retire_claude_mcp() {
         say "could not remove Claude Code MCP 'atlassian'; run: claude mcp remove --scope user atlassian"
         CONFLICTS=$((CONFLICTS + 1))
       fi ;;
-    *) say "note: could not read Claude Code's .claude.json; left Claude Code MCP 'atlassian' alone (the next run tries again)" ;;
+    *) say "note: could not read Claude Code's config (.claude.json, or .config.json in its config folder); left Claude Code MCP 'atlassian' alone (the next run tries again)" ;;
   esac
 }
 
