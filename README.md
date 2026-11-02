@@ -23,6 +23,7 @@ ai-workshops/
 |---|---|---|---|
 | [customizing-agent-workflow](workshops/customizing-agent-workflow/) | Engineers using Cursor, Claude, Gemini, Firebender | 60 min | Draft |
 | [git-worktrees](workshops/git-worktrees/) | Engineers using AI agents who need parallel branches | Hands-on | Available |
+| [subagents-and-lean-context](workshops/subagents-and-lean-context/) | Engineers using Cursor or Claude Code locally | 45 min | Draft |
 
 ## Adding a new workshop
 
