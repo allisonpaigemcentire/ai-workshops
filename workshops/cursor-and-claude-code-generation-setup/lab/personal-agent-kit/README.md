@@ -170,7 +170,8 @@ This removes only what the installer recorded: its links, its marked
 sections, its wrapper and its config entries. If `--with-helpers` replaced a
 file of yours in `~/.claude/agents/`, `~/.cursor/agents/` or
 `~/.gemini/agents/`, uninstall puts it back; a helper copy you edited is left
-in place. It cannot see Cursor's User Rules, so delete the pasted rule there
+in place, and so is an `atlassian` MCP server from an earlier kit that you
+changed. It cannot see Cursor's User Rules, so delete the pasted rule there
 yourself. Files are backed up first. It
 leaves `~/.agents/` and your backups, so delete those yourself if you want
 (`rm -rf ~/.agents ~/.agent-kit-backups`). To restore a file exactly as it

@@ -136,6 +136,15 @@ steps() {
   python3 "$HERE/kit_config.py" "${pargs[@]}" || CONFIG_LEFT=1
   while IFS=$'\t' read -r kind a _; do
     [[ "$kind" == claude-mcp ]] || continue
+    if [[ "$a" == atlassian ]]; then
+      # The Atlassian server earlier kits added: only when it is still the kit's value.
+      case "$(python3 "$HERE/kit_config.py" claude-mcp atlassian 2>/dev/null)" in
+        kit) ;;
+        gone) continue ;;
+        yours) say "kept Claude Code MCP 'atlassian': you changed it since the kit added it"; continue ;;
+        *) say "could not read Claude Code's .claude.json; left MCP 'atlassian' alone (remove it by hand: claude mcp remove --scope user atlassian)"; continue ;;
+      esac
+    fi
     if ! command -v claude >/dev/null 2>&1; then say "claude CLI not found; remove MCP '$a' by hand: claude mcp remove --scope user $a"; continue; fi
     if (( DRY )); then say "would: claude mcp remove --scope user $a"
     elif claude mcp remove --scope user "$a" >/dev/null 2>&1; then say "removed Claude Code MCP '$a'"

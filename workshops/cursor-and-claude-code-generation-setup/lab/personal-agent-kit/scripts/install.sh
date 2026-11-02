@@ -69,9 +69,6 @@ export KIT_BACKUP_DIR="${KIT_BACKUP_DIR:-$HOME/.agent-kit-backups/$STAMP}"
 export AGENTS_HOME="$AGENTS"
 SKILLS_FROM="${KIT_SKILLS_FROM:-}"
 SKILLS_ENTRY="${KIT_SKILLS_ENTRY:-}"
-# The Atlassian MCP server earlier kit versions added by default. Only used
-# to remove it (see retire_claude_mcp); the kit no longer adds it.
-OLD_ATLASSIAN_URL="https://mcp.atlassian.com/v1/mcp"
 
 PREVIEW_ONLY=0
 YES=0
@@ -461,22 +458,9 @@ retire_claude_mcp() {
   local row verdict
   row="claude-mcp"$'\t'"atlassian"
   [[ -f "$STATE" ]] && grep -Fxq -- "$row" "$STATE" || return 0
-  # Read ~/.claude.json for this one entry; print nothing from it.
-  verdict="$(python3 - "$OLD_ATLASSIAN_URL" <<'PYEOF' 2>/dev/null
-import json, os, sys
-try:
-    with open(os.path.expanduser("~/.claude.json"), encoding="utf-8") as fh:
-        s = (json.load(fh).get("mcpServers") or {}).get("atlassian")
-except (OSError, ValueError):
-    s = None
-if s is None:
-    print("gone")
-elif isinstance(s, dict) and s.get("type") == "http" and s.get("url") == sys.argv[1] and set(s) <= {"type", "url"}:
-    print("kit")
-else:
-    print("yours")
-PYEOF
-)" || verdict=unknown
+  # Reads Claude Code's .claude.json (CLAUDE_CONFIG_DIR aware) for this one
+  # entry and prints one word, never a value. Unreadable keeps the record.
+  verdict="$(python3 "$KIT/scripts/kit_config.py" claude-mcp atlassian 2>/dev/null)" || verdict=unknown
   case "$verdict" in
     gone) (( DRY )) || forget_row "$row" ;;
     yours)
@@ -494,7 +478,7 @@ PYEOF
         say "could not remove Claude Code MCP 'atlassian'; run: claude mcp remove --scope user atlassian"
         CONFLICTS=$((CONFLICTS + 1))
       fi ;;
-    *) say "note: could not read ~/.claude.json; left Claude Code MCP 'atlassian' alone" ;;
+    *) say "note: could not read Claude Code's .claude.json; left Claude Code MCP 'atlassian' alone (the next run tries again)" ;;
   esac
 }
 
@@ -509,18 +493,11 @@ forget_row() {
 # claude_mcp <name> <args for 'claude mcp add' after --scope user>
 claude_mcp() {
   local name="$1"; shift
-  # Read ~/.claude.json for the name only. ('claude mcp get' would start the
-  # server, so it is not used.)
-  if python3 - "$name" <<'PYEOF' 2>/dev/null
-import json, os, sys
-try:
-    with open(os.path.expanduser("~/.claude.json"), encoding="utf-8") as fh:
-        servers = json.load(fh).get("mcpServers") or {}
-except (OSError, ValueError):
-    servers = {}
-sys.exit(0 if sys.argv[1] in servers else 1)
-PYEOF
-  then
+  # Read Claude Code's .claude.json for the name only. ('claude mcp get'
+  # would start the server, so it is not used.)
+  local have
+  have="$(python3 "$KIT/scripts/kit_config.py" claude-mcp "$name" 2>/dev/null)"
+  if [[ "$have" == kit || "$have" == yours ]]; then
     say "ok      Claude Code MCP '$name' (already set; kept yours)"
     return 0
   fi

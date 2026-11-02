@@ -23,6 +23,9 @@ Rules it follows:
 Usage:
   python3 kit_config.py merge  [--dry-run] [--tools=claude,cursor,gemini] [--no-mcp]
   python3 kit_config.py remove [--dry-run]
+  python3 kit_config.py claude-mcp <name>
+      Prints one word about that server in Claude Code's user list:
+      gone, kit (the old Atlassian value), yours, or unknown (unreadable).
 """
 from __future__ import annotations
 
@@ -60,6 +63,11 @@ GEMINI_SETTINGS = os.path.join(HOME, ".gemini", "settings.json")
 # entry (see retire_old_mcp) and nothing adds it.
 OLD_ATLASSIAN_NAME = "atlassian"
 OLD_ATLASSIAN = {"type": "http", "url": "https://mcp.atlassian.com/v1/mcp"}
+
+
+# Claude Code keeps its user MCP list in .claude.json, under CLAUDE_CONFIG_DIR
+# when that is set (checked with Claude Code 2.1), else in your home folder.
+CLAUDE_JSON = os.path.join(os.environ.get("CLAUDE_CONFIG_DIR") or HOME, ".claude.json")
 
 
 def skills_server() -> dict:
@@ -422,6 +430,11 @@ def do_remove(args) -> int:
                     done.append("remove statusLine")
             elif kind == "mcp":
                 servers = new.get("mcpServers")
+                if (key == OLD_ATLASSIAN_NAME and isinstance(servers, dict)
+                        and key in servers and servers[key] != OLD_ATLASSIAN):
+                    print("  note: %s has an MCP server named '%s' that you changed; kept yours."
+                          % (short(path), key))
+                    continue
                 if isinstance(servers, dict) and key in servers:
                     del servers[key]
                     done.append("remove mcpServers.%s" % key)
@@ -448,7 +461,31 @@ def do_remove(args) -> int:
     return 3 if skipped else 0
 
 
+def claude_mcp_state(name: str) -> str:
+    """One word for a server in Claude Code's user list. Prints no values."""
+    try:
+        with open(CLAUDE_JSON, encoding="utf-8") as fh:
+            data = json.load(fh)
+    except FileNotFoundError:
+        return "gone"
+    except (OSError, ValueError):
+        return "unknown"
+    servers = data.get("mcpServers") if isinstance(data, dict) else None
+    if servers is None:
+        return "gone" if isinstance(data, dict) else "unknown"
+    if not isinstance(servers, dict):
+        return "unknown"
+    if name not in servers:
+        return "gone"
+    if name == OLD_ATLASSIAN_NAME and servers[name] == OLD_ATLASSIAN:
+        return "kit"
+    return "yours"
+
+
 def main() -> int:
+    if sys.argv[1:2] == ["claude-mcp"] and len(sys.argv) == 3:
+        print(claude_mcp_state(sys.argv[2]))
+        return 0
     p = argparse.ArgumentParser(description=__doc__, formatter_class=argparse.RawDescriptionHelpFormatter)
     p.add_argument("action", choices=["merge", "remove"])
     p.add_argument("--dry-run", action="store_true")
