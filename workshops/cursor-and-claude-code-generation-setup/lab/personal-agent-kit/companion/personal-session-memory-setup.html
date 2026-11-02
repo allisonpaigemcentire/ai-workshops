@@ -406,6 +406,7 @@
   .fit .split .tx-card .twenty { font-size: 0.92rem; margin-bottom: 0.5rem; }
   .fit .split .cmd-block { flex: 1; min-height: 0; margin: 0; display: flex; flex-direction: column; }
   .fit .split .cmd-block pre { flex: 1; min-height: 0; max-height: none; white-space: pre-wrap; }
+  .fit .split .cmd-block.short { flex: 0 0 auto; margin: 0 0 0.6rem; }
   .split-top {
     display: grid;
     grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
@@ -435,6 +436,10 @@
   .fill .split2 > .col { min-height: 0; display: flex; flex-direction: column; }
   .fill .split2 .tx-card { margin: 0; overflow: auto; }
   .fill .split2 > .col > :first-child { margin-top: 0; }
+  .fill .split2 > .col.stack > * { flex-shrink: 0; }
+  .fill .split2 > .col.stack > .cmd-block, .fill .split2 > .col.stack > .hint { margin: 0 0 0.5rem; }
+  .fill .split2 > .col.stack .cmd-block pre { white-space: pre-wrap; }
+  .fill .split2 > .col.stack > :last-child { margin-bottom: 0; }
   .fill .split2 .grow pre { white-space: pre-wrap; }
   .fill .split4 {
     flex: 1;
@@ -529,7 +534,7 @@ and the smallest fix. If nothing does, say "no contract impact".</pre>
             <tr><td><code>model</code></td><td><code>inherit</code> uses the main chat's model, or name one</td></tr>
           </tbody>
         </table>
-        <p class="hint">Keep one copy per tool, as the kit's read-only helpers on slide 18 do. Cursor also reads <code>.claude/agents/</code> folders; a same-name file in <code>.cursor/</code> wins.</p>
+        <p class="hint">Keep one copy per tool, as the kit's read-only helpers on slide 6 do; one shared file also works for Cursor and Claude Code, like the sample on slide 5. Cursor also reads <code>.claude/agents/</code> folders; a same-name file in <code>.cursor/</code> wins.</p>
       </div>
     </div>
   </section>
@@ -607,7 +612,7 @@ Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
     <div class="grid-2">
       <div class="card">
         <div class="tag info">Audit</div>
-        <h3>Re-run the slide 19 prompt</h3>
+        <h3>Re-run the slide 20 prompt</h3>
         <p>The audit prompt later in this deck lists <code>~/.claude/agents/</code>, <code>~/.cursor/agents/</code> and <code>~/.gemini/agents/</code>. Ask it which experts overlap or have gone stale.</p>
       </div>
       <div class="card">
@@ -625,8 +630,120 @@ Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
 
 
   <!-- 5 -->
+  <section class="slide fill" data-title="Try a sample subagent">
+    <p class="eyebrow">Slide 05 · Subagents</p>
+    <h2>Try it: a sample subagent</h2>
+    <p><code>context-checker</code> checks your change against the nearest <code>AGENTS.md</code>, <code>CLAUDE.md</code> and repo skills before a PR. Read-only, no MCP, any repo. One file in <code>~/.agents/agents/</code>, linked into Cursor and Claude Code. Install it once the kit is in place: after Prerequisites (slide 8) and the install steps, as the optional step on slide 17.</p>
+    <div class="split2">
+    <div class="col">
+    <div class="cmd-block grow" data-copy>
+      <div class="bar"><span>~/.agents/agents/context-checker.md</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>---
+name: context-checker
+description: Read-only pre-PR check. Use before you open or update a PR, or when asked whether a change follows this repo's AGENTS.md, CLAUDE.md or skills. Reports the rules the change touches, likely violations and stale context. Never edits.
+tools: Read, Grep, Glob
+readonly: true
+model: inherit
+---
+
+You check a change against the repo's own written context. You never edit,
+create, delete, commit or push anything.
+
+1. Get the change. Use the diff or the list of changed files in your task
+   message. If there is none and you can run read-only shell commands, run
+   `git status` and `git diff` against the base branch. If you have neither,
+   reply "Need the diff or the changed files" and stop.
+2. Read the context, nearest first. For each changed path, read AGENTS.md
+   and CLAUDE.md in its folder and in each parent folder up to the repo
+   root. Then read any skill under .agents/skills/, .cursor/skills/ or
+   .claude/skills/ whose description matches the change.
+3. Compare the change with what you read. Do not invent rules that are not
+   written down.
+
+Return at most 12 bullets. Cite path:line for the rule and for the change.
+- Rules touched: written rules that apply to this change.
+- Likely violations: where the change breaks a rule, and the smallest fix.
+- Stale context: where a rule names a path, command or file that no longer
+  exists or no longer matches the repo.
+End with one line: "clear", "check before PR" or "no context found".</pre>
+    </div>
+    <p class="hint">Why one file works in both: <code>tools: Read, Grep, Glob</code> is Claude Code&#x27;s read-only list, <code>readonly: true</code> is Cursor&#x27;s switch (Claude Code skips fields it does not know), and <code>model: inherit</code> uses the main chat's model.</p>
+    <p class="hint">If Cursor does not load the link, keep one real file in <code>~/.claude/agents/</code>, which Cursor also reads. Not for Gemini CLI: it uses different tool names.</p>
+    </div>
+    <div class="col stack">
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · install context-checker (kit in place)</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>bash ~/src/personal-agent-kit/agents/install-context-checker.sh</pre>
+    </div>
+    <p class="hint">Safe to re-run: it keeps an edited copy and skips any real file or other link in the way. First agent file in Claude Code? Restart it once.</p>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>prompt · Cursor</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>/context-checker check my current branch against this repo's AGENTS.md, CLAUDE.md and skills before I open the PR.</pre>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>prompt · Claude Code</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>Use the context-checker subagent.
+Goal: does my branch follow this repo's AGENTS.md, CLAUDE.md and skills?
+Context: run git status and git diff against the base branch, then pass it the diff.
+Constraints: read-only.
+Return: its bullets with path:line, then the one-line verdict.</pre>
+    </div>
+    </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 6 -->
+  <section class="slide" data-title="Read-only helpers">
+    <p class="eyebrow">Slide 06 · Subagents</p>
+    <h2>Read-only helpers that cite file and line</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">examples/agents/code-reader.md</div>
+        <h3>code-reader</h3>
+        <p>Explains one file, module or PR diff: summary, structure, entry points and key functions, each with <code>path:line</code>. Describes, never judges.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">examples/agents/doc-reader.md</div>
+        <h3>doc-reader</h3>
+        <p>Answers one question from a long doc, spec or web page: a direct answer, cited detail, and what the doc does not cover.</p>
+      </div>
+    </div>
+    <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Off by default: add <code>--with-helpers</code> to the install command once the kit is in place, after Prerequisites (slide 8) and the install steps, as the optional step on slide 17. It installs both for each tool in <code>--tools</code>, backs up any file of yours with the same name, and uninstall puts it back.</p>
+    <div class="split-top">
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · install</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>bash ~/src/personal-agent-kit/scripts/install.sh</pre>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · with helpers</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers</pre>
+    </div>
+    </div>
+    <table>
+      <thead><tr><th>Tool</th><th>Use it</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code</td><td>Check with <code>/agents</code>, then: "Use the code-reader subagent on <code>src/cart/checkout.ts</code>"</td></tr>
+        <tr><td>Cursor</td><td>Copies in <code>~/.cursor/agents/</code> (<code>model: inherit</code>, <code>readonly: true</code>). Call <code>/code-reader</code></td></tr>
+        <tr><td>Gemini CLI</td><td>Copies in <code>~/.gemini/agents/</code>, read-only tools only. Check with <code>/agents</code>, call <code>@code-reader</code></td></tr>
+      </tbody>
+    </table>
+  </section>
+
+
+
+
+
+
+
+  <!-- 7 -->
   <section class="slide" data-title="Architecture">
-    <p class="eyebrow">Slide 05 · Overview</p>
+    <p class="eyebrow">Slide 07 · Overview</p>
     <h2>What you are installing</h2>
     <div class="grid-3">
       <div class="card">
@@ -651,6 +768,7 @@ Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
         <tr><td>Index</td><td><code>~/.ai-memory/MEMORY.md</code></td><td>Active lesson bullets</td></tr>
         <tr><td>Lessons</td><td><code>~/.ai-memory/lessons/</code></td><td>One durable lesson per file</td></tr>
         <tr><td>Skill</td><td><code>~/.agents/skills/session-memory/</code></td><td>Write / load workflow (linked into Cursor and Claude)</td></tr>
+        <tr><td>Agents</td><td><code>~/.agents/agents/</code></td><td>Your own subagent files, one copy linked into Cursor and Claude (optional, slide 5)</td></tr>
         <tr><td>Rule</td><td><code>~/.agents/rules/session-memory.mdc</code></td><td>Always-on load + wrap-up triggers (linked into <code>~/.cursor/rules/</code>)</td></tr>
         <tr><td>Sync</td><td><code>~/.agents/scripts/sync-personal-rules.sh</code></td><td>Cursor rules → Claude (<code>install.sh</code> runs it)</td></tr>
       </tbody>
@@ -663,9 +781,9 @@ Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
 
 
 
-  <!-- 6 -->
+  <!-- 8 -->
   <section class="slide" data-title="Prerequisites">
-    <p class="eyebrow">Slide 06 · Before you start</p>
+    <p class="eyebrow">Slide 08 · Before you start</p>
     <h2>Prerequisites</h2>
     <ol class="steps">
       <li>Cursor Desktop<span>Main path: paste the text the installer prints into Customize &gt; Rules &gt; User Rules (every project). Fallback files go under <code>~/.cursor/rules/</code> and <code>~/.cursor/skills/</code></span></li>
@@ -682,9 +800,9 @@ Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
 
 
 
-  <!-- 7 -->
+  <!-- 9 -->
   <section class="slide fill" data-title="Create store">
-    <p class="eyebrow">Slide 07 · Step 1</p>
+    <p class="eyebrow">Slide 09 · Step 1</p>
     <h2>Create the memory store</h2>
     <div class="split4">
     <div class="cmd-block" data-copy>
@@ -742,9 +860,9 @@ Agents **append** rows; they do not silently edit shared repos.
 
 
 
-  <!-- 8 -->
+  <!-- 10 -->
   <section class="slide fill" data-title="Install skill">
-    <p class="eyebrow">Slide 08 · Step 2</p>
+    <p class="eyebrow">Slide 10 · Step 2</p>
     <h2>Install the session-memory skill</h2>
     <div class="split2">
     <div class="col">
@@ -811,9 +929,9 @@ ln -sfn ~/.agents/skills/session-memory ~/.claude/skills/session-memory</pre>
 
 
 
-  <!-- 9 -->
+  <!-- 11 -->
   <section class="slide fill" data-title="SKILL.md">
-    <p class="eyebrow">Slide 09 · Skill body</p>
+    <p class="eyebrow">Slide 11 · Skill body</p>
     <h2>Full <code>SKILL.md</code></h2>
     <p>Do this by hand: the installer does not write <code>SKILL.md</code>. Save it to <code>~/.agents/skills/session-memory/SKILL.md</code>, then re-run <code>install.sh</code> to link it.</p>
     <div class="cmd-block tall grow" data-copy>
@@ -976,9 +1094,9 @@ After wrap-up, report briefly:
 
 
 
-  <!-- 10 -->
+  <!-- 12 -->
   <section class="slide fit" data-title="Install rule">
-    <p class="eyebrow">Slide 10 · Step 3</p>
+    <p class="eyebrow">Slide 12 · Step 3</p>
     <h2>Install the always-on Cursor rule</h2>
     <div class="split">
     <div class="col">
@@ -1001,6 +1119,10 @@ After wrap-up, report briefly:
     </div>
     <div class="col">
     <p><code>install.sh</code> copies this rule to <code>~/.agents/rules/session-memory.mdc</code>, links it into <code>~/.cursor/rules/</code>, and the sync mirrors it to <code>~/.claude/rules/session-memory.md</code>. By hand: write it there and link it the same way. Cursor loads that folder only for projects under your home folder. For other projects, paste the rule body (below the second <code>---</code>) into Customize &gt; Rules &gt; User Rules, next to the personal rule from <code>install.sh --print-user-rule</code>.</p>
+    <div class="cmd-block short" data-copy>
+      <div class="bar"><span>shell · reprint the User Rule (installed copy)</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>bash ~/.agents/scripts/install.sh --print-user-rule</pre>
+    </div>
     <div class="cmd-block tall" data-copy>
       <div class="bar"><span>~/.agents/rules/session-memory.mdc</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>---
@@ -1091,9 +1213,9 @@ linked at `~/.cursor/skills/` and `~/.claude/skills/`) when any of these happen:
 
 
 
-  <!-- 11 -->
+  <!-- 13 -->
   <section class="slide" data-title="Run sync">
-    <p class="eyebrow">Slide 11 · Step 4</p>
+    <p class="eyebrow">Slide 13 · Step 4</p>
     <h2>Bridge Cursor rules into Claude</h2>
     <p class="lead"><code>install.sh</code> runs this for Claude Code, so a fresh install is already synced. Re-run it after you add or remove a rule file:</p>
     <div class="cmd-block" data-copy>
@@ -1135,9 +1257,9 @@ bash ~/.agents/scripts/sync-personal-rules.sh --check</pre>
 
 
 
-  <!-- 12 -->
+  <!-- 14 -->
   <section class="slide fill" data-title="Full sync script">
-    <p class="eyebrow">Slide 12 · Full script</p>
+    <p class="eyebrow">Slide 14 · Full script</p>
     <h2><code>~/.agents/scripts/sync-personal-rules.sh</code></h2>
     <p class="lead">Complete script, as <code>install.sh</code> copies it. Scroll inside the box.</p>
     <div class="cmd-block tall grow" data-copy>
@@ -1422,9 +1544,9 @@ fi</pre>
 
 
 
-  <!-- 13 -->
+  <!-- 15 -->
   <section class="slide" data-title="Stop hook">
-    <p class="eyebrow">Slide 13 · Step 5 (optional)</p>
+    <p class="eyebrow">Slide 15 · Step 5 (optional)</p>
     <h2>Cursor stop nudge</h2>
     <p class="lead">Optional: wrap-up still works if you say <code>wrap up</code> / <code>update memory</code>. Ran <code>install.sh</code>? Skip this: it already registered <code>bash ~/.cursor/hooks/session-memory-stop.sh</code>, and a second entry means two stop hooks.</p>
     <div class="split-top">
@@ -1460,9 +1582,9 @@ chmod +x ~/.cursor/hooks/session-memory-stop.sh</pre>
 
 
 
-  <!-- 14 -->
+  <!-- 16 -->
   <section class="slide fill" data-title="Stop hook Python">
-    <p class="eyebrow">Slide 14 · Stop hook Python</p>
+    <p class="eyebrow">Slide 16 · Stop hook Python</p>
     <h2>Full <code>session-memory-stop.py</code></h2>
     <div class="cmd-block tall grow" data-copy>
       <div class="bar"><span>~/.cursor/hooks/session-memory-stop.py</span><button type="button" class="copy-btn">Copy</button></div>
@@ -1599,7 +1721,7 @@ if __name__ == "__main__":
         print("{}")
         raise SystemExit(0)</pre>
     </div>
-  <p class="hint">The follow-up names <code>~/.cursor/skills/session-memory/SKILL.md</code>: the Cursor link to <code>~/.agents/skills/session-memory</code> from slide 8, kept for compatibility.</p>
+  <p class="hint">The follow-up names <code>~/.cursor/skills/session-memory/SKILL.md</code>: the Cursor link to <code>~/.agents/skills/session-memory</code> from slide 10, kept for compatibility.</p>
   </section>
 
 
@@ -1608,9 +1730,9 @@ if __name__ == "__main__":
 
 
 
-  <!-- 15 -->
+  <!-- 17 -->
   <section class="slide" data-title="Verify">
-    <p class="eyebrow">Slide 15 · Verify</p>
+    <p class="eyebrow">Slide 17 · Verify</p>
     <h2>Confirm the install</h2>
     <div class="split-top">
     <div class="cmd-block" data-copy>
@@ -1648,6 +1770,11 @@ grep session-memory-stop ~/.claude/settings.json</pre>
         <tr><td>Say “update memory” after a correction</td><td>New or updated file under <code>lessons/</code>; bullet in <code>MEMORY.md</code></td></tr>
       </tbody>
     </table>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · optional: helpers and context-checker (slides 5 and 6)</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers
+bash ~/src/personal-agent-kit/agents/install-context-checker.sh</pre>
+    </div>
     <p>Claude Code: <code>install.sh</code> also adds the Claude stop hook. The <code>Stop</code> entry in <code>~/.claude/settings.json</code> runs <code>bash ~/.claude/hooks/session-memory-stop.sh</code>, a link to <code>~/.agents/hooks/claude/</code>.</p>
     </div>
     </div>
@@ -1659,9 +1786,9 @@ grep session-memory-stop ~/.claude/settings.json</pre>
 
 
 
-  <!-- 16 -->
+  <!-- 18 -->
   <section class="slide" data-title="Day to day">
-    <p class="eyebrow">Slide 16 · Usage</p>
+    <p class="eyebrow">Slide 18 · Usage</p>
     <h2>Day-to-day habit</h2>
     <ol class="steps">
       <li>Correct the agent when it does the wrong thing<span>Agent should mark <code>.hooks/&lt;id&gt;/needs-wrapup</code></span></li>
@@ -1688,9 +1815,9 @@ grep session-memory-stop ~/.claude/settings.json</pre>
 
 
 
-  <!-- 17 -->
+  <!-- 19 -->
   <section class="slide" data-title="Model tiers">
-    <p class="eyebrow">Slide 17 · Borrowed practice</p>
+    <p class="eyebrow">Slide 19 · Borrowed practice</p>
     <h2>Match the model to the work</h2>
     <p class="lead">Pin tiers, not versions. Pick the cheapest tier that clears the bar, and escalate per task, not for the whole session.</p>
     <table>
@@ -1719,56 +1846,9 @@ grep session-memory-stop ~/.claude/settings.json</pre>
 
 
 
-  <!-- 18 -->
-  <section class="slide" data-title="Read-only helpers">
-    <p class="eyebrow">Slide 18 · Borrowed practice</p>
-    <h2>Read-only helpers that cite file and line</h2>
-    <div class="grid-2">
-      <div class="card">
-        <div class="tag">examples/agents/code-reader.md</div>
-        <h3>code-reader</h3>
-        <p>Explains one file, module or PR diff: summary, structure, entry points and key functions, each with <code>path:line</code>. Describes, never judges.</p>
-      </div>
-      <div class="card">
-        <div class="tag info">examples/agents/doc-reader.md</div>
-        <h3>doc-reader</h3>
-        <p>Answers one question from a long doc, spec or web page: a direct answer, cited detail, and what the doc does not cover.</p>
-      </div>
-    </div>
-    <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Off by default: add <code>--with-helpers</code> to the install command. It installs both for each tool in <code>--tools</code>, backs up any file of yours with the same name, and uninstall puts it back.</p>
-    <div class="split-top three">
-    <div class="cmd-block" data-copy>
-      <div class="bar"><span>shell · install</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>bash ~/src/personal-agent-kit/scripts/install.sh</pre>
-    </div>
-    <div class="cmd-block" data-copy>
-      <div class="bar"><span>shell · with helpers</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers</pre>
-    </div>
-    <div class="cmd-block" data-copy>
-      <div class="bar"><span>shell · reprint the User Rule (installed copy)</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>bash ~/.agents/scripts/install.sh --print-user-rule</pre>
-    </div>
-    </div>
-    <table>
-      <thead><tr><th>Tool</th><th>Use it</th></tr></thead>
-      <tbody>
-        <tr><td>Claude Code</td><td>Check with <code>/agents</code>, then: "Use the code-reader subagent on <code>src/cart/checkout.ts</code>"</td></tr>
-        <tr><td>Cursor</td><td>Copies in <code>~/.cursor/agents/</code> (<code>model: inherit</code>, <code>readonly: true</code>). Call <code>/code-reader</code></td></tr>
-        <tr><td>Gemini CLI</td><td>Copies in <code>~/.gemini/agents/</code>, read-only tools only. Check with <code>/agents</code>, call <code>@code-reader</code></td></tr>
-      </tbody>
-    </table>
-  </section>
-
-
-
-
-
-
-
-  <!-- 19 -->
+  <!-- 20 -->
   <section class="slide" data-title="Self-audit prompt">
-    <p class="eyebrow">Slide 19 · Borrowed practice</p>
+    <p class="eyebrow">Slide 20 · Borrowed practice</p>
     <h2>Ask the agent to audit your setup</h2>
     <p>Paste into Claude Code, Cursor or Gemini CLI from the kit folder. It reads, ranks and waits for you to pick.</p>
     <div class="cmd-block tall" data-copy>
@@ -1802,7 +1882,7 @@ I pick. Show a diff before editing any file. Never commit or push.</pre>
 
 
 
-  <!-- 20 -->
+  <!-- 21 -->
   <section class="slide title-slide" data-title="Done">
     <p class="eyebrow">Done</p>
     <h1>You are set up when both tools read the same <code>MEMORY.md</code></h1>

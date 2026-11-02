@@ -195,5 +195,10 @@ The examples are in `hooks.example.json` (Cursor hooks),
   read-only helpers that cite file and line, and a self-audit prompt
 - [examples/](examples/): optional read-only subagents (installed only
   with `--with-helpers`)
+- [agents/](agents/): an optional sample subagent, `context-checker`, for
+  Cursor and Claude Code. Install it with
+  `bash ~/src/personal-agent-kit/agents/install-context-checker.sh`, which
+  writes `~/.agents/agents/context-checker.md` and links it into
+  `~/.cursor/agents/` and `~/.claude/agents/`
 - [companion/](companion/): rules bridge notes, session memory walkthrough
   and the cheat sheets

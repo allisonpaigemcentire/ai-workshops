@@ -124,6 +124,15 @@ Two caveats before you lean on them in Cursor:
 Both quotes are from the [Cursor subagent docs](https://cursor.com/docs/subagents),
 read on 2026-11-02.
 
+In the workshop deck, these helpers sit with the subagent slides, after
+the sample `context-checker` subagent in [`../agents/`](../agents/), and
+you install both once the kit is in place. `context-checker` works
+differently: one file in `~/.agents/agents/`, linked into
+`~/.cursor/agents/` and `~/.claude/agents/` by
+`agents/install-context-checker.sh`. If Cursor does not load the link,
+keep one real file in `~/.claude/agents/`, which Cursor also reads. It is
+not set up for Gemini CLI, which uses different tool names.
+
 To copy them by hand instead (for example into one repo's
 `.claude/agents/`), use `cp -n`, which never overwrites a file you already
 have:

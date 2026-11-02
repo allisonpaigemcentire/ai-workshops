@@ -84,6 +84,12 @@
   summary.
 - `docs/borrowed-practices.md`: Cursor caveats on legacy request-based plans
   and on the extra tokens parallel subagents use; Gemini CLI helper notes.
+- New `agents/`: a sample read-only subagent, `context-checker`, that checks
+  a change against the repo's `AGENTS.md`, `CLAUDE.md` and skills before a
+  PR, and `install-context-checker.sh`, which puts it in `~/.agents/agents/`
+  and links it into `~/.cursor/agents/` and `~/.claude/agents/`. It keeps an
+  existing copy, skips any real file or other link in the way, and is safe
+  to re-run. `install.sh` does not install it.
 - Review fixes: a helper copy you edited is no longer replaced when you
   re-run with `--with-helpers`; uninstall still puts back your original file
   after you deleted a helper copy and re-ran; the fill-in warning skips
