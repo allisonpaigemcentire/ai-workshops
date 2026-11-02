@@ -419,6 +419,40 @@
     .fit .split, .split-top { display: block; }
     .fit .split .cmd-block pre { max-height: min(72vh, 780px); }
   }
+  /* Fill layout: the slide is a column and a .grow code block takes the
+     remaining height and scrolls inside itself, so the slide never scrolls. */
+  .slide.fill { display: flex; flex-direction: column; }
+  .fill .grow { flex: 1; min-height: 6rem; display: flex; flex-direction: column; }
+  .fill .grow pre { flex: 1; min-height: 0; max-height: none; }
+  .fill .split2 {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .fill .split2 > .col { min-height: 0; display: flex; flex-direction: column; }
+  .fill .split2 .tx-card { margin: 0; overflow: auto; }
+  .fill .split2 > .col > :first-child { margin-top: 0; }
+  .fill .split2 .grow pre { white-space: pre-wrap; }
+  .fill .split4 {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    column-gap: 1rem;
+  }
+  .fill .split4 > * { grid-column: 1; min-height: 0; }
+  .fill .split4 > .cmd-block:first-child { margin-top: 0; }
+  .fill .split4 > .s4-mem { grid-column: 2; grid-row: 1 / 4; margin: 0; }
+  .fill .split4 > .s4-stg { grid-row: 3; margin-bottom: 0; }
+  .fill .split4 .grow pre { white-space: pre-wrap; }
+  @media (max-width: 900px) {
+    .slide.fill { display: block; }
+    .fill .split2, .fill .split4 { display: block; }
+    .fill .grow pre { max-height: min(72vh, 780px); }
+  }
 </style>
 </head>
 <body>
@@ -509,15 +543,16 @@
 
 
   <!-- 4 -->
-  <section class="slide" data-title="Create store">
+  <section class="slide fill" data-title="Create store">
     <p class="eyebrow">Slide 04 · Step 1</p>
     <h2>Create the memory store</h2>
+    <div class="split4">
     <div class="cmd-block" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>mkdir -p ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks</pre>
     </div>
-    <p>Seed the index and staging file:</p>
-    <div class="cmd-block" data-copy>
+    <p>Seed the index and staging file. Long files scroll inside the box.</p>
+    <div class="cmd-block grow s4-mem" data-copy>
       <div class="bar"><span>~/.ai-memory/MEMORY.md</span><button type="button" class="copy-btn">Copy</button></div>
       <pre># Personal AI memory (machine-local)
 
@@ -543,7 +578,7 @@ git-tracked journals.
 2. **Apply** — Obey active lessons before repeating a past mistake class.
 3. **Write** — Only via the `session-memory` skill after real corrections or an explicit wrap-up. Never invent lessons.</pre>
     </div>
-    <div class="cmd-block" data-copy>
+    <div class="cmd-block grow s4-stg" data-copy>
       <div class="bar"><span>~/.ai-memory/STAGED.md</span><button type="button" class="copy-btn">Copy</button></div>
       <pre># Staged promotions (human review)
 
@@ -558,6 +593,7 @@ Agents **append** rows; they do not silently edit shared repos.
 |------|------|---------------|----------------------|-----------|--------|
 | _(none yet)_ | | | | | |</pre>
     </div>
+    </div>
   </section>
 
 
@@ -567,9 +603,11 @@ Agents **append** rows; they do not silently edit shared repos.
 
 
   <!-- 5 -->
-  <section class="slide" data-title="Install skill">
+  <section class="slide fill" data-title="Install skill">
     <p class="eyebrow">Slide 05 · Step 2</p>
     <h2>Install the session-memory skill</h2>
+    <div class="split2">
+    <div class="col">
     <section class="tx-card">
       <p class="label">For executive conversations · 20-second card</p>
       <p class="twenty">The skill is the detailed runbook — you only open it when it is time to write a lesson down. Think of it as the long checklist for one pipeline stage, not something that runs on every build. That keeps everyday chat cheap and still gives a repeatable write path when someone says wrap up.</p>
@@ -586,8 +624,10 @@ Agents **append** rows; they do not silently edit shared repos.
         </tbody>
       </table>
     </section>
+    </div>
+    <div class="col">
     <p class="lead">Canonical body under Cursor. Claude discovers the same files through a symlink.</p>
-    <div class="cmd-block" data-copy>
+    <div class="cmd-block grow" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>mkdir -p ~/.cursor/skills/session-memory
 # Place SKILL.md at: ~/.cursor/skills/session-memory/SKILL.md
@@ -613,6 +653,8 @@ ls -la ~/.claude/skills/session-memory
         <p>Never invent lessons. Only store explicit corrections or confirmed “do it this way.”</p>
       </div>
     </div>
+    </div>
+    </div>
   </section>
 
 
@@ -622,11 +664,11 @@ ls -la ~/.claude/skills/session-memory
 
 
   <!-- 6 -->
-  <section class="slide" data-title="SKILL.md">
+  <section class="slide fill" data-title="SKILL.md">
     <p class="eyebrow">Slide 06 · Skill body</p>
     <h2>Full <code>SKILL.md</code></h2>
     <p>Write this file to <code>~/.cursor/skills/session-memory/SKILL.md</code>.</p>
-    <div class="cmd-block tall" data-copy>
+    <div class="cmd-block tall grow" data-copy>
       <div class="bar"><span>~/.cursor/skills/session-memory/SKILL.md</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>---
 name: session-memory
@@ -941,11 +983,11 @@ bash scripts/sync-personal-rules.sh --check</pre>
 
 
   <!-- 9 -->
-  <section class="slide" data-title="Full sync script">
+  <section class="slide fill" data-title="Full sync script">
     <p class="eyebrow">Slide 09 · Full script</p>
     <h2><code>scripts/sync-personal-rules.sh</code></h2>
     <p class="lead">Complete script — scroll inside the box, then Copy.</p>
-    <div class="cmd-block tall" data-copy>
+    <div class="cmd-block tall grow" data-copy>
       <div class="bar"><span>scripts/sync-personal-rules.sh (complete)</span><button type="button" class="copy-btn">Copy</button></div>
       <pre id="full-script">#!/usr/bin/env bash
 # OPTIONAL: mirror extra Cursor-only ~/.cursor/rules/*.mdc into Claude.
@@ -1266,10 +1308,10 @@ chmod +x ~/.cursor/hooks/session-memory-stop.sh</pre>
 
 
   <!-- 11 -->
-  <section class="slide" data-title="Stop hook Python">
+  <section class="slide fill" data-title="Stop hook Python">
     <p class="eyebrow">Slide 11 · Stop hook Python</p>
     <h2>Full <code>session-memory-stop.py</code></h2>
-    <div class="cmd-block tall" data-copy>
+    <div class="cmd-block tall grow" data-copy>
       <div class="bar"><span>~/.cursor/hooks/session-memory-stop.py</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>#!/usr/bin/env python3
 """Cursor stop hook: nudge session-memory wrap-up after corrections (capped).
