@@ -477,6 +477,7 @@
       <span class="chip">Personal only, not git</span>
       <span class="chip">← → or click to navigate</span>
     </div>
+    <p class="hint">This deck and the other <code>companion/</code> files are in the kit folder you downloaded: <code>personal-agent-kit/companion/</code>.</p>
   </section>
 
 
@@ -502,8 +503,8 @@
       </div>
       <div class="card">
         <div class="tag warn">Optional nudge</div>
-        <h3>Cursor stop hook</h3>
-        <p>If a correction was marked and wrap-up was skipped, nudge the agent to run the skill.</p>
+        <h3>Stop hooks for both tools</h3>
+        <p>If a correction was marked and wrap-up was skipped, nudge the agent to run the skill. One for Cursor, one for Claude Code.</p>
       </div>
     </div>
     <table>
@@ -630,19 +631,23 @@ Agents **append** rows; they do not silently edit shared repos.
     <p class="lead">Canonical body in <code>~/.agents/skills/</code> (Gemini CLI reads it there). Cursor and Claude get links: re-run <code>install.sh</code>, or link by hand.</p>
     <div class="cmd-block grow" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre># Real ~/.cursor/skills/session-memory/ from before? Move it first (else ln nests):
-# mkdir -p ~/.agents/skills &amp;&amp; mv ~/.cursor/skills/session-memory ~/.agents/skills/
-mkdir -p ~/.agents/skills/session-memory
-# Place SKILL.md at: ~/.agents/skills/session-memory/SKILL.md
-# (full body on the next slide, or copy from a teammate’s template)
+      <pre># Old real (not linked) folder in ~/.cursor/skills or ~/.claude/skills?
+# Move it to ~/.agents/skills, or to a dated .bak if that exists, so ln never nests.
+mkdir -p ~/.agents/skills ~/.agent-kit-backups
+a=~/.agents/skills/session-memory
+for t in cursor claude; do
+  d=~/."$t"/skills/session-memory
+  [ -d "$d" ] &amp;&amp; [ ! -L "$d" ] || continue
+  if [ -e "$a" ] || [ -L "$a" ]; then
+    mv -v "$d" ~/.agent-kit-backups/session-memory.$t.$(date +%Y%m%d-%H%M%S).bak
+  else mv -v "$d" "$a"; fi
+done
+mkdir -p "$a"   # SKILL.md goes here (next slide)
 
 # Links (re-running install.sh makes the same two)
 mkdir -p ~/.cursor/skills ~/.claude/skills
 ln -sfn ~/.agents/skills/session-memory ~/.cursor/skills/session-memory
-ln -sfn ~/.agents/skills/session-memory ~/.claude/skills/session-memory
-
-ls -la ~/.cursor/skills/session-memory ~/.claude/skills/session-memory
-# expect: …/session-memory -> …/.agents/skills/session-memory</pre>
+ln -sfn ~/.agents/skills/session-memory ~/.claude/skills/session-memory</pre>
     </div>
     <div class="grid-2">
       <div class="card">
@@ -819,6 +824,11 @@ After wrap-up, report briefly:
 - Lessons added / updated (slugs)
 - Whether anything was staged for promotion
 - Reminder to re-run personal-rules sync if a `~/.cursor/rules/` file changed</pre>
+    </div>
+  <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · check the links</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>ls -la ~/.cursor/skills/session-memory ~/.claude/skills/session-memory
+# expect: …/session-memory -> …/.agents/skills/session-memory</pre>
     </div>
   </section>
 
@@ -1451,6 +1461,7 @@ if __name__ == "__main__":
         print("{}")
         raise SystemExit(0)</pre>
     </div>
+  <p class="hint">The follow-up names <code>~/.cursor/skills/session-memory/SKILL.md</code>: the Cursor link to <code>~/.agents/skills/session-memory</code> from slide 5, kept for compatibility.</p>
   </section>
 
 
@@ -1499,7 +1510,7 @@ grep session-memory-stop ~/.claude/settings.json</pre>
         <tr><td>Say “update memory” after a correction</td><td>New or updated file under <code>lessons/</code>; bullet in <code>MEMORY.md</code></td></tr>
       </tbody>
     </table>
-    <p>Claude Code: <code>install.sh</code> also adds the Claude stop hook. It links it into <code>~/.claude/hooks/</code> and adds a <code>Stop</code> entry in <code>~/.claude/settings.json</code>.</p>
+    <p>Claude Code: <code>install.sh</code> also adds the Claude stop hook. The <code>Stop</code> entry in <code>~/.claude/settings.json</code> runs <code>bash ~/.claude/hooks/session-memory-stop.sh</code>, a link to <code>~/.agents/hooks/claude/</code>.</p>
     </div>
     </div>
   </section>
@@ -1739,7 +1750,7 @@ Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
       <div class="card">
         <div class="tag info">Audit</div>
         <h3>Re-run the slide 20 prompt</h3>
-        <p>Its list already includes <code>~/.claude/agents/</code> and <code>~/.cursor/agents/</code>. Ask it to rank which experts overlap or have gone stale.</p>
+        <p>Its list includes <code>~/.claude/agents/</code>, <code>~/.cursor/agents/</code> and <code>~/.gemini/agents/</code>. Ask it which experts overlap or have gone stale.</p>
       </div>
       <div class="card">
         <div class="tag info">Silent skips</div>
@@ -1803,8 +1814,9 @@ small. Never print a token or other secret value.
 
 Look at: ~/.agents/instructions/shared.md, ~/.agents/rules/,
 ~/.claude/CLAUDE.md, ~/.claude/settings.json, ~/.claude/agents/,
-~/.cursor/rules/, ~/.cursor/agents/, ~/.gemini/GEMINI.md and
-~/.gemini/settings.json. Ask me which repos to include; do not scan my disk.
+~/.cursor/rules/, ~/.cursor/agents/, ~/.gemini/GEMINI.md,
+~/.gemini/settings.json and ~/.gemini/agents/. Ask me which repos to
+include; do not scan my disk.
 
 Compare them with docs/borrowed-practices.md in this kit: model tiers,
 lean context, read-only helpers that cite file and line, and the permission

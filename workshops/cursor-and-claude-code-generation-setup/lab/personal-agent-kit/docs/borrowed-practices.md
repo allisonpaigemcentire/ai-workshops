@@ -146,8 +146,9 @@ small. Never print a token or other secret value.
 
 Look at: ~/.agents/instructions/shared.md, ~/.agents/rules/,
 ~/.claude/CLAUDE.md, ~/.claude/settings.json, ~/.claude/agents/,
-~/.cursor/rules/, ~/.cursor/agents/, ~/.gemini/GEMINI.md and
-~/.gemini/settings.json. Ask me which repos to include; do not scan my disk.
+~/.cursor/rules/, ~/.cursor/agents/, ~/.gemini/GEMINI.md,
+~/.gemini/settings.json and ~/.gemini/agents/. Ask me which repos to
+include; do not scan my disk.
 
 Compare them with docs/borrowed-practices.md in this kit: model tiers,
 lean context, read-only helpers that cite file and line, and the permission
