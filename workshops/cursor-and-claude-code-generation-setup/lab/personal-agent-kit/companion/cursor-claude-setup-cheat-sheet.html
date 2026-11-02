@@ -1,0 +1,190 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cheat sheet: How to set up Cursor and Claude for better code generation</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f4f6f8; --ink: #1e2935; --muted: #5c6b7a; --panel: #ffffff;
+  --panel-2: #eef2f5; --line: #d5dde5; --accent: #3d6b8a; --warn: #8a5a2b; --code: #2a3a4a;
+  --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+body { font-family: var(--font-body); background: var(--bg); color: var(--ink); line-height: 1.38; font-size: 12.5px; }
+.page { max-width: 1240px; margin: 0 auto; padding: 14px 18px 12px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 10px; }
+.eyebrow { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 2px; }
+h1 { font-family: var(--font-display); font-size: 22px; font-weight: 800; line-height: 1.15; }
+.lede { color: var(--muted); margin-top: 3px; max-width: 760px; }
+.meta { text-align: right; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; }
+h2 { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--accent); margin-bottom: 5px; letter-spacing: 0.01em; }
+h2 .n { display: inline-block; min-width: 18px; color: var(--muted); font-weight: 600; }
+p + p, p + ul, ul + p, pre + p, p + pre, table + p { margin-top: 5px; }
+ul, ol { padding-left: 15px; display: flex; flex-direction: column; gap: 3px; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--panel-2); padding: 0.05em 0.3em; border-radius: 3px; color: var(--code); overflow-wrap: anywhere; }
+pre { margin: 4px 0; padding: 5px 7px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; font-family: var(--mono); font-size: 10.5px; line-height: 1.45; color: var(--code); white-space: pre-wrap; overflow-wrap: anywhere; }
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+th, td { text-align: left; padding: 3px 5px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+tr:last-child td { border-bottom: none; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.note { font-size: 11px; color: var(--muted); }
+.warn { font-size: 11px; color: var(--warn); }
+.order { counter-reset: o; list-style: none; padding-left: 0; }
+.order li { counter-increment: o; padding-left: 18px; position: relative; }
+.order li::before { content: counter(o); position: absolute; left: 0; top: 1px; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 9px; font-weight: 700; text-align: center; line-height: 13px; }
+.help { background: #e8f0f6; border-color: #b9cddc; }
+.help a { color: var(--accent); font-weight: 600; }
+footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex; justify-content: space-between; gap: 12px; }
+@page { size: letter landscape; margin: 0.3in; }
+@media print {
+  body { background: #fff; font-size: 9.2px; line-height: 1.34; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { max-width: none; padding: 0; }
+  h1 { font-size: 17px; }
+  h2 { font-size: 11px; }
+  pre { font-size: 8.3px; line-height: 1.4; }
+  table, .note, .warn { font-size: 8.5px; }
+  .panel { padding: 6px 8px; break-inside: avoid; }
+  .grid, .col { gap: 6px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div>
+    <p class="eyebrow">Nuuly Engineering · AI Adoption · Cheat sheet</p>
+    <h1>How to set up Cursor and Claude for better code generation</h1>
+    <p class="lede">One personal folder, <code>~/.agents/</code>, feeds Cursor, Claude Code and Gemini CLI, so all three follow the same preferences. The repo always wins over it. A few small rules and hooks stop the agents from pushing, committing or burning context without you asking.</p>
+  </div>
+  <div class="meta">Training: Mon Nov 2, 4:30 to 5:00 PM ET<br>Supported tools: Cursor, Claude Code, Gemini</div>
+</header>
+
+<div class="grid">
+<!-- Column 1 -->
+<div class="col">
+  <section class="panel">
+    <h2><span class="n">1</span>What the kit is</h2>
+    <ul>
+      <li><strong>You do not need it to start.</strong> Repo skills and Cursor Cloud work with no setup. The kit is optional, for people who use more than one AI tool on their own machine.</li>
+      <li>You edit one file, <code>~/.agents/instructions/shared.md</code>. A wire script writes a thin wrapper into each tool's home folder.</li>
+      <li>Personal files say how you like answers, commits and PRs. They never say how to build, test, branch or lint a repo. The repo owns that.</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">2</span>Who wins on a conflict</h2>
+    <ol class="order">
+      <li>What you type in this chat turn.</li>
+      <li>The repo: nearest <code>AGENTS.md</code>, <code>.agents/skills/</code>, repo hooks and rules.</li>
+      <li>Thin repo adapters (<code>CLAUDE.md</code> pointing to <code>AGENTS.md</code>, <code>.gemini/settings.json</code>).</li>
+      <li>Personal: <code>~/.agents/instructions/shared.md</code> and its wrappers.</li>
+      <li>Model defaults.</li>
+    </ol>
+    <p class="note">Cursor Cloud agents do not load these personal files. They only see the repo.</p>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">3</span>Where things live</h2>
+    <pre><code>~/.agents/
+  instructions/shared.md <span class="c"># always-on prefs</span>
+  rules/*.mdc            <span class="c"># extra rules</span>
+  hooks/cursor/, claude/ <span class="c"># stop + cost hooks</span>
+  scripts/               <span class="c"># install, wire, sync</span>
+  statusline/            <span class="c"># Claude status line</span></code></pre>
+    <table>
+      <thead><tr><th>Tool</th><th>How it reads <code>~/.agents</code></th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code</td><td><code>~/.claude/CLAUDE.md</code> imports <code>shared.md</code> live. Rules are linked into <code>~/.claude/rules/</code>.</td></tr>
+        <tr><td>Cursor</td><td>Main: a User Rule you paste (Customize &gt; Rules &gt; User Rules). Fallback: <code>~/.cursor/rules/personal-instructions.mdc</code>, projects under home only. Rules and hooks are linked.</td></tr>
+        <tr><td>Gemini CLI</td><td><code>~/.gemini/GEMINI.md</code> holds a copy. Re-run wire after edits.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</div>
+
+<!-- Column 2 -->
+<div class="col">
+  <section class="panel">
+    <h2><span class="n">4</span>Install (one command)</h2>
+    <p>Download <a href="https://github.com/allisonpaigemcentire/ai-workshops/raw/main/workshops/cursor-and-claude-code-generation-setup/lab/personal-agent-kit-v2.zip">personal-agent-kit-v2.zip</a>, unzip it into <code>~/src</code>, then run (needs <code>python3</code> 3.8 or newer):</p>
+    <pre><code>mkdir -p ~/src &amp;&amp; unzip ~/Downloads/personal-agent-kit-v2.zip -d ~/src</code></pre>
+    <pre><code>bash ~/src/personal-agent-kit/scripts/install.sh</code></pre>
+    <p class="note">It shows a preview, asks once, then installs: copies the kit into <code>~/.agents/</code>, links rules, hooks and the status line, writes the Cursor, Claude Code and Gemini wrappers, and merges the hooks and status line into your config files (no Atlassian MCP server: Jira goes through <code>acli</code>; if <code>acli</code> is missing, or installed but not on your PATH, the installer prints the fix; sign in once with <code>acli jira auth login --web</code>). It backs up every file first (<code>~/.agent-kit-backups/</code>), adds only what is missing and is safe to re-run. Preview only: add <code>--dry-run</code>.</p>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">5</span>Then finish</h2>
+    <ol class="order">
+      <li>Fill in the <code>&lt;placeholders&gt;</code> in <code>~/.agents/instructions/shared.md</code>, then re-run the install command.</li>
+      <li>Cursor: paste the printed User Rule into Customize &gt; Rules &gt; User Rules. Re-print after edits: <code>install.sh --print-user-rule</code>.</li>
+      <li>Start a new chat in each tool. In Gemini CLI, trust your project folder or MCP servers stay off.</li>
+      <li>Optional: turn on code intelligence (LSP). See <code>docs/enable-lsp.md</code>.</li>
+      <li>Optional: re-run with <code>--with-helpers</code> for three read-only subagents (Claude, Cursor; Gemini gets two).</li>
+      <li>Undo any time: <code>bash ~/.agents/scripts/uninstall.sh</code>. It cannot see Cursor's User Rules: delete the pasted rule there yourself.</li>
+    </ol>
+  </section>
+</div>
+
+<!-- Column 3 -->
+<div class="col">
+  <section class="panel">
+    <h2><span class="n">6</span>Why long sessions degrade</h2>
+    <ul>
+      <li>Everything always-on loads into every chat: <code>shared.md</code>, always-apply rules, and the description of every MCP tool you have connected.</li>
+      <li>A long chat also carries every earlier turn and file read forward, so each new answer costs more.</li>
+      <li>The optional Cursor cost guard nudges you once to start a fresh chat past <strong>25 turns</strong> or <strong>15M input tokens</strong>. It only works with the Span hook log and stays silent without it.</li>
+    </ul>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">7</span>Keep context lean</h2>
+    <ul>
+      <li>Keep always-on files short. Put long, task-specific rules on request.</li>
+      <li>Claude ignores <code>alwaysApply: false</code>, so list situational rules in <code>rules/.claude-exclude</code>.</li>
+      <li>Let the main chat plan. Send exploration and huge-file reads to a subagent or second session that returns a short finding.</li>
+      <li>Start a new chat or <code>/clear</code> at phase boundaries.</li>
+      <li>Use a cheaper model for mechanical edits.</li>
+      <li>Prefer CLIs (<code>gh</code>, <code>acli</code>) over MCP servers for reads.</li>
+      <li>Watch the Claude status line: model, branch, PR and context %.</li>
+    </ul>
+    <p class="note">Model tiers and more: <code>docs/borrowed-practices.md</code>.</p>
+  </section>
+
+  <section class="panel">
+    <h2><span class="n">8</span>Quick commands and habits</h2>
+    <!-- Push gate: before any push the agent scans for leftover REVIEW(context): notes and refuses until they are gone. -->
+    <pre><code><span class="c"># check that wrappers and rule links have not drifted</span>
+bash ~/.agents/scripts/wire-personal-agents.sh --check
+bash ~/.agents/scripts/sync-personal-rules.sh --check
+<span class="c"># the push-gate scan</span>
+git grep -n 'REVIEW(context):' || true</code></pre>
+    <ul>
+      <li>Confirm prefs loaded: <code>/memory</code> in Claude, <code>/memory show</code> in Gemini, a quote test in Cursor.</li>
+      <li>Every change: investigate, plan, write, then run the repo's own build, test and lint.</li>
+      <li>You own every line you ship. If you cannot explain a change, ask the agent to walk you through it or cut it.</li>
+    </ul>
+  </section>
+
+  <section class="panel help">
+    <h2>Where to get help</h2>
+    <p><strong>Friday AI Adoption Drop in Q&amp;A</strong>, 9:30 AM ET. The join link is in the calendar invite.</p>
+    <p class="note">Never share: tokens or MCP configs that hold them, <code>~/.gemini/oauth_creds.json</code>, <code>~/.claude.json</code>, <code>~/.ai-memory/</code>. Never push <code>~/.agents</code> to a public remote.</p>
+  </section>
+</div>
+</div>
+
+<footer>
+  <span>Sources: the training's setup page and the personal agent kit README, scripts, rules and hooks.</span>
+</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,77 @@
+---
+description: Load and update personal cross-tool session memory (~/.ai-memory)
+alwaysApply: true
+---
+
+# Session memory (Local Only)
+
+This rule is **local to this machine** (`~/.agents/rules/`, linked into
+`~/.cursor/rules/`) and applies across all repos. Claude mirrors it via
+`~/.agents/scripts/sync-personal-rules.sh`. It needs the `session-memory` skill and the
+stop hooks in `~/.cursor/hooks/` and `~/.claude/hooks/`; drop this rule if you do not use them.
+
+Create the store once: `mkdir -p ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks`,
+then add `MEMORY.md` and `STAGED.md` (starter text: `companion/personal-session-memory-setup.html`, slide 9).
+Never share or commit `~/.ai-memory/`.
+
+## Canonical store
+
+`~/.ai-memory/`: personal, machine-local. Not Claude project auto-memory and
+not git-tracked journals.
+
+| Path | Role |
+|------|------|
+| `~/.ai-memory/MEMORY.md` | Distilled active-lesson index (always load) |
+| `~/.ai-memory/lessons/*.md` | One durable lesson per file |
+| `~/.ai-memory/sessions/` | Optional raw wrap-up notes |
+| `~/.ai-memory/STAGED.md` | Promotion candidates (human review) |
+| `~/.ai-memory/.hooks/` | Stop-nudge markers (do not invent lessons here) |
+
+## Load (every session)
+
+1. **Read** `~/.ai-memory/MEMORY.md` early in the session (or before acting on
+   a task that could repeat a past mistake class).
+2. Obey active lessons. Open linked `lessons/<slug>.md` when the one-liner is
+   not enough.
+3. Keep the index under its documented size budget when you edit it.
+
+## Mark corrections
+
+When the user corrects you (or you discover a durable “never do X again”):
+
+1. Resolve a conversation id if available (`conversation_id` / chat id from the
+   environment or hook payload). If unknown, use `unknown`.
+2. Ensure `~/.ai-memory/.hooks/<conversation_id>/` exists.
+3. Write or touch `needs-wrapup` in that directory (content can be a one-line
+   reason). Do **not** invent a full lesson yet. Wait for wrap-up.
+
+## Wrap-up triggers
+
+Run the **`session-memory`** skill (read `~/.agents/skills/session-memory/SKILL.md`,
+linked at `~/.cursor/skills/` and `~/.claude/skills/`) when any of these happen:
+
+- User says **done**, **wrap up**, **capture learnings**, or **update memory**
+- Stop-hook follow-up asks you to update session memory
+- You are about to end a session that has a `needs-wrapup` marker
+
+## Write rules
+
+- Never invent lessons. Only write what the user corrected or explicitly confirmed.
+- Prefer negative constraints: “when X, never Y / always Z.”
+- Deduplicate against existing `lessons/` before adding a new slug.
+- After a successful wrap-up, remove `needs-wrapup` and write `wrapped-up` for
+  that conversation id so the stop nudge stays quiet.
+
+## Promotion ladder (do not dump everything into always-on rules)
+
+| Kind | Destination |
+|------|-------------|
+| Personal “never do X again” | `~/.ai-memory/lessons/` + `MEMORY.md` |
+| Personal workflow habit | Propose `~/.cursor/rules/*.mdc` + remind to run `~/.agents/scripts/sync-personal-rules.sh` |
+| Repo / team convention | Ask before editing that repo’s `AGENTS.md`; stage in `STAGED.md` if unsure |
+
+## Do not
+
+- Treat Claude `~/.claude/projects/*/memory/` as the shared store
+- Auto-commit learnings into shared repos without explicit user instruction
+- Grow `MEMORY.md` past its size budget

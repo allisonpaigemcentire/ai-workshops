@@ -1,0 +1,9 @@
+# Cursor rule stems NOT mirrored into ~/.claude/rules/
+# Claude loads every file in ~/.claude/rules/ and ignores alwaysApply: false,
+# so list situational (on-request) Cursor rules here. One stem per line.
+
+# The wire script's Cursor wrapper; Claude already @-imports shared.md.
+personal-instructions
+
+# Add your long, task-specific rules below, for example:
+# creating-pull-requests

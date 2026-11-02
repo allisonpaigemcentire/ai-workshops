@@ -1,0 +1,68 @@
+---
+description: Never commit without explicit instruction; use --no-verify only for pre-existing linter failures
+alwaysApply: true
+---
+
+# Git Commit Policy (Local Only)
+
+This rule is **local to this machine** (`~/.agents/rules/`, linked into
+`~/.cursor/rules/` and `~/.claude/rules/`) and applies across all repos.
+A repo's own commit policy wins on conflict.
+
+## Never commit without explicit instruction
+
+- Never run `git commit` (including `--amend`) unless the user has explicitly
+  instructed you, in the current turn, to make that specific commit.
+- Approving a plan, a diff, a PR description, or saying "looks good" does not
+  imply permission to commit.
+- Do not treat shorthand like "clean up," "proceed," "wrap this up," or
+  "finish it" as authorization to commit. Ask first if it is unclear.
+- This overrides repo guidance that describes committing as automatic, "safe to
+  do autonomously," or a routine step of a skill/workflow. Pause and get
+  explicit confirmation before running `git commit`, even mid-skill.
+- This governs commit creation only; it does not relax or replace any existing
+  repo policy on `git push`.
+
+## Use --no-verify only for pre-existing failures
+
+When the user explicitly asks you to **make a commit**:
+
+1. **Scope the linter** — Run the repo's normal linter on the files you intend
+   to commit (file-scoped when the repo supports it; otherwise the smallest
+   scope that covers staged changes).
+
+2. **Classify failures** — If the linter reports errors:
+   - **Pre-existing:** violations on lines or files **outside** the current
+     commit diff (unchanged by staged + unstaged changes for this commit).
+   - **Introduced:** violations on lines or files **inside** that diff.
+
+3. **Commit decision**
+   - **Only pre-existing errors** → proceed with the commit using
+     `--no-verify`. Say briefly that hook was skipped because failures
+     predated this change.
+   - **Any introduced error** → do **not** use `--no-verify` to hide new
+     problems. Fix introduced issues, or tell the user what still fails and
+     ask how to proceed.
+   - **No linter errors** → commit normally (respect repo-specific commit
+     rules).
+
+4. **When classification is unclear** — Prefer running the linter on
+   changed files only; if full-repo lint fails but changed-file lint is
+   clean, treat repo-wide failures as pre-existing and use `--no-verify`.
+
+## Do not
+
+- Use `--no-verify` for commits the user did not ask for.
+- Use `--no-verify` to bypass errors your changes introduced.
+- Treat this rule as permission to skip hooks when the user asked for a
+  clean, fully verified commit.
+
+## Examples
+
+```bash
+# Pre-existing SwiftLint issues elsewhere; user's diff is clean
+git commit --no-verify -m "message"
+
+# New lint on a line you edited — fix or ask; no --no-verify
+git commit -m "message"
+```
