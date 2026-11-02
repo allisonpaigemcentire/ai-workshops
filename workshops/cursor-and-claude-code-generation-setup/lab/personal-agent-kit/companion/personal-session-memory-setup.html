@@ -1482,11 +1482,10 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
         <p>Answers one question from a long doc, spec or web page: a direct answer, cited detail, and what the doc does not cover.</p>
       </div>
     </div>
-    <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Optional: the installer does not copy them.</p>
+    <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Off by default: add <code>--with-helpers</code> to the install command. It backs up any file of yours with the same name, and uninstall puts it back.</p>
     <div class="cmd-block" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>mkdir -p ~/.claude/agents
-cp -n ~/src/personal-agent-kit/examples/agents/*.md ~/.claude/agents/</pre>
+      <pre>bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers</pre>
     </div>
     <table>
       <thead><tr><th>Tool</th><th>Use it</th></tr></thead>

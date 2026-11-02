@@ -1,6 +1,14 @@
 # Examples (optional)
 
-Not installed by `scripts/install.sh`. Copy what you want by hand.
+Off by default. To install both, run the installer with `--with-helpers`:
+
+```bash
+bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers
+```
+
+It links them into `~/.claude/agents/` (Cursor reads that folder too), backs
+up any file of yours with the same name first, and `uninstall.sh` puts it
+back. Or copy what you want by hand.
 
 | File | What it is |
 |------|------------|

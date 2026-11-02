@@ -39,7 +39,7 @@ bash ~/.agents/scripts/sync-personal-rules.sh --check
 
 Recommended next: turn on code intelligence so the agent navigates by symbol
 and sees its own type errors. See [`enable-lsp.md`](enable-lsp.md)
-(adapted from Sean Wilson's local-agent-optimizations).
+(adapted from a community kit).
 
 ## Precedence: the repo wins
 
@@ -71,7 +71,7 @@ to build, test, branch, or lint a given repo; the repo owns that.
 | `scripts/uninstall.sh` | Undoes what the installer recorded |
 | `docs/enable-lsp.md` | Turn on LSP code intelligence in Claude Code and Cursor (Python, TS/JS, Swift, Kotlin) |
 | `docs/borrowed-practices.md` | Model tiers per tool, lean context, a self-audit prompt and permission lessons |
-| `examples/agents/*.md` | Optional read-only `code-reader` and `doc-reader` subagents that cite file and line; not installed |
+| `examples/agents/*.md` | Optional read-only `code-reader` and `doc-reader` subagents that cite file and line; linked into `~/.claude/agents/` only with `install.sh --with-helpers` |
 
 Not included on purpose: personal skills, PR-authoring rules with reviewer
 lists, and anything team-wide. Team skills come from the team skills MCP

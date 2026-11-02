@@ -41,7 +41,8 @@ bash ~/src/personal-agent-kit/scripts/install.sh --dry-run
 ```
 
 Other options: `--yes` (no prompt), `--tools=cursor,claude` (only some
-tools), `--no-mcp` (skip MCP servers).
+tools), `--no-mcp` (skip MCP servers), `--with-helpers` (also link the
+optional read-only `code-reader` and `doc-reader` subagents; off by default).
 
 Then fill in the `<placeholders>` in `~/.agents/instructions/shared.md` and
 run the same install command again. Start a new chat in each tool.
@@ -64,6 +65,7 @@ again to link it.
 | Claude Code user MCP list | Adds the same servers with `claude mcp add`, if `claude` is installed. |
 | `~/.gemini/GEMINI.md` | Adds one marked section with a copy of `shared.md`. Your lines and Gemini's saved memories stay. |
 | `~/.gemini/settings.json` | Adds the same MCP servers. |
+| `~/.claude/agents/` | Only with `--with-helpers`: links `code-reader.md` and `doc-reader.md`. Cursor reads this folder too. A file of yours with the same name is backed up, then replaced. |
 
 How it stays safe:
 
@@ -100,7 +102,8 @@ bash ~/.agents/scripts/uninstall.sh
 ```
 
 This removes only what the installer recorded: its links, its marked
-sections, its wrapper and its config entries. Files are backed up first. It
+sections, its wrapper and its config entries. If `--with-helpers` replaced a
+file of yours in `~/.claude/agents/`, uninstall puts it back. Files are backed up first. It
 leaves `~/.agents/` and your backups, so delete those yourself if you want
 (`rm -rf ~/.agents ~/.agent-kit-backups`). To restore a file exactly as it
 was, copy it back from `~/.agent-kit-backups/<time>/`.
@@ -121,6 +124,7 @@ under `mcpServers` in `~/.gemini/settings.json`.
 - [docs/borrowed-practices.md](docs/borrowed-practices.md): model tiers,
   read-only helpers that cite file and line, a self-audit prompt and
   permission lessons
-- [examples/](examples/): optional read-only subagents (not installed)
+- [examples/](examples/): optional read-only subagents (installed only
+  with `--with-helpers`)
 - [companion/](companion/): rules bridge notes, session memory walkthrough
   and the cheat sheets

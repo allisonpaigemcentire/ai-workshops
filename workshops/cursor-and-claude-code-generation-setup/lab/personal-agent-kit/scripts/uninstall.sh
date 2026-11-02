@@ -7,6 +7,8 @@
 #
 # Removes only what the installer recorded in ~/.agents/.kit-installed:
 #   - the links it made (only if they still point where it pointed them)
+#   - the optional helper links (--with-helpers); a file of yours that a
+#     helper replaced is copied back from its backup
 #   - the managed region in ~/.claude/CLAUDE.md and ~/.gemini/GEMINI.md
 #     (your other lines stay; a file left empty is removed)
 #   - ~/.cursor/rules/personal-instructions.mdc (if it is the kit's wrapper)
@@ -30,7 +32,7 @@ for arg in "$@"; do
   case "$arg" in
     --dry-run) PREVIEW_ONLY=1 ;;
     -y|--yes) YES=1 ;;
-    -h|--help) sed -n '2,17p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    -h|--help) sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unknown argument: $arg (try --help)" >&2; exit 2 ;;
   esac
 done
@@ -68,10 +70,16 @@ strip_region() {  # strip_region <file>
 }
 
 steps() {
-  local kind a b
-  while IFS=$'\t' read -r kind a b _; do
+  local kind a b c
+  while IFS=$'\t' read -r kind a b c _; do
     if [[ "$kind" == link && -L "$a" && "$(readlink "$a")" == "$b" ]]; then
       if (( DRY )); then say "would: remove link $a"; else rm "$a"; say "removed link $a"; fi
+    elif [[ "$kind" == helper && -L "$a" && "$(readlink "$a")" == "$b" ]]; then
+      # A helper link that replaced a file of yours: put yours back.
+      if (( DRY )); then say "would: remove link $a and restore yours from $c"; continue; fi
+      rm "$a"
+      if [[ -n "$c" ]] && [[ -e "$c" || -L "$c" ]]; then cp -pP "$c" "$a"; say "removed link $a and restored yours from $c"
+      else say "removed link $a (backup $c not found; nothing to restore)"; fi
     fi
   done <"$STATE"
   # Claude mirror links that now point at a removed Cursor rule link.

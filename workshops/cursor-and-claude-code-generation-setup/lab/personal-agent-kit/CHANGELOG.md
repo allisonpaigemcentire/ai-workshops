@@ -39,6 +39,12 @@
 - New `docs/borrowed-practices.md`, adapted from a community kit: a model
   tier table for Cursor, Claude Code and Gemini, read-only helpers, a
   self-audit prompt and permission lessons. Optional example subagents in
-  `examples/agents/` (`code-reader`, `doc-reader`); the installer does not
-  copy them.
+  `examples/agents/` (`code-reader`, `doc-reader`).
+- New `install.sh --with-helpers` (off by default) links the two example
+  subagents into `~/.claude/agents/`, which Cursor also reads. A file of
+  yours with the same name is backed up first; `uninstall.sh` removes only
+  the links it added and restores your file.
+- `--help` in `install.sh` and `uninstall.sh` now prints the whole header
+  instead of a fixed line range.
+- Credits to the community kit no longer name a person.
 - Supported tools: Cursor, Claude Code and Gemini CLI only.

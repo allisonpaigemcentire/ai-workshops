@@ -9,6 +9,9 @@
 # Options:
 #   --tools=claude,cursor,gemini   only wire these tools (default: all three)
 #   --no-mcp                       do not add MCP servers
+#   --with-helpers                 also link the optional read-only subagents
+#                                  (examples/agents/code-reader.md, doc-reader.md)
+#                                  into ~/.claude/agents/ (Cursor reads it too)
 #   -h, --help
 #
 # Optional team skills MCP server (added only when both are set, needs uv):
@@ -28,6 +31,9 @@
 #      ~/.cursor/mcp.json, ~/.claude/settings.json, ~/.gemini/settings.json,
 #      and (if the claude CLI is installed) Claude Code's user MCP list.
 #      Adds only what is missing; never replaces your values.
+#   5. Only with --with-helpers: links code-reader.md and doc-reader.md into
+#      ~/.claude/agents/. A file of yours with the same name is backed up,
+#      then replaced by the link; uninstall puts it back.
 #
 # Every file is backed up to ~/.agent-kit-backups/<time>/ before it changes.
 # Re-running is safe: an unchanged setup produces no writes and no backups.
@@ -48,6 +54,8 @@ ATLASSIAN_URL="https://mcp.atlassian.com/v1/mcp"
 PREVIEW_ONLY=0
 YES=0
 MCP=1
+HELPERS=0
+HELPER_NAMES="code-reader.md doc-reader.md"
 TOOLS="claude,cursor,gemini"
 for arg in "$@"; do
   case "$arg" in
@@ -55,7 +63,8 @@ for arg in "$@"; do
     -y|--yes) YES=1 ;;
     --no-mcp) MCP=0 ;;
     --tools=*) TOOLS="${arg#--tools=}" ;;
-    -h|--help) sed -n '2,34p' "$0" | sed 's/^# \{0,1\}//'; exit 0 ;;
+    --with-helpers) HELPERS=1 ;;
+    -h|--help) sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unknown argument: $arg (try --help)" >&2; exit 2 ;;
   esac
 done
@@ -126,7 +135,11 @@ steps() {
   echo "1. Kit files -> $AGENTS"
   local rel dest n=0
   # The two example JSONs are read by scripts/kit_config.py, so the copy in
-  # ~/.agents/scripts/ can re-run the install on its own.
+  # ~/.agents/scripts/ can re-run the install on its own. The optional helpers
+  # (examples/agents) are copied only with --with-helpers.
+  local extra=""
+  if (( HELPERS )); then extra="examples/agents"; fi
+  # shellcheck disable=SC2086  # $extra is empty or one path on purpose
   while IFS= read -r rel; do
     dest="$AGENTS/$rel"
     if [[ ! -e "$dest" ]]; then
@@ -134,14 +147,14 @@ steps() {
       n=$((n + 1))
     else
       case "$rel" in
-        scripts/*|hooks/*|statusline/*|*.example.json)   # kit code: keep it current
+        scripts/*|hooks/*|statusline/*|examples/*|*.example.json)   # kit code: keep it current
           if ! cmp -s "$KIT/$rel" "$dest"; then
             if (( DRY )); then say "would: update $dest (old copy backed up)"; else backup_file "$dest"; cp -p "$KIT/$rel" "$dest"; fi
             n=$((n + 1))
           fi ;;
       esac   # instructions/ and rules/ are yours once copied: never overwritten
     fi
-  done < <(cd "$KIT" && find instructions rules hooks scripts statusline hooks.example.json claude-settings.example.json -type f ! -name '.DS_Store' ! -name '*.pyc' 2>/dev/null | sort)
+  done < <(cd "$KIT" && find instructions rules hooks scripts statusline hooks.example.json claude-settings.example.json $extra -type f ! -name '.DS_Store' ! -name '*.pyc' 2>/dev/null | sort)
   if [[ ! -f "$AGENTS/instructions/shared.md" ]]; then
     if (( DRY )); then say "would create instructions/shared.md from the template"; else cp "$KIT/instructions/shared.template.md" "$AGENTS/instructions/shared.md"; say "created $AGENTS/instructions/shared.md (fill in the <placeholders>)"; fi
     n=$((n + 1))
@@ -216,6 +229,52 @@ steps() {
       say "note: claude CLI not on PATH; Claude Code MCP servers not added (re-run after installing Claude Code)."
     fi
   fi
+
+  echo "5. Optional read-only helpers (~/.claude/agents/)"
+  if (( ! HELPERS )); then
+    say "skipped (add --with-helpers to link code-reader and doc-reader; Cursor reads ~/.claude/agents/ too)"
+  elif ! want claude && ! want cursor; then
+    say "skipped (helpers are for Claude Code and Cursor only)"
+  else
+    local h
+    HELPER_CHANGES=0
+    for h in $HELPER_NAMES; do helper "$h"; done
+    (( HELPER_CHANGES )) || say "ok (helpers in place)"
+  fi
+}
+
+# helper <file name>: link one optional subagent into ~/.claude/agents/. A real
+# file or a link of yours with the same name is backed up first, then replaced;
+# the record lets uninstall.sh put it back.
+helper() {
+  local name="$1" target="$AGENTS/examples/agents/$1" dest="$HOME/.claude/agents/$1" rel bk
+  if [[ ! -f "$KIT/examples/agents/$name" && ! -f "$target" ]]; then
+    say "not found in this kit: examples/agents/$name (run the installer from the unzipped kit)"
+    CONFLICTS=$((CONFLICTS + 1))
+    return 0
+  fi
+  if [[ -L "$dest" && "$(readlink "$dest")" == "$target" ]]; then return 0; fi
+  if [[ -d "$dest" && ! -L "$dest" ]]; then
+    say "conflict (folder, left alone): $dest"
+    CONFLICTS=$((CONFLICTS + 1))
+    return 0
+  fi
+  if [[ ! -e "$dest" && ! -L "$dest" ]]; then
+    HELPER_CHANGES=$((HELPER_CHANGES + 1))
+    link "$target" "$dest"
+    return 0
+  fi
+  HELPER_CHANGES=$((HELPER_CHANGES + 1))
+  if (( DRY )); then say "would: back up your $dest, then replace it with a link to $target"; return 0; fi
+  rel="${dest#"$HOME"/}"; bk="$KIT_BACKUP_DIR/$rel"
+  mkdir -p "$(dirname "$bk")"
+  chmod 700 "$KIT_BACKUP_DIR"
+  cp -pP "$dest" "$bk"
+  say "backed up $dest -> $bk"
+  rm -f "$dest"
+  ln -s "$target" "$dest"
+  say "linked $dest (yours is restored by uninstall)"
+  record helper "$dest" "$target" "$bk"
 }
 
 # claude_mcp <name> <args for 'claude mcp add' after --scope user>

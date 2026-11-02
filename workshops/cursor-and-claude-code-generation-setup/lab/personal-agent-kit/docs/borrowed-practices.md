@@ -61,24 +61,39 @@ the digest comes back. The citations let you spot-check a claim without
 re-reading the source. Both are read-only: they can read and search but
 cannot edit files.
 
-The installer does not copy them. To use them:
+They are off by default. To install them, add `--with-helpers`:
 
-- **Claude Code:** copy them into `~/.claude/agents/` (all projects) or a
-  repo's `.claude/agents/`, then check with `/agents`. Ask for one by name:
+```bash
+bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers
+```
+
+The installer copies them into `~/.agents/examples/agents/` and links
+`code-reader.md` and `doc-reader.md` into `~/.claude/agents/`. If you already
+have a file or link with either name there, it is backed up to
+`~/.agent-kit-backups/<time>/` first and then replaced by the link.
+`uninstall.sh` removes only the links it added and puts your file back.
+Add `--dry-run` to preview.
+
+To use them:
+
+- **Claude Code:** they load for all projects from `~/.claude/agents/`.
+  Check with `/agents`. Ask for one by name:
   "Use the code-reader subagent on `src/cart/checkout.ts`."
-- **Cursor:** Cursor also reads `~/.claude/agents/`, so the same copy works.
+- **Cursor:** Cursor also reads `~/.claude/agents/`, so the same links work.
   Call one with `/code-reader` or by name. The files set `readonly: true`
   for Cursor. To pick a Cursor model, copy the file into `~/.cursor/agents/`
   and change `model: sonnet` to `inherit` or a Cursor model ID; that copy
   wins over the one in `~/.claude/agents/`.
 - **Gemini CLI:** not covered by these examples.
 
-```bash
-mkdir -p ~/.claude/agents
-cp -n ~/src/personal-agent-kit/examples/agents/*.md ~/.claude/agents/
-```
+To copy them by hand instead (for example into one repo's
+`.claude/agents/`), use `cp -n`, which never overwrites a file you already
+have:
 
-`cp -n` never overwrites a subagent you already have with the same name.
+```bash
+mkdir -p .claude/agents
+cp -n ~/src/personal-agent-kit/examples/agents/*.md .claude/agents/
+```
 
 UNVERIFIED: whether Cursor maps the `sonnet` alias to a model, and whether
 Claude Code ignores the Cursor-only `readonly` field without a warning.
