@@ -1,0 +1,161 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Cheat sheet: Subagents and lean context for Cursor and Claude Code</title>
+<style>
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+:root {
+  --bg: #f4f6f8; --ink: #1e2935; --muted: #5c6b7a; --panel: #ffffff;
+  --panel-2: #eef2f5; --line: #d5dde5; --accent: #3d6b8a; --warn: #8a5a2b; --code: #2a3a4a;
+  --font-display: "Segoe UI", "Helvetica Neue", Arial, sans-serif;
+  --font-body: -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+  --mono: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+}
+body { font-family: var(--font-body); background: var(--bg); color: var(--ink); line-height: 1.38; font-size: 12.5px; }
+.page { max-width: 1240px; margin: 0 auto; padding: 14px 18px 12px; }
+header { display: flex; justify-content: space-between; align-items: flex-end; gap: 16px; margin-bottom: 10px; }
+.eyebrow { font-size: 10.5px; letter-spacing: 0.08em; text-transform: uppercase; color: var(--accent); font-weight: 600; margin-bottom: 2px; }
+h1 { font-family: var(--font-display); font-size: 22px; font-weight: 800; line-height: 1.15; }
+.lede { color: var(--muted); margin-top: 3px; max-width: 760px; }
+.meta { text-align: right; color: var(--muted); font-size: 11px; white-space: nowrap; }
+.grid { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 10px; }
+.col { display: flex; flex-direction: column; gap: 10px; min-width: 0; }
+.panel { background: var(--panel); border: 1px solid var(--line); border-radius: 6px; padding: 9px 11px; }
+h2 { font-family: var(--font-display); font-size: 13.5px; font-weight: 700; color: var(--accent); margin-bottom: 5px; letter-spacing: 0.01em; }
+h2 .n { display: inline-block; min-width: 18px; color: var(--muted); font-weight: 600; }
+p + p, p + ul, ul + p, pre + p, p + pre, table + p { margin-top: 5px; }
+ul, ol { padding-left: 15px; display: flex; flex-direction: column; gap: 3px; }
+code { font-family: var(--mono); font-size: 0.86em; background: var(--panel-2); padding: 0.05em 0.3em; border-radius: 3px; color: var(--code); overflow-wrap: anywhere; }
+pre { margin: 4px 0; padding: 5px 7px; background: var(--panel-2); border: 1px solid var(--line); border-radius: 4px; font-family: var(--mono); font-size: 10.5px; line-height: 1.45; color: var(--code); white-space: pre-wrap; overflow-wrap: anywhere; }
+pre code { background: none; padding: 0; font-size: inherit; }
+pre .c { color: var(--muted); }
+table { width: 100%; border-collapse: collapse; font-size: 11.5px; }
+th, td { text-align: left; padding: 3px 5px; border-bottom: 1px solid var(--line); vertical-align: top; }
+th { color: var(--muted); font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.04em; }
+tr:last-child td { border-bottom: none; }
+td:first-child { font-weight: 600; white-space: nowrap; }
+.note { font-size: 11px; color: var(--muted); }
+.warn { font-size: 11px; color: var(--warn); }
+.order { counter-reset: o; list-style: none; padding-left: 0; }
+.order li { counter-increment: o; padding-left: 18px; position: relative; }
+.order li::before { content: counter(o); position: absolute; left: 0; top: 1px; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 9px; font-weight: 700; text-align: center; line-height: 13px; }
+.help { background: #e8f0f6; border-color: #b9cddc; }
+.help a { color: var(--accent); font-weight: 600; }
+footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex; justify-content: space-between; gap: 12px; }
+@page { size: letter landscape; margin: 0.3in; }
+@media print {
+  body { background: #fff; font-size: 9.2px; line-height: 1.34; -webkit-print-color-adjust: exact; print-color-adjust: exact; }
+  .page { max-width: none; padding: 0; }
+  h1 { font-size: 17px; }
+  h2 { font-size: 11px; }
+  pre { font-size: 8.3px; line-height: 1.4; }
+  table, .note, .warn { font-size: 8.5px; }
+  .panel { padding: 6px 8px; break-inside: avoid; }
+  .grid, .col { gap: 6px; }
+}
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div>
+    <p class="eyebrow">Nuuly Engineering · AI Adoption · Cheat sheet</p>
+    <h1>Subagents and lean context for Cursor and Claude Code</h1>
+    <p class="lede">Three read-only subagents do the reading in their own context and send back a short answer. Your main chat keeps the decisions. A fresh chat per task and short always-on files keep answers sharp.</p>
+  </div>
+  <div class="meta">Supported tools: Cursor, Claude Code<br>Kit: <code>subagent-starter-kit</code></div>
+</header>
+
+<div class="grid">
+<!-- Column 1 -->
+<div class="col">
+  <section class="panel">
+    <h2><span class="n">1</span>Install, check, undo</h2>
+<pre>mkdir -p ~/src &amp;&amp; unzip ~/Downloads/subagent-starter-kit.zip -d ~/src
+bash ~/src/subagent-starter-kit/install.sh --dry-run
+bash ~/src/subagent-starter-kit/install.sh
+bash ~/src/subagent-starter-kit/install.sh --check
+bash ~/.subagent-starter-kit/uninstall.sh</pre>
+    <ul>
+      <li>Copies <code>code-reader</code>, <code>doc-reader</code> and <code>context-checker</code> into <code>~/.claude/agents/</code> and <code>~/.cursor/agents/</code>. Nothing else.</li>
+      <li>A same-name file that is yours is left alone. <code>--force</code> replaces it after a backup; uninstall puts it back.</li>
+      <li>One tool only: <code>--tools=cursor</code> or <code>--tools=claude</code>.</li>
+      <li>Claude Code: restart once if <code>~/.claude/agents/</code> is new. Cursor: if an agent does not show yet, start a new chat.</li>
+    </ul>
+  </section>
+  <section class="panel">
+    <h2><span class="n">2</span>Use them</h2>
+    <table>
+      <tr><th>Tool</th><th>To be sure it runs</th></tr>
+      <tr><td>Cursor</td><td><code>/code-reader explain src/main.ts</code></td></tr>
+      <tr><td>Claude Code</td><td><code>@agent-code-reader explain src/main.ts</code>, or type <code>@</code> and pick it</td></tr>
+      <tr><td>Either</td><td>"Use the doc-reader subagent to ..." lets the main agent decide</td></tr>
+    </table>
+    <p>Write the task like a ticket: goal, paths to read, limits, and the shape of the answer. Open one cited <code>path:line</code> before you act on it.</p>
+  </section>
+</div>
+
+<!-- Column 2 -->
+<div class="col">
+  <section class="panel">
+    <h2><span class="n">3</span>Maintain and audit</h2>
+    <ul>
+      <li>The <strong>description</strong> decides routing. Say what it does and when; "use proactively" invites delegation.</li>
+      <li>Claude Code picks up edits in <code>~/.claude/agents/</code> within a few seconds.</li>
+      <li>Keep two or three focused agents. Five in parallel cost about five times the tokens of one.</li>
+      <li><code>install.sh --check</code> reports <code>ok</code>, <code>DRIFT</code>, <code>yours</code> and <code>LINT</code> for every agent file.</li>
+      <li>Claude Code skips a file with no name, no description, <code>---</code> not on line 1, or bad YAML, and says nothing. Full parse: <code>claude plugin validate ~/.claude/agents</code> (v2.1.233 or later).</li>
+      <li>Audit prompt: <code>prompts/audit-subagents.md</code>. It returns a ranked shortlist and changes nothing until you pick.</li>
+    </ul>
+  </section>
+  <section class="panel">
+    <h2><span class="n">4</span>Why long sessions get worse</h2>
+    <ul>
+      <li>More tokens, weaker recall: "a performance gradient rather than a hard cliff" (Anthropic).</li>
+      <li>Length alone hurts across 18 models; a focused 300-token prompt beat the full 113k-token history (Chroma).</li>
+      <li>Early evidence, 2023 models: facts in the middle of a long input are found least often (Liu et al.).</li>
+      <li>A wrong turn sticks: the same task split over many turns did 39% worse on average (Laban et al.).</li>
+      <li>Summaries lose detail: early instructions "may be lost" after compaction (Claude Code docs).</li>
+    </ul>
+  </section>
+</div>
+
+<!-- Column 3 -->
+<div class="col">
+  <section class="panel">
+    <h2><span class="n">5</span>Habits</h2>
+    <table>
+      <tr><th>You want to</th><th>Cursor</th><th>Claude Code</th></tr>
+      <tr><td>Start clean</td><td>New chat</td><td><code>/clear</code></td></tr>
+      <tr><td>Shrink</td><td>Auto summary; CLI <code>/summarize</code></td><td><code>/compact</code> plus a focus</td></tr>
+      <tr><td>Bring work forward</td><td><code>@Chats</code>; CLI <code>/fork</code></td><td><code>claude --resume</code></td></tr>
+      <tr><td>Side question</td><td><code>/side</code></td><td><code>/btw</code></td></tr>
+      <tr><td>See usage</td><td>Context ring</td><td><code>/context</code></td></tr>
+    </table>
+    <p>Two corrections on the same mistake: start fresh with a better prompt. Before you do, ask for a short handoff note.</p>
+  </section>
+  <section class="panel">
+    <h2><span class="n">6</span>What fills your context</h2>
+    <ul>
+      <li>Always-on rules, <code>CLAUDE.md</code>, <code>AGENTS.md</code>: every session. Keep them short and scope the rest.</li>
+      <li>MCP servers: tool names and instructions, even unused. Turn off what you do not need.</li>
+      <li>File reads and tool output: name the file; send wide searches to a subagent.</li>
+      <li>The conversation: all of it, on every request.</li>
+    </ul>
+  </section>
+  <section class="panel help">
+    <h2>Where to get help</h2>
+    <p><strong>Friday AI Adoption Drop in Q&amp;A</strong>, 9:30 AM ET. The join link is in the calendar invite.</p>
+    <p class="note">The agents are read-only. Never paste a token or other secret into a subagent task.</p>
+  </section>
+</div>
+</div>
+
+<footer>
+  <span>Sources: the workshop's sources.md, the kit README and scripts, and the Cursor and Claude Code docs.</span>
+</footer>
+</div>
+</body>
+</html>

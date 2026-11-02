@@ -1,0 +1,1036 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1" />
+<title>Subagents and lean context for Cursor and Claude Code</title>
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+<style>
+  :root {
+    --bg: #0c1218;
+    --panel: #141c26;
+    --panel-2: #1b2633;
+    --border: #2a3a4c;
+    --text: #e9eef4;
+    --muted: #8fa3b8;
+    --accent: #2fbfa5;
+    --accent-dim: rgba(47, 191, 165, 0.14);
+    --info: #5b9fd4;
+    --info-dim: rgba(91, 159, 212, 0.14);
+    --warn: #d9a441;
+    --warn-dim: rgba(217, 164, 65, 0.14);
+    --code-bg: #0a0f14;
+    --font: "IBM Plex Sans", "Segoe UI", system-ui, sans-serif;
+    --mono: "IBM Plex Mono", "SF Mono", ui-monospace, monospace;
+  }
+
+  * { box-sizing: border-box; }
+  html, body { height: 100%; margin: 0; }
+  body {
+    font-family: var(--font);
+    color: var(--text);
+    background:
+      radial-gradient(ellipse 70% 45% at 0% 0%, rgba(47, 191, 165, 0.14), transparent 55%),
+      radial-gradient(ellipse 50% 40% at 100% 10%, rgba(91, 159, 212, 0.12), transparent 50%),
+      var(--bg);
+    overflow: hidden;
+  }
+
+  #deck {
+    position: relative;
+    width: 100%;
+    height: 100%;
+  }
+
+  .slide {
+    position: absolute;
+    inset: 0;
+    padding: 2.25rem 3rem 5rem;
+    opacity: 0;
+    pointer-events: none;
+    transform: translateX(18px);
+    transition: opacity 180ms ease, transform 180ms ease;
+    overflow: auto;
+  }
+  .slide.active {
+    opacity: 1;
+    pointer-events: auto;
+    transform: none;
+  }
+
+  .eyebrow {
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin: 0 0 0.65rem;
+  }
+  h1 {
+    margin: 0 0 0.75rem;
+    font-size: clamp(1.7rem, 3.4vw, 2.4rem);
+    letter-spacing: -0.02em;
+    line-height: 1.15;
+  }
+  h2 {
+    margin: 0 0 0.85rem;
+    font-size: clamp(1.35rem, 2.6vw, 1.85rem);
+    letter-spacing: -0.015em;
+  }
+  p, li { color: var(--muted); font-size: 1.02rem; line-height: 1.55; }
+  .lead { max-width: 62ch; color: var(--text); font-size: 1.12rem; }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-top: 1.25rem;
+  }
+  .grid-3 {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 0.9rem;
+    margin-top: 1.25rem;
+  }
+  @media (max-width: 900px) {
+    .slide { padding: 1.5rem 1.25rem 5rem; }
+    .grid-2, .grid-3 { grid-template-columns: 1fr; }
+  }
+
+  .card {
+    background: var(--panel);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1rem 1.1rem;
+  }
+  .card h3 {
+    margin: 0 0 0.4rem;
+    font-size: 0.98rem;
+    color: var(--text);
+  }
+  .card p, .card li { font-size: 0.92rem; margin: 0; }
+  .card ul { margin: 0.35rem 0 0; padding-left: 1.1rem; }
+
+  .tag {
+    display: inline-block;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.15rem 0.45rem;
+    border-radius: 4px;
+    background: var(--accent-dim);
+    color: var(--accent);
+    margin-bottom: 0.45rem;
+  }
+  .tag.info { background: var(--info-dim); color: var(--info); }
+  .tag.warn { background: var(--warn-dim); color: var(--warn); }
+
+  .cmd-block {
+    position: relative;
+    background: var(--code-bg);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    margin: 0.85rem 0;
+    overflow: hidden;
+  }
+  .cmd-block .bar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.75rem;
+    padding: 0.45rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    background: var(--panel-2);
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    color: var(--muted);
+  }
+  .cmd-block pre {
+    margin: 0;
+    padding: 0.9rem 1rem;
+    overflow: auto;
+    max-height: min(52vh, 520px);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    line-height: 1.45;
+    color: #d7e4ef;
+    white-space: pre;
+  }
+  .cmd-block.tall pre { max-height: min(72vh, 780px); }
+  .copy-btn {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    padding: 0.25rem 0.55rem;
+    border-radius: 6px;
+    cursor: pointer;
+  }
+  .copy-btn:hover { border-color: var(--accent); color: var(--accent); }
+  .copy-btn.copied { border-color: var(--accent); color: var(--accent); }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin-top: 1rem;
+    font-size: 0.92rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.55rem 0.65rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th { color: var(--muted); font-weight: 500; font-size: 0.78rem; text-transform: uppercase; letter-spacing: 0.04em; }
+  td code, p code, li code {
+    font-family: var(--mono);
+    font-size: 0.86em;
+    color: #b8d4c8;
+  }
+
+  .steps {
+    counter-reset: step;
+    list-style: none;
+    padding: 0;
+    margin: 1rem 0 0;
+  }
+  .steps li {
+    counter-increment: step;
+    position: relative;
+    padding: 0.7rem 0.7rem 0.7rem 3rem;
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    background: var(--panel);
+    margin-bottom: 0.55rem;
+    color: var(--text);
+  }
+  .steps li::before {
+    content: counter(step);
+    position: absolute;
+    left: 0.7rem;
+    top: 0.7rem;
+    width: 1.55rem;
+    height: 1.55rem;
+    border-radius: 50%;
+    background: var(--accent-dim);
+    color: var(--accent);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    display: grid;
+    place-items: center;
+  }
+  .steps li span { display: block; color: var(--muted); font-size: 0.9rem; margin-top: 0.2rem; }
+
+  .title-slide {
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    min-height: 100%;
+  }
+  .title-slide .brand {
+    font-family: var(--mono);
+    font-size: 0.85rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    color: var(--accent);
+    margin-bottom: 1rem;
+  }
+  .title-slide h1 { font-size: clamp(2rem, 4.5vw, 3rem); max-width: 16ch; }
+  .meta-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-top: 1.5rem;
+  }
+  .chip {
+    font-family: var(--mono);
+    font-size: 0.75rem;
+    padding: 0.35rem 0.65rem;
+    border-radius: 999px;
+    border: 1px solid var(--border);
+    color: var(--muted);
+    background: rgba(20, 28, 38, 0.7);
+  }
+
+  #chrome {
+    position: fixed;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    z-index: 20;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 0.75rem 1.25rem;
+    background: rgba(12, 18, 24, 0.92);
+    border-top: 1px solid var(--border);
+    backdrop-filter: blur(8px);
+  }
+  #chrome .nav {
+    display: flex;
+    gap: 0.45rem;
+  }
+  #chrome button {
+    appearance: none;
+    border: 1px solid var(--border);
+    background: var(--panel);
+    color: var(--text);
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    padding: 0.45rem 0.8rem;
+    border-radius: 8px;
+    cursor: pointer;
+  }
+  #chrome button:hover:not(:disabled) { border-color: var(--accent); color: var(--accent); }
+  #chrome button:disabled { opacity: 0.35; cursor: default; }
+  #progress {
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+    min-width: 7ch;
+    text-align: center;
+  }
+  #dots {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.35rem;
+    justify-content: center;
+    flex: 1;
+  }
+  #dots button {
+    width: 0.55rem;
+    height: 0.55rem;
+    padding: 0;
+    border-radius: 50%;
+    border: none;
+    background: var(--border);
+  }
+  #dots button.active { background: var(--accent); }
+  #dots button:hover { background: var(--info); }
+
+  .hint {
+    margin-top: 0.85rem;
+    font-family: var(--mono);
+    font-size: 0.78rem;
+    color: var(--muted);
+  }
+  .ref-label {
+    margin: 2rem 0 0.4rem;
+    font-family: var(--mono);
+    font-size: 0.72rem;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--muted);
+  }
+  .ref-link {
+    margin: 0;
+    max-width: 62ch;
+  }
+  .ref-link a {
+    color: var(--accent);
+    text-decoration: none;
+    border-bottom: 1px solid rgba(47, 191, 165, 0.35);
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+  .ref-link a:hover {
+    border-bottom-color: var(--accent);
+  }
+  .warn-box {
+    margin-top: 1rem;
+    padding: 0.85rem 1rem;
+    border-radius: 10px;
+    border: 1px solid rgba(217, 164, 65, 0.35);
+    background: var(--warn-dim);
+    color: #f0d9a0;
+    font-size: 0.92rem;
+  }
+  .tx-card {
+    border: 2px solid var(--info);
+    background: var(--info-dim);
+    border-radius: 12px;
+    padding: 0.95rem 1.1rem;
+    margin: 0 0 1rem;
+  }
+  .tx-card .label {
+    margin: 0 0 0.45rem;
+    font-family: var(--mono);
+    font-size: 0.7rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--info);
+    font-weight: 600;
+  }
+  .tx-card .twenty {
+    margin: 0 0 0.7rem;
+    color: var(--text);
+    font-size: 0.98rem;
+    line-height: 1.45;
+  }
+  .tx-card .push {
+    margin: 0;
+    padding-left: 1.1rem;
+    color: var(--muted);
+    font-size: 0.88rem;
+  }
+  .tx-card .push li { margin: 0.28rem 0; }
+  .tx-card .dosay {
+    width: 100%;
+    margin: 0.75rem 0 0;
+    font-size: 0.82rem;
+  }
+  .tx-card .dosay th,
+  .tx-card .dosay td {
+    padding: 0.4rem 0.5rem;
+    border-bottom: 1px solid rgba(91, 159, 212, 0.25);
+  }
+  .tx-card .dosay th { color: var(--info); }
+
+  /* Fit-to-screen layout: a card on the left, a code block on the right that
+     takes the remaining height and scrolls inside itself. */
+  .slide.fit { display: flex; flex-direction: column; }
+  .fit .split {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 1rem;
+  }
+  .fit .split > .col { min-height: 0; display: flex; flex-direction: column; }
+  .fit .split > .col > p { margin: 0 0 0.6rem; font-size: 0.92rem; }
+  .fit .split .tx-card { margin: 0; overflow: auto; }
+  .fit .split .tx-card .twenty { font-size: 0.92rem; margin-bottom: 0.5rem; }
+  .fit .split .cmd-block { flex: 1; min-height: 0; margin: 0; display: flex; flex-direction: column; }
+  .fit .split .cmd-block pre { flex: 1; min-height: 0; max-height: none; white-space: pre-wrap; }
+  .fit .split .cmd-block.short { flex: 0 0 auto; margin: 0 0 0.6rem; }
+  .split-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+  .split-top .cmd-block { margin-top: 0; }
+  .split-top .cmd-block pre { white-space: pre-wrap; max-height: none; }
+  .split-top.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+  @media (max-width: 900px) {
+    .slide.fit { display: block; }
+    .fit .split, .split-top { display: block; }
+    .fit .split .cmd-block pre { max-height: min(72vh, 780px); }
+  }
+  /* Fill layout: the slide is a column and a .grow code block takes the
+     remaining height and scrolls inside itself, so the slide never scrolls. */
+  .slide.fill { display: flex; flex-direction: column; }
+  .fill .grow { flex: 1; min-height: 6rem; display: flex; flex-direction: column; }
+  .fill .grow pre { flex: 1; min-height: 0; max-height: none; }
+  .fill .split2 {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+  }
+  .fill .split2 > .col { min-height: 0; display: flex; flex-direction: column; }
+  .fill .split2 .tx-card { margin: 0; overflow: auto; }
+  .fill .split2 > .col > :first-child { margin-top: 0; }
+  .fill .split2 > .col.stack > * { flex-shrink: 0; }
+  .fill .split2 > .col.stack > .cmd-block, .fill .split2 > .col.stack > .hint { margin: 0 0 0.5rem; }
+  .fill .split2 > .col > .keep { flex-shrink: 0; margin-bottom: 0; }
+  .fill .split2 > .col.stack > .card { margin: 0 0 0.5rem; }
+  .fill .split2 > .col.stack .cmd-block pre { white-space: pre-wrap; }
+  .fill .split2 > .col.stack > :last-child { margin-bottom: 0; }
+  .fill .split2 .grow pre { white-space: pre-wrap; }
+  .fill .split4 {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    grid-template-rows: auto auto minmax(0, 1fr);
+    column-gap: 1rem;
+  }
+  .fill .split4 > * { grid-column: 1; min-height: 0; }
+  .fill .split4 > .cmd-block:first-child { margin-top: 0; }
+  .fill .split4 > .s4-mem { grid-column: 2; grid-row: 1 / 4; margin: 0; }
+  .fill .split4 > .s4-stg { grid-row: 3; margin-bottom: 0; }
+  .fill .split4 .grow pre { white-space: pre-wrap; }
+  @media (max-width: 900px) {
+    .slide.fill { display: block; }
+    .fill .split2, .fill .split4 { display: block; }
+    .fill .grow pre { max-height: min(72vh, 780px); }
+  }
+</style>
+</head>
+<body>
+<div id="deck">
+
+  <!-- 1 -->
+  <section class="slide title-slide active" data-title="Title">
+    <div class="brand">Nuuly Engineering · AI Adoption Initiative</div>
+    <p class="eyebrow">Workshop</p>
+    <h1>Subagents and lean context for Cursor and Claude Code</h1>
+    <p class="lead">Part 1: three read-only subagents you install with one command, then use, maintain and audit. Part 2: why long sessions get worse, and the habits that keep context lean.</p>
+    <div class="meta-row">
+      <span class="chip">Nov 2026</span>
+      <span class="chip">Cursor + Claude Code</span>
+      <span class="chip">About 45 minutes</span>
+      <span class="chip">← → or click to navigate</span>
+    </div>
+    <p class="hint">This deck is in the kit folder you downloaded: <code>subagent-starter-kit/companion/</code>. Open it on your own screen to use the Copy buttons.</p>
+  </section>
+
+  <!-- 2 -->
+  <section class="slide title-slide" data-title="Part 1">
+    <p class="eyebrow">Slide 02 · Part 1</p>
+    <h1>Subagents you install, use, maintain and audit</h1>
+    <p class="lead">What a subagent is, three samples and one install command, how to call them, how routing works, and how to keep them healthy.</p>
+  </section>
+
+  <!-- 3 -->
+  <section class="slide" data-title="What a subagent is">
+    <p class="eyebrow">Slide 03 · Subagents</p>
+    <h2>What a subagent is: its own context, a short answer back</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Own context</div>
+        <h3>The reading stays out of your chat</h3>
+        <p>Each subagent has its own context window, so long research or exploration does not use up space in your main conversation.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Clean start</div>
+        <h3>It does not see your chat</h3>
+        <p>It starts with a clean context. The main agent writes its task, so say what matters: the goal, the paths, the limits.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Short answer</div>
+        <h3>Only the final message comes back</h3>
+        <p>The subagent works on its own and returns its result. Ask for bullets with <code>path:line</code> so you can check them.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Not free</div>
+        <h3>It spends tokens too</h3>
+        <p>Its requests count toward your usage. Five subagents in parallel use roughly five times the tokens of one agent.</p>
+      </div>
+    </div>
+    <table>
+      <thead><tr><th>Tool</th><th>Personal (every project)</th><th>Project (check into git)</th></tr></thead>
+      <tbody>
+        <tr><td>Claude Code</td><td><code>~/.claude/agents/</code></td><td><code>.claude/agents/</code></td></tr>
+        <tr><td>Cursor</td><td><code>~/.cursor/agents/</code></td><td><code>.cursor/agents/</code></td></tr>
+      </tbody>
+    </table>
+    <p class="hint">Cursor also reads <code>.claude/agents/</code> folders. When two files share a name, the one in <code>.cursor/</code> wins.</p>
+  </section>
+
+  <!-- 4 -->
+  <section class="slide fill" data-title="The three sample agents">
+    <p class="eyebrow">Slide 04 · Subagents</p>
+    <h2>Meet the three sample agents</h2>
+    <div class="split2">
+      <div class="col">
+        <table>
+          <thead><tr><th>Agent</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>code-reader</code></td><td>Explains one file, module or PR diff, citing <code>path:line</code>. Describes, never judges.</td></tr>
+            <tr><td><code>doc-reader</code></td><td>Reads a long doc, guide or web page and answers one question, citing the source.</td></tr>
+            <tr><td><code>context-checker</code></td><td>Before a PR, checks your change against the repo's <code>AGENTS.md</code>, <code>CLAUDE.md</code> and skills. Ends with "clear", "check before PR" or "no context found".</td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead><tr><th>Field</th><th>What it does</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>Lowercase with hyphens. Required in Claude Code; Cursor falls back to the file name.</td></tr>
+            <tr><td><code>description</code></td><td>When to use it. The main agent reads this to decide when to delegate.</td></tr>
+            <tr><td>Read-only</td><td>Claude Code: <code>tools: Read, Grep, Glob</code>. Cursor: <code>readonly: true</code>.</td></tr>
+            <tr><td><code>model</code></td><td><code>inherit</code> uses the main chat's model, or name one.</td></tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col">
+        <div class="cmd-block grow">
+          <div class="bar"><span>agents/claude/context-checker.md (abridged)</span><span>the installer adds the full file</span></div>
+          <pre style="white-space:pre-wrap">---
+name: context-checker
+description: Read-only pre-PR check. Use proactively before you open or update a PR, or when asked whether a change follows this repo's AGENTS.md, CLAUDE.md or skills. Reports the rules the change touches, likely violations and stale context. Never edits.
+tools: Read, Grep, Glob
+model: inherit
+readonly: true
+---
+
+You check a change against the repo's own written context. You never edit,
+create, delete, commit or push anything.
+
+1. Get the change. Use the diff or the list of changed files in your task
+   message. ...
+2. Read the context, nearest first: AGENTS.md and CLAUDE.md from each
+   changed folder up to the repo root, then any matching skill. ...
+3. Compare the change with what you read. Do not invent rules that are not
+   written down.
+
+Return at most 12 bullets with path:line, then one line:
+"clear", "check before PR" or "no context found".</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 5 -->
+  <section class="slide" data-title="Install">
+    <p class="eyebrow">Slide 05 · Subagents</p>
+    <h2>Install them with one command</h2>
+    <div class="split-top">
+      <div>
+        <div class="cmd-block" data-copy>
+          <div class="bar"><span>shell · unzip once, preview, install</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>mkdir -p ~/src &amp;&amp; unzip ~/Downloads/subagent-starter-kit.zip -d ~/src
+bash ~/src/subagent-starter-kit/install.sh --dry-run
+bash ~/src/subagent-starter-kit/install.sh</pre>
+        </div>
+        <div class="cmd-block" data-copy>
+          <div class="bar"><span>shell · later: check, or undo</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>bash ~/src/subagent-starter-kit/install.sh --check
+bash ~/.subagent-starter-kit/uninstall.sh</pre>
+        </div>
+        <p class="hint">Only Cursor or only Claude Code? Add <code>--tools=cursor</code> or <code>--tools=claude</code>.</p>
+      </div>
+      <ol class="steps">
+        <li>It previews every change and asks once<span><code>--dry-run</code> stops after the preview. <code>--yes</code> skips the question.</span></li>
+        <li>It copies three files per tool<span>Into <code>~/.claude/agents/</code> and <code>~/.cursor/agents/</code>, and nowhere else.</span></li>
+        <li>Your files are safe<span>A same-name file that is yours is left alone. <code>--force</code> replaces it after a backup in <code>~/.subagent-starter-kit/backups/</code>.</span></li>
+        <li>Safe to re-run<span>It updates only the kit's own unchanged copies, and says "Nothing to change." when you are current.</span></li>
+        <li>Load them<span>Claude Code: restart once if <code>~/.claude/agents/</code> is new. Cursor: if one does not show up yet, start a new chat.</span></li>
+      </ol>
+    </div>
+  </section>
+
+  <!-- 6 -->
+  <section class="slide" data-title="Using them">
+    <p class="eyebrow">Slide 06 · Subagents</p>
+    <h2>Using them: /name in Cursor, @agent-name in Claude Code, or plain words</h2>
+    <div class="split-top">
+      <div>
+        <div class="cmd-block" data-copy>
+          <div class="bar"><span>prompt · Cursor</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>/context-checker check my current branch against this repo's AGENTS.md, CLAUDE.md and skills before I open the PR.</pre>
+        </div>
+        <div class="cmd-block" data-copy>
+          <div class="bar"><span>prompt · Claude Code (or type @ and pick "context-checker (agent)")</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>@agent-context-checker check my current branch against this repo's AGENTS.md, CLAUDE.md and skills before I open the PR.</pre>
+        </div>
+        <div class="cmd-block" data-copy>
+          <div class="bar"><span>prompt · either tool, plain words</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>Use the code-reader subagent to explain src/billing/invoice.ts.
+Goal: I need to change how totals are rounded.
+Limits: read-only; skip generated files.
+Return: a summary, then bullets with path:line.</pre>
+        </div>
+      </div>
+      <div class="grid-2" style="margin-top:0">
+        <div class="card">
+          <div class="tag">Pick it</div>
+          <h3>Name it to be sure</h3>
+          <p>In Claude Code an @-mention guarantees that subagent runs for the task. Plain words let the main agent decide.</p>
+        </div>
+        <div class="card">
+          <div class="tag info">Brief it</div>
+          <h3>Write it like a ticket</h3>
+          <p>Goal, paths to read, limits, and the shape of the answer you want back.</p>
+        </div>
+        <div class="card">
+          <div class="tag info">Fan out</div>
+          <h3>Run them in parallel</h3>
+          <p>Independent questions can go to several subagents at once in both tools.</p>
+        </div>
+        <div class="card">
+          <div class="tag warn">Check it</div>
+          <h3>Open a cited line</h3>
+          <p>Spot-check a <code>path:line</code> before you edit, commit or reply on the strength of the answer.</p>
+        </div>
+      </div>
+    </div>
+    <p class="hint">In Claude Code, subagents are not slash commands. Typing <code>@agent-</code> shows file matches as you type, but the mention still resolves when you send it.</p>
+  </section>
+
+  <!-- 7 -->
+  <section class="slide" data-title="Routing">
+    <p class="eyebrow">Slide 07 · Subagents</p>
+    <h2>How routing works: the description decides</h2>
+    <p class="lead">When you do not name a subagent, the main agent compares your task with each description and delegates when one matches.</p>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag warn">Vague</div>
+        <h3>Gives no signal</h3>
+        <p><code>description: Helps with code.</code> The agent cannot tell when to use it, so it rarely fires, or fires on the wrong task.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Specific</div>
+        <h3>Says what and when</h3>
+        <p><code>description: Use proactively for read-only explanation of a specific file, module or PR diff. Returns a short digest that cites file and line.</code></p>
+      </div>
+    </div>
+    <div class="grid-3">
+      <div class="card"><h3>"Use proactively"</h3><p>Both tools document this phrase in the description as a way to encourage automatic delegation.</p></div>
+      <div class="card"><h3>Test it</h3><p>Try a few prompts and check that the right subagent gets picked. Rewrite the description if not.</p></div>
+      <div class="card"><h3>Fewer is clearer</h3><p>Every description is a routing choice. Start with two or three focused subagents and add more only for distinct jobs.</p></div>
+    </div>
+  </section>
+
+  <!-- 8 -->
+  <section class="slide" data-title="Maintaining">
+    <p class="eyebrow">Slide 08 · Subagents</p>
+    <h2>Maintaining them: edit, reload, keep two or three</h2>
+    <p class="lead">An agent file is plain Markdown. Treat it like code: review changes, and check project agents into the repo so the team improves the same copy.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="tag">Edit</div>
+        <h3>Change the file</h3>
+        <p>Fix the description when routing is wrong. Update paths in the body when docs or folders move. Keep the prompt short and direct.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Reload</div>
+        <h3>When edits take effect</h3>
+        <p>Claude Code notices edits within a few seconds, with no restart, except after creating a new <code>agents</code> folder. Cursor: start a new chat if the change does not show.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Prune</div>
+        <h3>A small set, not a fleet</h3>
+        <p>Delete the ones you never call. Dozens of vague subagents are hard to route and hard to maintain.</p>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag info">Kit update</div>
+        <h3>Re-run the installer</h3>
+        <p>It replaces only the kit's own unchanged copies. A copy you edited is reported as <code>yours</code> and left alone.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Two copies</div>
+        <h3>Keep them in step</h3>
+        <p>The kit ships one copy per tool. When you edit one, edit its twin, or the tools drift apart.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 9 -->
+  <section class="slide fill" data-title="Auditing">
+    <p class="eyebrow">Slide 09 · Subagents</p>
+    <h2>Auditing them: --check and the audit prompt</h2>
+    <div class="split2">
+      <div class="col stack">
+        <div class="cmd-block" data-copy>
+          <div class="bar"><span>shell · read only</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>bash ~/src/subagent-starter-kit/install.sh --check</pre>
+        </div>
+        <table>
+          <thead><tr><th>It reports</th><th>Meaning</th></tr></thead>
+          <tbody>
+            <tr><td><code>ok</code></td><td>The kit's copy is in place and current</td></tr>
+            <tr><td><code>DRIFT</code></td><td>Missing, or the kit's older copy: re-run the install</td></tr>
+            <tr><td><code>yours</code></td><td>You changed it, or it is not the kit's: left alone</td></tr>
+            <tr><td><code>LINT</code></td><td>A frontmatter problem in any agent file</td></tr>
+          </tbody>
+        </table>
+        <p class="hint">Claude Code skips an agent file with no <code>name</code>, a <code>name</code> but no <code>description</code>, a <code>---</code> that is not on line 1, or YAML that does not parse, and says nothing in the chat. The lint catches those. For a full parse: <code>claude plugin validate ~/.claude/agents</code> (v2.1.233 or later).</p>
+      </div>
+      <div class="col">
+        <div class="cmd-block grow" data-copy>
+          <div class="bar"><span>prompt · audit (prompts/audit-subagents.md)</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>Review my subagents, read-only, and tell me what to fix or prune.
+Use a subagent for the reading if you can, to keep this chat small.
+Read ~/.claude/agents/ and ~/.cursor/agents/, plus .claude/agents/ and
+.cursor/agents/ in this repo if they exist. Do not scan the rest of my disk.
+Never print a token or other secret value.
+
+For each agent file, check:
+- Frontmatter: --- on line 1, a name in lowercase with hyphens, and a
+  description. Claude Code skips a file without them and says nothing in the
+  chat, so it looks like an agent that never fires.
+- Description: does it say what the agent does and when to use it? Flag
+  vague ones such as "helps with code".
+- Overlap: which two agents would compete for the same task?
+- Paths: does the body point at files or folders that no longer exist?
+- Limits: is an agent meant to be read-only actually limited? That is
+  tools: Read, Grep, Glob in Claude Code and readonly: true in Cursor.
+- Copies: where a Claude Code and a Cursor copy share a name, have they
+  drifted apart?
+- Use: which ones might I never call? Ask me rather than guess.
+
+Give me a ranked shortlist of at most 5 changes, highest impact first, each
+with the file and line. Change nothing until I pick. Show a diff before
+editing any file. Never commit or push.</pre>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- 10 -->
+  <section class="slide title-slide" data-title="Part 2">
+    <p class="eyebrow">Slide 10 · Part 2</p>
+    <h1>Why long sessions get worse, and how to keep context lean</h1>
+    <p class="lead">What the research and the tool docs say, what fills your context, and five habits that keep answers sharp and costs down.</p>
+  </section>
+
+  <!-- 11 -->
+  <section class="slide" data-title="Why long sessions get worse">
+    <p class="eyebrow">Slide 11 · Lean context</p>
+    <h2>Why long sessions get worse</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Context rot</div>
+        <h3>More tokens, weaker recall</h3>
+        <p>"As the number of tokens in the context window increases, the model's ability to accurately recall information from that context decreases." It is "a performance gradient rather than a hard cliff." <em>Anthropic, 2025</em></p>
+      </div>
+      <div class="card">
+        <div class="tag">18 models</div>
+        <h3>Length alone hurts</h3>
+        <p>"Model performance consistently degrades with increasing input length." "Even a single distractor reduces performance." A focused prompt of about 300 tokens beat the full 113k-token history. <em>Chroma, 2025</em></p>
+      </div>
+      <div class="card">
+        <div class="tag info">Early evidence</div>
+        <h3>Lost in the middle</h3>
+        <p>Accuracy was highest when the key fact sat at the start or end of the input, and "significantly degrades" in the middle. <em>Liu et al., 2023 models</em></p>
+      </div>
+      <div class="card">
+        <div class="tag info">In the tools</div>
+        <h3>Summaries lose detail</h3>
+        <p>When the window fills, both tools summarize older turns. Claude Code: "detailed instructions from early in the conversation may be lost." Cursor: after many summaries "the context accumulates noise."</p>
+      </div>
+    </div>
+    <p class="hint">Windows are bigger now. Claude Code's own docs say running out of context "is rarely the problem anymore". The reason to stay lean is better answers and lower cost.</p>
+  </section>
+
+  <!-- 12 -->
+  <section class="slide" data-title="A wrong turn sticks">
+    <p class="eyebrow">Slide 12 · Lean context</p>
+    <h2>A wrong turn sticks</h2>
+    <p class="lead">"When LLMs take a wrong turn in a conversation, they get lost and do not recover." Spreading a task over many turns cost an average of 39% across six tasks. <em>Laban et al., 2025</em></p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="tag warn">Two strikes</div>
+        <h3>Then start fresh</h3>
+        <p>Claude Code's advice: after two failed corrections, <code>/clear</code> and write a better prompt. A third correction mostly adds to a chat that already holds two failed attempts.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Cursor</div>
+        <h3>Watch for the signs</h3>
+        <p>Start a new conversation when the agent "seems confused or keeps making the same mistakes", or when you move to a different task.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Carry it over</div>
+        <h3>Consolidate, then restart</h3>
+        <p>The paper's tip: ask the model to consolidate everything you told it, then bring that into a new conversation.</p>
+      </div>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>prompt · before you start over</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre style="white-space:pre-wrap">Please consolidate everything I've told you so far into one short brief: the goal, the constraints, what we tried and why it failed, and the files that matter. I will paste it into a new chat.</pre>
+    </div>
+  </section>
+
+  <!-- 13 -->
+  <section class="slide" data-title="What fills your context">
+    <p class="eyebrow">Slide 13 · Lean context</p>
+    <h2>What fills your context, and how to see it</h2>
+    <table>
+      <thead><tr><th>What</th><th>When it loads</th><th>Keep it small</th></tr></thead>
+      <tbody>
+        <tr><td>Always-on rules, <code>CLAUDE.md</code>, <code>AGENTS.md</code></td><td>Every session, before you type</td><td>Short always-on files; scope the rest</td></tr>
+        <tr><td>MCP servers</td><td>Tool names and instructions, even when unused</td><td>Disable servers you do not need; prefer a CLI</td></tr>
+        <tr><td>Skill and subagent descriptions</td><td>Every session; full skill bodies only when used</td><td>Fewer, clearer descriptions</td></tr>
+        <tr><td>File reads and tool output</td><td>Each read, search and command adds to it</td><td>Name the file; send wide searches to a subagent</td></tr>
+        <tr><td>The conversation itself</td><td>All of it, on every request</td><td>A new chat per task</td></tr>
+      </tbody>
+    </table>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Cursor</div>
+        <h3>The context ring</h3>
+        <p>Click the ring next to the prompt. It splits usage into system prompt, tools, rules, skills, MCP, subagents, summarized conversation and conversation.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Claude Code</div>
+        <h3><code>/context</code></h3>
+        <p>A live breakdown by category with suggestions. Claude Code sends your full conversation with every request, so stale history costs tokens on every turn.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 14 -->
+  <section class="slide" data-title="Fresh chat, clear, compact">
+    <p class="eyebrow">Slide 14 · Lean context</p>
+    <h2>A fresh chat per task, /clear, /compact with a focus</h2>
+    <table>
+      <thead><tr><th>You want to</th><th>Cursor</th><th>Claude Code</th></tr></thead>
+      <tbody>
+        <tr><td>Start clean for a new task</td><td>New chat (CLI: <code>/clear</code> or <code>/new</code>)</td><td><code>/clear</code></td></tr>
+        <tr><td>Shrink a long chat, keeping what matters</td><td>Summarizes automatically near the limit (CLI: <code>/summarize</code>)</td><td><code>/compact focus on the auth bug fix</code></td></tr>
+        <tr><td>Bring old work forward</td><td><code>@Chats</code> in the new chat; CLI <code>/fork</code></td><td><code>/rename</code>, then <code>claude --resume</code></td></tr>
+        <tr><td>Ask a side question without crowding the main chat</td><td><code>/side</code> opens a side chat</td><td><code>/btw</code> adds nothing to the history</td></tr>
+      </tbody>
+    </table>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Start fresh when</div>
+        <h3>The task changes</h3>
+        <p>A different task or feature, one logical unit of work is done, or the agent keeps repeating a mistake.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Keep going when</div>
+        <h3>The work builds on itself</h3>
+        <p>You are iterating on the same feature, the agent needs earlier context, or you are debugging what it just built.</p>
+      </div>
+    </div>
+    <p class="hint">In Claude Code, <code>/clear</code> costs nothing and <code>/compact</code> reads the conversation it summarizes. A "# Compact instructions" section in <code>CLAUDE.md</code> sets what every compaction keeps.</p>
+  </section>
+
+  <!-- 15 -->
+  <section class="slide" data-title="Subagents and scoped reads">
+    <p class="eyebrow">Slide 15 · Lean context</p>
+    <h2>Send exploration to a subagent, read only what you need</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Isolate</div>
+        <h3>Noisy work goes elsewhere</h3>
+        <p>Cursor built its Explore and Browser subagents from "analysis of agent conversations where context window limits were hit". A subagent may read tens of thousands of tokens and return a summary of often 1,000 to 2,000.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Scope</div>
+        <h3>Name the file you know</h3>
+        <p>"If you know the exact file, tag it." "Including irrelevant files can confuse the agent." Vague requests such as "improve this codebase" trigger broad scanning.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Good fits</div>
+        <h3>Long output you will not reread</h3>
+        <p>A full test run, a wide search, a log file or a long doc. Ask for a short summary back.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Trade-off</div>
+        <h3>Not for quick tasks</h3>
+        <p>Each subagent starts fresh and spends its own tokens. Many detailed results can still fill your main chat.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 16 -->
+  <section class="slide" data-title="Short rules and handoff notes">
+    <p class="eyebrow">Slide 16 · Lean context</p>
+    <h2>Short rules, short AGENTS.md, a handoff note before you start fresh</h2>
+    <div class="split-top">
+      <div>
+        <div class="card" style="margin-bottom:0.6rem">
+          <div class="tag">Always-on files</div>
+          <h3>Every line costs attention</h3>
+          <p>Claude Code: aim for under 200 lines per <code>CLAUDE.md</code>; "longer files consume more context and reduce adherence." Cursor: keep rules under 500 lines and split large ones.</p>
+        </div>
+        <div class="card">
+          <div class="tag info">Load on demand</div>
+          <h3>Scope the rest</h3>
+          <p>Use path-scoped rules, skills or nested <code>AGENTS.md</code> for guidance that applies to part of the repo. Reference files instead of copying them in.</p>
+        </div>
+      </div>
+      <div>
+        <div class="cmd-block" data-copy>
+          <div class="bar"><span>prompt · handoff note before a new chat</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>Write a handoff note to HANDOFF.md for a fresh chat. Include the goal, what is done, what is left, the decisions and why, the exact commands and errors that matter, and the files to read first. Keep it under 40 lines. Do not commit it.</pre>
+        </div>
+        <p class="hint">Then open a new chat and point it at the note. Claude Code's docs suggest the same pattern with a spec: write it, then start a fresh session to build from it.</p>
+      </div>
+    </div>
+  </section>
+
+  <!-- 17 -->
+  <section class="slide title-slide" data-title="Done">
+    <p class="eyebrow">Done</p>
+    <h1>Keep the main chat for decisions. Send the reading to a subagent.</h1>
+    <p class="lead">A new chat per task, <code>/clear</code> or <code>/compact</code> with a focus when it grows, short always-on files, and a handoff note when you start over.</p>
+    <div class="meta-row">
+      <span class="chip">Cheat sheet: companion/lean-context-cheat-sheet.html</span>
+      <span class="chip">Check: install.sh --check</span>
+      <span class="chip">Undo: ~/.subagent-starter-kit/uninstall.sh</span>
+    </div>
+    <p class="ref-label">Sources</p>
+    <p class="ref-link"><a href="https://www.anthropic.com/engineering/effective-context-engineering-for-ai-agents" target="_blank" rel="noopener noreferrer">Effective context engineering for AI agents</a> · <a href="https://research.trychroma.com/context-rot" target="_blank" rel="noopener noreferrer">Context Rot</a> · <a href="https://arxiv.org/abs/2505.06120" target="_blank" rel="noopener noreferrer">LLMs Get Lost In Multi-Turn Conversation</a> · <a href="https://cursor.com/docs/subagents" target="_blank" rel="noopener noreferrer">Cursor subagents</a> · <a href="https://code.claude.com/docs/en/best-practices" target="_blank" rel="noopener noreferrer">Claude Code best practices</a></p>
+  </section>
+
+</div>
+
+<div id="chrome">
+  <div class="nav">
+    <button type="button" id="prev" aria-label="Previous slide">← Prev</button>
+    <button type="button" id="next" aria-label="Next slide">Next →</button>
+  </div>
+  <div id="dots" aria-label="Slide navigation"></div>
+  <div id="progress">1 / 1</div>
+</div>
+
+<script>
+(function () {
+  const slides = Array.from(document.querySelectorAll(".slide"));
+  const progress = document.getElementById("progress");
+  const dots = document.getElementById("dots");
+  const prevBtn = document.getElementById("prev");
+  const nextBtn = document.getElementById("next");
+  let i = 0;
+
+  slides.forEach((slide, idx) => {
+    const b = document.createElement("button");
+    b.type = "button";
+    b.title = slide.dataset.title || `Slide ${idx + 1}`;
+    b.addEventListener("click", () => go(idx));
+    dots.appendChild(b);
+  });
+
+  function go(n) {
+    i = Math.max(0, Math.min(slides.length - 1, n));
+    slides.forEach((s, idx) => s.classList.toggle("active", idx === i));
+    Array.from(dots.children).forEach((d, idx) => d.classList.toggle("active", idx === i));
+    progress.textContent = `${i + 1} / ${slides.length}`;
+    prevBtn.disabled = i === 0;
+    nextBtn.disabled = i === slides.length - 1;
+    history.replaceState(null, "", `#${i + 1}`);
+  }
+
+  prevBtn.addEventListener("click", () => go(i - 1));
+  nextBtn.addEventListener("click", () => go(i + 1));
+
+  document.addEventListener("keydown", (e) => {
+    if (e.key === "ArrowRight" || e.key === "PageDown" || e.key === " ") {
+      e.preventDefault();
+      go(i + 1);
+    } else if (e.key === "ArrowLeft" || e.key === "PageUp") {
+      e.preventDefault();
+      go(i - 1);
+    } else if (e.key === "Home") {
+      go(0);
+    } else if (e.key === "End") {
+      go(slides.length - 1);
+    }
+  });
+
+  document.querySelectorAll("[data-copy]").forEach((block) => {
+    const btn = block.querySelector(".copy-btn");
+    const pre = block.querySelector("pre");
+    if (!btn || !pre) return;
+    btn.addEventListener("click", async () => {
+      try {
+        await navigator.clipboard.writeText(pre.textContent);
+        btn.textContent = "Copied";
+        btn.classList.add("copied");
+        setTimeout(() => {
+          btn.textContent = "Copy";
+          btn.classList.remove("copied");
+        }, 1200);
+      } catch (_) {
+        btn.textContent = "Select & copy";
+      }
+    });
+  });
+
+  const hash = parseInt((location.hash || "").replace("#", ""), 10);
+  go(Number.isFinite(hash) && hash >= 1 ? hash - 1 : 0);
+})();
+</script>
+</body>
+</html>
