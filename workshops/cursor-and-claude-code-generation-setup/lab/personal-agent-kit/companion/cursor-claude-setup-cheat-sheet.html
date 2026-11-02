@@ -119,7 +119,7 @@ footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex;
     <p>Download <a href="https://github.com/allisonpaigemcentire/ai-workshops/raw/main/workshops/cursor-and-claude-code-generation-setup/lab/personal-agent-kit-v2.zip">personal-agent-kit-v2.zip</a>, unzip it into <code>~/src</code>, then run:</p>
     <pre><code>mkdir -p ~/src &amp;&amp; unzip ~/Downloads/personal-agent-kit-v2.zip -d ~/src</code></pre>
     <pre><code>bash ~/src/personal-agent-kit/scripts/install.sh</code></pre>
-    <p class="note">It shows a preview, asks once, then installs: copies the kit into <code>~/.agents/</code>, links rules, hooks and the status line, writes the Cursor, Claude Code and Gemini wrappers, and merges the hooks, status line and MCP servers into your config files. It backs up every file first (<code>~/.agent-kit-backups/</code>), adds only what is missing and is safe to re-run. Preview only: add <code>--dry-run</code>.</p>
+    <p class="note">It shows a preview, asks once, then installs: copies the kit into <code>~/.agents/</code>, links rules, hooks and the status line, writes the Cursor, Claude Code and Gemini wrappers, and merges the hooks and status line into your config files (no Atlassian MCP server: Jira goes through <code>acli</code>; sign in once with <code>acli jira auth login --web</code>). It backs up every file first (<code>~/.agent-kit-backups/</code>), adds only what is missing and is safe to re-run. Preview only: add <code>--dry-run</code>.</p>
   </section>
 
   <section class="panel">
@@ -167,7 +167,7 @@ footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex;
       <li>Let the main chat plan. Send exploration and huge-file reads to a subagent or second session that returns a short finding.</li>
       <li>Start a new chat or <code>/clear</code> at phase boundaries.</li>
       <li>Use a cheaper model for mechanical edits.</li>
-      <li>Prefer CLI-backed skills over MCP servers for reads.</li>
+      <li>Prefer CLIs (<code>gh</code>, <code>acli</code>) over MCP servers for reads.</li>
       <li>Watch the Claude status line: model, branch, PR and context %.</li>
     </ul>
   </section>

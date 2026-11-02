@@ -15,7 +15,8 @@
 #     (your other lines stay; a file left empty is removed)
 #   - ~/.cursor/rules/personal-instructions.mdc (if it is the kit's wrapper)
 #   - the hook, status line and MCP entries it added to your config files
-#   - Claude Code user MCP servers it added
+#   - Claude Code user MCP servers it added (including the Atlassian MCP
+#     server that earlier kit versions added by default)
 # Every file is backed up to ~/.agent-kit-backups/<time>/ before it changes.
 # It leaves ~/.agents/ itself (your shared.md and rules) and all backups.
 # It cannot see Cursor's User Rules: delete the pasted rule there yourself.

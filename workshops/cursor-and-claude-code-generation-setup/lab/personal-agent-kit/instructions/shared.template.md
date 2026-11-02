@@ -44,7 +44,7 @@ community kit.)
 - Be short. No preamble. No trailing summary of the diff.
 - State each finding once.
 - Name tradeoffs in 1–2 sentences; I decide.
-- Do not ask permission for read-only git / gh commands.
+- Do not ask permission for read-only git / gh / acli commands.
 - Confirm before push, PR open/close, branch delete, or force-push.
 
 Write in plain, clear language. Every word must be literally true — no
@@ -87,6 +87,13 @@ me through any change I did not write so I can explain it myself.
 
 - <Issue tracker / code host CLIs you prefer, e.g. `gh` for GitHub>, not a
   logged-out web fetch.
+- Jira: use Atlassian's CLI `acli` (for example `acli jira workitem view
+  KEY-123`, `acli jira workitem search --jql "project = KEY"`), not an MCP
+  server or a web fetch.
+- If `acli` says I am not signed in or the session expired, stop and ask me
+  to run `acli jira auth login --web` in my terminal, then retry when I say it
+  is done. Never run the login yourself, ask for an API token, or pass a token
+  to `acli`. `acli jira auth status` shows the sign-in.
 - <Optional, if LSP is set up (see the kit's `docs/enable-lsp.md`):> Prefer
   go-to-definition / find-references over grep when looking up symbols.
 - Reads may auto-run. Writes always confirm unless a repo hook already

@@ -8,7 +8,8 @@
 #
 # Options:
 #   --tools=claude,cursor,gemini   only wire these tools (default: all three)
-#   --no-mcp                       do not add MCP servers
+#   --no-mcp                       do not add MCP servers (the kit adds none
+#                                  unless you set up team-skills below)
 #   --with-helpers                 also install the optional read-only subagents
 #                                  code-reader and doc-reader for each tool in
 #                                  --tools (see step 5)
@@ -31,10 +32,12 @@
 #      ~/.gemini/GEMINI.md and, as the Cursor fallback,
 #      ~/.cursor/rules/personal-instructions.mdc. Existing CLAUDE.md /
 #      GEMINI.md keep their lines; the kit adds one marked region.
-#   4. Merges hooks, the status line and MCP servers into ~/.cursor/hooks.json,
-#      ~/.cursor/mcp.json, ~/.claude/settings.json, ~/.gemini/settings.json,
-#      and (if the claude CLI is installed) Claude Code's user MCP list.
-#      Adds only what is missing; never replaces your values.
+#   4. Merges hooks and the status line into ~/.cursor/hooks.json and
+#      ~/.claude/settings.json, plus the optional team-skills MCP server into
+#      ~/.cursor/mcp.json, ~/.gemini/settings.json and (if the claude CLI is
+#      installed) Claude Code's user MCP list. Adds only what is missing;
+#      never replaces your values. It also removes the Atlassian MCP server an
+#      earlier kit version added, if that server is still the kit's own value.
 #   5. Only with --with-helpers, for each tool in --tools:
 #      Claude Code: links code-reader.md and doc-reader.md into ~/.claude/agents/
 #      Cursor:      copies examples/agents/cursor/*.md into ~/.cursor/agents/
@@ -45,6 +48,10 @@
 #      and leave alone a Cursor or Gemini copy you changed. The Claude links
 #      point into ~/.agents/examples/agents/, which step 1 refreshes (old
 #      copy backed up): keep your own Claude version under a new name.
+#   Jira and Confluence: the kit adds no Atlassian MCP server. Agents use
+#   Atlassian's CLI, acli. The installer only checks that acli is on your
+#   PATH and prints how to install it if not; it never signs you in or stores
+#   a token. Sign in yourself once: acli jira auth login --web
 #   Last, for Cursor: prints the text to paste into Customize > Rules >
 #   User Rules (the main Cursor path), and on macOS copies it with pbcopy.
 #
@@ -62,7 +69,9 @@ export KIT_BACKUP_DIR="${KIT_BACKUP_DIR:-$HOME/.agent-kit-backups/$STAMP}"
 export AGENTS_HOME="$AGENTS"
 SKILLS_FROM="${KIT_SKILLS_FROM:-}"
 SKILLS_ENTRY="${KIT_SKILLS_ENTRY:-}"
-ATLASSIAN_URL="https://mcp.atlassian.com/v1/mcp"
+# The Atlassian MCP server earlier kit versions added by default. Only used
+# to remove it (see retire_claude_mcp); the kit no longer adds it.
+OLD_ATLASSIAN_URL="https://mcp.atlassian.com/v1/mcp"
 
 PREVIEW_ONLY=0
 YES=0
@@ -135,6 +144,23 @@ if ! command -v python3 >/dev/null 2>&1 || ! python3 -c 'import sys; sys.exit(sy
   exit 1
 fi
 command -v jq >/dev/null 2>&1 || echo "note: jq not found; the Claude status line needs it (brew install jq)."
+# Jira and Confluence go through Atlassian's CLI (acli), not an MCP server.
+# Check only: never install it, sign in, or store a token here.
+HAVE_ACLI=0
+command -v acli >/dev/null 2>&1 && HAVE_ACLI=1
+acli_install_hint() {
+  echo "  macOS (Homebrew): brew tap atlassian/homebrew-acli && brew install acli"
+  echo "  Other systems:    https://developer.atlassian.com/cloud/acli/guides/install-acli/"
+}
+# shared.md is never overwritten, so an earlier install lacks the acli lines.
+if [[ -f "$AGENTS/instructions/shared.md" ]] && ! grep -q 'acli jira auth login' "$AGENTS/instructions/shared.md"; then
+  echo "note: your shared.md has no acli lines. To have agents use acli and ask you to sign in, copy"
+  echo "  the two Jira lines under '## Tooling' in $KIT/instructions/shared.template.md"
+fi
+if (( ! HAVE_ACLI )); then
+  echo "note: acli (Atlassian CLI) not found. Agents use it for Jira; install it any time:"
+  acli_install_hint
+fi
 
 DRY=1
 CONFLICTS=0
@@ -279,14 +305,14 @@ steps() {
   (( MCP )) || kargs+=(--no-mcp)
   (( DRY )) && kargs+=(--dry-run)
   python3 "$KIT/scripts/kit_config.py" "${kargs[@]}" || CONFLICTS=$((CONFLICTS + 1))
-  if want claude && (( MCP )); then
+  if want claude; then retire_claude_mcp; fi
+  if want claude && (( MCP )) && [[ -n "$SKILLS_FROM" && -n "$SKILLS_ENTRY" ]]; then
     if command -v claude >/dev/null 2>&1; then
-      claude_mcp atlassian --transport http atlassian "$ATLASSIAN_URL"
       if [[ -n "$SKILLS_FROM" && -n "$SKILLS_ENTRY" ]] && command -v uvx >/dev/null 2>&1; then
         claude_mcp team-skills team-skills -- uvx --from "$SKILLS_FROM" "$SKILLS_ENTRY"
       fi
     else
-      say "note: claude CLI not on PATH; Claude Code MCP servers not added (re-run after installing Claude Code)."
+      say "note: claude CLI not on PATH; Claude Code MCP server team-skills not added (re-run after installing Claude Code)."
     fi
   fi
 
@@ -428,6 +454,58 @@ helper_copy() {
   record helper-copy "$dest" "$src" "$bk" "$(sumof "$dest")"
 }
 
+# retire_claude_mcp: remove the Atlassian MCP server an earlier kit version
+# added to Claude Code's user list. Only when the record says the kit added it
+# and it still has the kit's value; a server you changed is kept.
+retire_claude_mcp() {
+  local row verdict
+  row="claude-mcp"$'\t'"atlassian"
+  [[ -f "$STATE" ]] && grep -Fxq -- "$row" "$STATE" || return 0
+  # Read ~/.claude.json for this one entry; print nothing from it.
+  verdict="$(python3 - "$OLD_ATLASSIAN_URL" <<'PYEOF' 2>/dev/null
+import json, os, sys
+try:
+    with open(os.path.expanduser("~/.claude.json"), encoding="utf-8") as fh:
+        s = (json.load(fh).get("mcpServers") or {}).get("atlassian")
+except (OSError, ValueError):
+    s = None
+if s is None:
+    print("gone")
+elif isinstance(s, dict) and s.get("type") == "http" and s.get("url") == sys.argv[1] and set(s) <= {"type", "url"}:
+    print("kit")
+else:
+    print("yours")
+PYEOF
+)" || verdict=unknown
+  case "$verdict" in
+    gone) (( DRY )) || forget_row "$row" ;;
+    yours)
+      say "note: Claude Code MCP 'atlassian' was changed since the kit added it; kept yours. Jira and Confluence now use acli, so you can remove it: claude mcp remove --scope user atlassian"
+      (( DRY )) || forget_row "$row" ;;
+    kit)
+      if ! command -v claude >/dev/null 2>&1; then
+        say "note: the kit's old Claude Code MCP 'atlassian' is still set; install or re-run with claude on PATH, or run: claude mcp remove --scope user atlassian"
+      elif (( DRY )); then
+        say "would: claude mcp remove --scope user atlassian (added by an earlier kit; Jira and Confluence now use acli)"
+      elif claude mcp remove --scope user atlassian >/dev/null 2>&1; then
+        say "removed Claude Code MCP 'atlassian' (added by an earlier kit; Jira and Confluence now use acli)"
+        forget_row "$row"
+      else
+        say "could not remove Claude Code MCP 'atlassian'; run: claude mcp remove --scope user atlassian"
+        CONFLICTS=$((CONFLICTS + 1))
+      fi ;;
+    *) say "note: could not read ~/.claude.json; left Claude Code MCP 'atlassian' alone" ;;
+  esac
+}
+
+# forget_row <exact line>: drop one record from the state file.
+forget_row() {
+  local tmp
+  tmp="$(mktemp "$AGENTS/.kit-installed.XXXXXX")"
+  grep -Fxv -- "$1" "$STATE" >"$tmp" || true
+  mv "$tmp" "$STATE"
+}
+
 # claude_mcp <name> <args for 'claude mcp add' after --scope user>
 claude_mcp() {
   local name="$1"; shift
@@ -503,8 +581,19 @@ Next:
      this installer (or: bash $AGENTS/scripts/wire-personal-agents.sh).
      For Cursor, paste the User Rule text again after each edit.
   2. Start a new chat in Cursor, Claude Code and Gemini CLI.
-  3. MCP: Atlassian signs in with OAuth on first use. Token servers: see
-     mcp.example.json; secrets go in env vars or the Keychain, never in files.
+  3. Jira: agents use Atlassian's CLI, acli (no MCP server). Sign in once in
+     a terminal: acli jira auth login --web (it opens your browser; pick the
+     same site in the terminal). Check with: acli jira auth status
+     When a session expires, your agent asks you to run the login again.
+     The kit never stores a token.
+MSG
+if (( ! HAVE_ACLI )); then
+  echo "     acli is not installed yet:"
+  acli_install_hint | sed 's/^/   /'
+fi
+cat <<MSG
+  4. Other MCP servers: see mcp.example.json; secrets go in env vars or the
+     Keychain, never in files.
 Check for drift any time:  bash $AGENTS/scripts/wire-personal-agents.sh --check
 Undo:                      bash $AGENTS/scripts/uninstall.sh
 MSG

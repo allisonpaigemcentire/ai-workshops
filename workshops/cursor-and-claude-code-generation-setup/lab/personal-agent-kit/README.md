@@ -23,6 +23,8 @@ own preferences.
   only when you set `KIT_SKILLS_FROM` (the `uvx --from` source, pinned to a
   tag or `main`) and `KIT_SKILLS_ENTRY` (its command name) before you run it,
   and `uv` is installed (`brew install uv`). Your team shares the values.
+- Optional: Atlassian's command-line tool `acli`, for Jira (see
+  [Jira and Confluence](#jira-and-confluence-acli-not-mcp) below).
 
 ## Install: one command
 
@@ -41,7 +43,7 @@ bash ~/src/personal-agent-kit/scripts/install.sh --dry-run
 ```
 
 Other options: `--yes` (no prompt), `--tools=cursor,claude` (only some
-tools), `--no-mcp` (skip MCP servers), `--with-helpers` (also install the
+tools), `--no-mcp` (skip the optional `team-skills` MCP server), `--with-helpers` (also install the
 optional read-only `code-reader` and `doc-reader` subagents for each selected
 tool; off by default), `--no-clipboard` (see below).
 
@@ -85,13 +87,13 @@ again to link it.
 | Cursor User Rules | Nothing: you paste the text the installer prints (see above). |
 | `~/.cursor/rules/`, `~/.cursor/hooks/` | Links to the kit's rules and hooks, plus the fallback `personal-instructions.mdc`. |
 | `~/.cursor/hooks.json` | Adds the session-memory stop hook and the optional cost guard. |
-| `~/.cursor/mcp.json` | Adds `atlassian` (OAuth, no token), plus `team-skills` if you set it up (see above). |
+| `~/.cursor/mcp.json` | Adds `team-skills` only if you set it up (see above). Removes the `atlassian` server an earlier kit version added, unless you changed it. |
 | `~/.claude/CLAUDE.md` | Adds one marked section that imports `shared.md`. Your lines stay. |
 | `~/.claude/rules/`, `~/.claude/hooks/` | Links to the kit's rules and hooks. Your Cursor rules are mirrored here too. |
 | `~/.claude/settings.json` | Adds the stop hook, and the status line if you don't have one. |
-| Claude Code user MCP list | Adds the same servers with `claude mcp add`, if `claude` is installed. |
+| Claude Code user MCP list | Same as `~/.cursor/mcp.json`, with `claude mcp add` / `claude mcp remove`, if `claude` is installed. |
 | `~/.gemini/GEMINI.md` | Adds one marked section with a copy of `shared.md`. Your lines and Gemini's saved memories stay. |
-| `~/.gemini/settings.json` | Adds the same MCP servers. |
+| `~/.gemini/settings.json` | Same as `~/.cursor/mcp.json`. |
 | `~/.claude/agents/` | Only with `--with-helpers` and Claude Code selected: links `code-reader.md` and `doc-reader.md`. |
 | `~/.cursor/agents/` | Only with `--with-helpers` and Cursor selected: copies of both in Cursor's format (`model: inherit`, `readonly: true`). |
 | `~/.gemini/agents/` | Only with `--with-helpers` and Gemini selected: copies of both in Gemini CLI's format, limited to read-only tools. |
@@ -128,6 +130,35 @@ but not the `~/.ai-memory/` store or the `session-memory` skill. To use it,
 follow steps 1 and 2 of `companion/personal-session-memory-setup.html`; skip
 its later steps, which the installer already did.
 
+## Jira and Confluence: acli, not MCP
+
+The kit adds no Atlassian MCP server. Agents use Atlassian's command-line
+tool, `acli`, instead. A CLI adds nothing to the always-on context, while an
+MCP server loads its tool descriptions into every chat.
+
+1. Install it (the installer only checks for it and prints this if it is
+   missing): on macOS, `brew tap atlassian/homebrew-acli && brew install acli`.
+   Other systems: [Atlassian's install guide](https://developer.atlassian.com/cloud/acli/guides/install-acli/).
+2. Sign in once, in your own terminal: `acli jira auth login --web`. It opens
+   your browser; accept, then pick the same site in the terminal. Check with
+   `acli jira auth status`.
+3. When the sign-in is missing or expired, the agent stops and asks you to run
+   `acli jira auth login --web` again, then retries. The rule is in
+   `shared.md` under Tooling. The agent never runs the login for you and
+   never asks for an API token, and the kit stores no credential.
+
+Confluence: Atlassian's [acli command reference](https://developer.atlassian.com/cloud/acli/reference/commands/)
+documents Jira and organization-admin commands, not Confluence (UNVERIFIED:
+whether your `acli` version has Confluence commands; check `acli --help`).
+For a Confluence page, paste its text or link into the chat.
+
+Upgrading from an earlier kit: re-running the installer removes the
+`atlassian` MCP server that version added to Cursor, Claude Code and Gemini,
+only where it is still the kit's value. One you changed is kept and named.
+Your existing `shared.md` is never overwritten, so copy the two Jira lines
+under `## Tooling` in `instructions/shared.template.md` into it (the installer
+reminds you), then re-run the installer and paste the Cursor User Rule again.
+
 ## Undo
 
 ```bash
@@ -150,8 +181,8 @@ was, copy it back from `~/.agent-kit-backups/<time>/`.
 If the installer reports a file as SKIPPED, add these entries yourself.
 The examples are in `hooks.example.json` (Cursor hooks),
 `claude-settings.example.json` (Claude settings) and `mcp.example.json`
-(MCP servers). For Gemini, put the `atlassian` (and optional `team-skills`) entries
-under `mcpServers` in `~/.gemini/settings.json`.
+(MCP servers). For Gemini, put the optional `team-skills` entry under `mcpServers` in
+`~/.gemini/settings.json`.
 
 ## More
 

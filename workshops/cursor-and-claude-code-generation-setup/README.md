@@ -7,7 +7,8 @@ work in still wins over these personal files.
 - **Audience:** engineers who use Cursor, Claude Code or Gemini CLI locally
 - **Duration:** 30 minutes
 - **Prerequisites:** macOS or Linux with `bash` and `python3` 3.8+, and at
-  least one of Cursor, Claude Code or Gemini CLI
+  least one of Cursor, Claude Code or Gemini CLI. Optional: Atlassian's CLI
+  `acli` for Jira (the kit uses it instead of an Atlassian MCP server)
 - **What participants leave with:** the personal agent kit installed with one
   command, and a way to undo it
 

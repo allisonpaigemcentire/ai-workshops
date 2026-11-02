@@ -2,13 +2,22 @@
 
 ## v2 (2026-10-30, updated 2026-11-02)
 
+- Jira and Confluence: the installer no longer adds the Atlassian MCP server.
+  Agents use Atlassian's CLI, `acli`; `shared.md` tells them to ask you to run
+  `acli jira auth login --web` when the sign-in is missing or expired, and
+  never to run it or handle a token themselves. The installer checks that
+  `acli` is on your PATH and prints the Homebrew install line if not. A
+  re-run removes the `atlassian` MCP server an earlier kit version added
+  (Cursor, Claude Code, Gemini) when it is still the kit's value.
+
 - One command: `scripts/install.sh` now previews, asks once, installs, and
   merges the Cursor hooks, Claude settings and MCP config that used to be
   three manual steps. `--dry-run`, `--yes`, `--tools=`, `--no-mcp`.
 - Every changed file is backed up to `~/.agent-kit-backups/<time>/` first.
   Merges add only missing entries and never print config values.
 - New `scripts/uninstall.sh` removes only what the installer recorded.
-- Gemini CLI: the installer adds MCP servers to `~/.gemini/settings.json`.
+- Gemini CLI: the installer adds the optional `team-skills` MCP server to
+  `~/.gemini/settings.json`.
   The wire script now replaces only its marked region in `GEMINI.md`, so
   Gemini's saved memories survive a re-run. v1 rewrote the whole file.
 - Fixed: re-wiring `CLAUDE.md` added a blank line on every run.

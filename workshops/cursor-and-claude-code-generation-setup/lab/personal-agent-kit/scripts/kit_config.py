@@ -16,6 +16,9 @@ Rules it follows:
     left alone and reported.
   - Records what it added in ~/.agents/.kit-installed so uninstall.sh removes
     only those entries.
+  - Removes the Atlassian MCP server that earlier kit versions added, but
+    only when the record says the kit added it and it is still exactly the
+    kit's value. Jira and Confluence now go through Atlassian's CLI (acli).
 
 Usage:
   python3 kit_config.py merge  [--dry-run] [--tools=claude,cursor,gemini] [--no-mcp]
@@ -52,7 +55,11 @@ CURSOR_MCP = os.path.join(HOME, ".cursor", "mcp.json")
 CLAUDE_SETTINGS = os.path.join(HOME, ".claude", "settings.json")
 GEMINI_SETTINGS = os.path.join(HOME, ".gemini", "settings.json")
 
-ATLASSIAN_URL = "https://mcp.atlassian.com/v1/mcp"
+# Earlier kit versions added this Atlassian MCP server by default. The kit now
+# points agents at Atlassian's CLI (acli) instead, so merge removes the old
+# entry (see retire_old_mcp) and nothing adds it.
+OLD_ATLASSIAN_NAME = "atlassian"
+OLD_ATLASSIAN = {"type": "http", "url": "https://mcp.atlassian.com/v1/mcp"}
 
 
 def skills_server() -> dict:
@@ -60,8 +67,11 @@ def skills_server() -> dict:
 
 
 def mcp_servers(want_skills: bool) -> dict:
-    """The only MCP servers the installer adds: no tokens, no placeholders."""
-    servers = {"atlassian": {"type": "http", "url": ATLASSIAN_URL}}  # OAuth; same shape for Cursor and Gemini
+    """The only MCP servers the installer adds: no tokens, no placeholders.
+
+    None by default. Jira and Confluence use Atlassian's CLI (acli).
+    """
+    servers = {}
     if want_skills:
         servers[SKILLS_NAME] = skills_server()
     return servers
@@ -228,6 +238,56 @@ def merge_mcp(path: str, want_skills: bool):
     return step
 
 
+def retire_old_mcp(path: str, dry: bool, state: list) -> int:
+    """Remove the Atlassian MCP server an earlier kit version added to path.
+
+    Only when the record shows the kit added it and the value is still the
+    kit's own. A server you changed, or added yourself, is kept.
+    Returns 1 when the file was skipped.
+    """
+    rows = [r for r in state if r[:4] == ["json", path, "mcp", OLD_ATLASSIAN_NAME]]
+    if not rows:
+        return 0
+    try:
+        data = load_json(path)
+    except Skip as why:
+        print("  SKIPPED %s: %s. Left the old '%s' MCP server alone." % (short(path), why, OLD_ATLASSIAN_NAME))
+        return 1
+    servers = (data or {}).get("mcpServers")
+    if not isinstance(servers, dict) or OLD_ATLASSIAN_NAME not in servers:
+        # Already gone: forget the record.
+        if not dry:
+            state[:] = [r for r in state if r not in rows]
+        return 0
+    if servers[OLD_ATLASSIAN_NAME] != OLD_ATLASSIAN:
+        print("  note: %s has an MCP server named '%s' that you changed; kept yours."
+              " Jira and Confluence now use acli, so you can remove it." % (short(path), OLD_ATLASSIAN_NAME))
+        if not dry:
+            state[:] = [r for r in state if r not in rows]
+        return 0
+    new = copy.deepcopy(data)
+    del new["mcpServers"][OLD_ATLASSIAN_NAME]
+    if not new["mcpServers"]:
+        del new["mcpServers"]
+    why = "added by an earlier kit; Jira and Confluence now use acli"
+    created = ["json", path, "created", "", ""]
+    if created in state and not new:
+        # The kit created this file for that one server: remove the file.
+        print("  %-7s %s (only the old '%s' MCP server was in it; %s)" % (
+            "would remove" if dry else "remove", short(path), OLD_ATLASSIAN_NAME, why))
+        if not dry:
+            print("  backed up %s -> %s" % (short(path), short(backup(path))))
+            os.remove(path)
+            state[:] = [r for r in state if r not in rows and r != created]
+        return 0
+    print("  %-7s %s" % ("would update" if dry else "update", short(path)))
+    print("            - remove mcpServers.%s (%s)" % (OLD_ATLASSIAN_NAME, why))
+    if not dry:
+        save_json(path, new)
+        state[:] = [r for r in state if r not in rows]
+    return 0
+
+
 def apply(path: str, step, dry: bool, state: list) -> int:
     """Run one merge step against one file. Returns 1 when the file was skipped."""
     try:
@@ -265,13 +325,20 @@ def do_merge(args) -> int:
         want_skills = False
     state = read_state()
     skipped = 0
+    # Clean up the old default Atlassian MCP server first, even with --no-mcp.
+    if "cursor" in tools:
+        skipped += retire_old_mcp(CURSOR_MCP, args.dry_run, state)
+    if "gemini" in tools:
+        skipped += retire_old_mcp(GEMINI_SETTINGS, args.dry_run, state)
+    # Nothing to add unless the optional team-skills server is set up.
+    add_mcp = args.mcp and bool(mcp_servers(want_skills))
     if "cursor" in tools:
         skipped += apply(CURSOR_HOOKS, merge_cursor_hooks, args.dry_run, state)
-        if args.mcp:
+        if add_mcp:
             skipped += apply(CURSOR_MCP, merge_mcp(CURSOR_MCP, want_skills), args.dry_run, state)
     if "claude" in tools:
         skipped += apply(CLAUDE_SETTINGS, merge_claude_settings, args.dry_run, state)
-    if "gemini" in tools and args.mcp:
+    if "gemini" in tools and add_mcp:
         skipped += apply(GEMINI_SETTINGS, merge_mcp(GEMINI_SETTINGS, want_skills), args.dry_run, state)
     if not args.dry_run:
         write_state(state)
