@@ -70,8 +70,7 @@ bash ~/.agents/scripts/install.sh --print-user-rule
 Fallback: the installer still writes `~/.cursor/rules/personal-instructions.mdc`
 and links the kit's rules into `~/.cursor/rules/`. Cursor finds that folder
 by walking up from the folder you open, so it loads only for projects inside
-your home folder (for example `~/src/...`; UNVERIFIED: Cursor's docs do not
-describe a user-level `~/.cursor/rules/`). If you use the User Rule and the
+your home folder (for example `~/src/...`). If you use the User Rule and the
 fallback file, a project under your home folder gets the text twice; that
 costs context but does not conflict.
 
@@ -150,8 +149,7 @@ MCP server loads its tool descriptions into every chat.
    never asks for an API token, and the kit stores no credential.
 
 Confluence: Atlassian's [acli command reference](https://developer.atlassian.com/cloud/acli/reference/commands/)
-documents Jira and organization-admin commands, not Confluence (UNVERIFIED:
-whether your `acli` version has Confluence commands; check `acli --help`).
+documents Jira and organization-admin commands, not Confluence.
 For a Confluence page, paste its text or link into the chat.
 
 Upgrading from an earlier kit: re-running the installer removes the

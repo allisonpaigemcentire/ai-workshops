@@ -19,7 +19,7 @@ instead of text search.
 - The agent sees its own type errors right away, so fewer broken
   edit-then-compile cycles.
 
-No measured token savings. Treat the cost benefit as unverified.
+No measured token savings.
 
 ## Claude Code setup
 

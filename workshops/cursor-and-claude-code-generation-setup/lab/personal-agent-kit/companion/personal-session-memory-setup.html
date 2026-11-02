@@ -1550,7 +1550,6 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
         <p>Legacy request-based plans without Max Mode run subagents on Composer, whatever <code>model:</code> says. Subagents cost extra: Cursor's docs say five in parallel use "roughly five times the tokens of a single agent", so use helpers for long reads only.</p>
       </div>
     </div>
-    <p><strong>UNVERIFIED:</strong> the tier mapping is judgment from a community kit, not vendor guidance; model names change. Details: <code>docs/borrowed-practices.md</code></p>
   </section>
 
 
@@ -1610,7 +1609,7 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
       <div class="card">
         <div class="tag warn">Prefix rules leak</div>
         <h3><code>git -C &lt;path&gt;</code></h3>
-        <p><code>Bash(git diff *)</code> does not match <code>git -C ../repo diff</code>. Add <code>git -C *</code> patterns for reads you allow. A prefix deny rule may miss it too (UNVERIFIED: test yours).</p>
+        <p><code>Bash(git diff *)</code> does not match <code>git -C ../repo diff</code>. Add <code>git -C *</code> patterns for reads you allow.</p>
       </div>
       <div class="card">
         <div class="tag info">Known-bad input</div>

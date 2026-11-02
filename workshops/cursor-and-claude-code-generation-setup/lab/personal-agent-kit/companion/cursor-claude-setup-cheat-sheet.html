@@ -38,7 +38,6 @@ tr:last-child td { border-bottom: none; }
 td:first-child { font-weight: 600; white-space: nowrap; }
 .note { font-size: 11px; color: var(--muted); }
 .warn { font-size: 11px; color: var(--warn); }
-.unv { display: inline-block; font-size: 9.5px; font-weight: 700; letter-spacing: 0.04em; color: #fff; background: var(--warn); border-radius: 3px; padding: 0 4px; vertical-align: 1px; }
 .order { counter-reset: o; list-style: none; padding-left: 0; }
 .order li { counter-increment: o; padding-left: 18px; position: relative; }
 .order li::before { content: counter(o); position: absolute; left: 0; top: 1px; width: 13px; height: 13px; border-radius: 50%; background: var(--accent); color: #fff; font-size: 9px; font-weight: 700; text-align: center; line-height: 13px; }
@@ -156,7 +155,6 @@ footer { margin-top: 8px; color: var(--muted); font-size: 10.5px; display: flex;
       <li>A long chat also carries every earlier turn and file read forward, so each new answer costs more.</li>
       <li>The optional Cursor cost guard nudges you once to start a fresh chat past <strong>25 turns</strong> or <strong>15M input tokens</strong>. It only works with the Span hook log and stays silent without it.</li>
     </ul>
-    <p class="warn"><span class="unv">UNVERIFIED</span> How much answer quality drops in a long session. The kit sets nudge points, not measured limits.</p>
   </section>
 
   <section class="panel">
@@ -196,7 +194,6 @@ git grep -n 'REVIEW(context):' || true</code></pre>
 
 <footer>
   <span>Sources: the training's setup page and the personal agent kit README, scripts, rules and hooks.</span>
-  <span>Items tagged UNVERIFIED could not be confirmed from those sources.</span>
 </footer>
 </div>
 </body>

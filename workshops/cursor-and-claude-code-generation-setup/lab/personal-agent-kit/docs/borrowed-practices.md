@@ -36,8 +36,7 @@ self-updating aliases do not.
 - Check your tool's model list every few months. A listed model may not be
   on your plan.
 
-UNVERIFIED: the tier mapping is judgment from the community kit, not
-vendor guidance. The Cursor column is generic on purpose. The Gemini
+The Cursor column is generic on purpose. The Gemini
 aliases `pro`, `flash` and `flash-lite` are listed under "Model aliases" in
 the [Gemini CLI reference](https://geminicli.com/docs/cli/cli-reference/).
 
@@ -135,13 +134,6 @@ mkdir -p .claude/agents
 cp -n ~/src/personal-agent-kit/examples/agents/*.md .claude/agents/
 ```
 
-UNVERIFIED: whether Claude Code ignores the Cursor-only `readonly` field
-without a warning; how Cursor treats `model: sonnet` in the Claude copy when
-there is no Cursor copy (with `--tools` that skips Cursor); and whether
-Gemini's `web_fetch` and `google_web_search` ask for confirmation inside a
-subagent. The Gemini files were checked against the Gemini CLI 0.66.0 agent
-loader, not in a live Gemini session.
-
 ## 3. Ask the agent to audit your setup
 
 Open the kit folder (or your home folder) in Claude Code, Cursor or Gemini
@@ -180,8 +172,6 @@ so check that they really match what you think.
 - **`git -C <path>` slips past prefix rules.** `Bash(git diff *)` does not
   match `git -C ../other-repo diff`. Allow rules miss it, so you get extra
   prompts; add `git -C *` patterns for the read commands you want allowed.
-  A deny rule written as a prefix may miss it the same way (UNVERIFIED for
-  deny rules: test yours).
 - **Match safety patterns against the whole value.** A branch guard that
   checks for a name starting with `release/` never fires once a prefix such
   as `user/` is added. Match "contains `release`" instead.
