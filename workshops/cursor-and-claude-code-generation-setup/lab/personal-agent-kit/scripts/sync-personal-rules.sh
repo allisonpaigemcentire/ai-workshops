@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
-# OPTIONAL: mirror extra Cursor-only ~/.cursor/rules/*.mdc into Claude.
-# Workshop default is ~/.agents/instructions/shared.md + wire-personal-agents.sh.
+# Mirror ~/.cursor/rules/*.mdc into Claude. install.sh runs this for Claude Code;
+# re-run it after adding or removing a rule file (shared.md is wired separately).
 #
-# Canonical for this extra bridge: ~/.cursor/rules/*.mdc
+# Canonical for this bridge: ~/.cursor/rules/*.mdc
 # Claude:    ~/.claude/rules/<stem>.md  -> symlink to each .mdc
 # Exclude:    ~/.cursor/rules/.claude-exclude (stems to skip)
 # Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script;
@@ -151,7 +151,7 @@ for mdc in "$CURSOR_RULES"/*.mdc; do
         ((updated++)) || true
       fi
     else
-      # Real file — never overwrite.
+      # Real file: never overwrite.
       drift_msgs+=("conflict (not a symlink, left alone): $link")
       ((conflicts++)) || true
     fi
@@ -195,7 +195,7 @@ repo that ships this script (or your local copy).
 
 Repo `AGENTS.md`, `.agents/skills/`, repo hooks, and repo rules win over
 personal prefs. On conflict, follow the repo. Personal files are how you like
-answers, commits, and PRs — not how to build a given tree.
+answers, commits, and PRs, not how to build a given tree.
 
 ## Mirrored personal rules
 

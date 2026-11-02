@@ -1,7 +1,7 @@
 #!/usr/bin/env python3
 """Cursor stop hook: nudge session-memory wrap-up after corrections (capped).
 
-Fails open. Never invents or writes lessons — only optionally returns
+Fails open. Never invents or writes lessons, only optionally returns
 followup_message so the agent runs the session-memory skill.
 """
 
@@ -23,7 +23,7 @@ FOLLOWUP = (
     "updated yet. Run the session-memory skill now: read "
     "~/.cursor/skills/session-memory/SKILL.md, capture durable lessons into "
     "~/.ai-memory/, refresh MEMORY.md, and clear the needs-wrapup marker for "
-    "this conversation. Do not invent lessons — only store what the user "
+    "this conversation. Do not invent lessons. Only store what the user "
     "corrected or confirmed."
 )
 
@@ -91,7 +91,7 @@ def main() -> int:
     except (TypeError, ValueError):
         loop_count = 0
     if loop_count >= 1:
-        # Already in a follow-up loop from a prior nudge — stay quiet.
+        # Already in a follow-up loop from a prior nudge: stay quiet.
         print("{}")
         return 0
 
@@ -127,6 +127,6 @@ def main() -> int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except Exception:  # noqa: BLE001 — hooks must fail open
+    except Exception:  # noqa: BLE001 (hooks must fail open)
         print("{}")
         raise SystemExit(0)

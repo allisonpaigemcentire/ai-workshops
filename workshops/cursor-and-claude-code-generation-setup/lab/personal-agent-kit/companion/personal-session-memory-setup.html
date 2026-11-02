@@ -3,7 +3,7 @@
 <head>
 <meta charset="utf-8" />
 <meta name="viewport" content="width=device-width, initial-scale=1" />
-<title>Personal session memory setup — Cursor ↔ Claude</title>
+<title>Personal session memory setup: Cursor ↔ Claude</title>
 <link rel="preconnect" href="https://fonts.googleapis.com" />
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:wght@400;500&family=IBM+Plex+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
@@ -414,6 +414,7 @@
   }
   .split-top .cmd-block { margin-top: 0; }
   .split-top .cmd-block pre { white-space: pre-wrap; max-height: none; }
+  .split-top.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
   @media (max-width: 900px) {
     .slide.fit { display: block; }
     .fit .split, .split-top { display: block; }
@@ -473,7 +474,7 @@
     <div class="meta-row">
       <span class="chip">Nov 2026</span>
       <span class="chip">Cursor + Claude Code</span>
-      <span class="chip">Personal only — not git</span>
+      <span class="chip">Personal only, not git</span>
       <span class="chip">← → or click to navigate</span>
     </div>
   </section>
@@ -497,7 +498,7 @@
       <div class="card">
         <div class="tag info">Rules bridge</div>
         <h3><code>sync-personal-rules.sh</code></h3>
-        <p>Cursor <code>~/.cursor/rules/*.mdc</code> becomes Claude <code>~/.claude/rules/*.md</code> via symlinks.</p>
+        <p>Cursor <code>~/.cursor/rules/*.mdc</code> becomes Claude <code>~/.claude/rules/*.md</code> via symlinks. <code>install.sh</code> runs it for Claude Code.</p>
       </div>
       <div class="card">
         <div class="tag warn">Optional nudge</div>
@@ -510,9 +511,9 @@
       <tbody>
         <tr><td>Index</td><td><code>~/.ai-memory/MEMORY.md</code></td><td>Active lesson bullets</td></tr>
         <tr><td>Lessons</td><td><code>~/.ai-memory/lessons/</code></td><td>One durable lesson per file</td></tr>
-        <tr><td>Skill</td><td><code>~/.cursor/skills/session-memory/</code></td><td>Write / load workflow</td></tr>
-        <tr><td>Rule</td><td><code>~/.cursor/rules/session-memory.mdc</code></td><td>Always-on load + wrap-up triggers</td></tr>
-        <tr><td>Sync</td><td><code>scripts/sync-personal-rules.sh</code></td><td>Cursor rules → Claude</td></tr>
+        <tr><td>Skill</td><td><code>~/.agents/skills/session-memory/</code></td><td>Write / load workflow (linked into Cursor and Claude)</td></tr>
+        <tr><td>Rule</td><td><code>~/.agents/rules/session-memory.mdc</code></td><td>Always-on load + wrap-up triggers (linked into <code>~/.cursor/rules/</code>)</td></tr>
+        <tr><td>Sync</td><td><code>~/.agents/scripts/sync-personal-rules.sh</code></td><td>Cursor rules → Claude (<code>install.sh</code> runs it)</td></tr>
       </tbody>
     </table>
   </section>
@@ -530,7 +531,7 @@
     <ol class="steps">
       <li>Cursor Desktop<span>Main path: paste the text the installer prints into Customize &gt; Rules &gt; User Rules (every project). Fallback files go under <code>~/.cursor/rules/</code> and <code>~/.cursor/skills/</code></span></li>
       <li>Claude Code (for dual-tool use)<span>Loads <code>~/.claude/rules/</code> and <code>~/.claude/CLAUDE.md</code></span></li>
-      <li>A checkout that contains <code>scripts/sync-personal-rules.sh</code><span>Or keep a local copy of the script anywhere on disk</span></li>
+      <li>The kit, run once: <code>bash ~/src/personal-agent-kit/scripts/install.sh</code><span>It puts the rule, the stop hook and <code>sync-personal-rules.sh</code> under <code>~/.agents/</code>, links them into Cursor and Claude, and runs the sync</span></li>
       <li>Python 3.8 or newer on PATH<span>The kit installer needs it. On the manual path below, only the optional Cursor stop hook does</span></li>
       <li>Optional: Atlassian CLI <code>acli</code> for Jira<span>No Atlassian MCP server. Install on macOS: <code>brew tap atlassian/homebrew-acli &amp;&amp; brew install acli</code> (the installer prints this, or a PATH fix when acli is installed but not on your PATH). Sign in once with <code>acli jira auth login --web</code>; the agent asks you to re-run it when the sign-in expires</span></li>
     </ol>
@@ -570,13 +571,13 @@ git-tracked journals.
 
 ## Active lessons
 
-<!-- Agents append bullets here after wrap-up. -->
+&lt;!-- Agents append bullets here after wrap-up. --&gt;
 
 ## How agents use this file
 
-1. **Load** — Read this file early in a session (always-on `session-memory` rule).
-2. **Apply** — Obey active lessons before repeating a past mistake class.
-3. **Write** — Only via the `session-memory` skill after real corrections or an explicit wrap-up. Never invent lessons.</pre>
+1. **Load**: Read this file early in a session (always-on `session-memory` rule).
+2. **Apply**: Obey active lessons before repeating a past mistake class.
+3. **Write**: Only via the `session-memory` skill after real corrections or an explicit wrap-up. Never invent lessons.</pre>
     </div>
     <div class="cmd-block grow s4-stg" data-copy>
       <div class="bar"><span>~/.ai-memory/STAGED.md</span><button type="button" class="copy-btn">Copy</button></div>
@@ -584,7 +585,7 @@ git-tracked journals.
 
 Candidates for promotion out of personal memory into:
 
-- `~/.cursor/rules/*.mdc` (personal workflow prefs — then run `sync-personal-rules.sh`)
+- `~/.cursor/rules/*.mdc` (personal workflow prefs, then run `sync-personal-rules.sh`)
 - A repo’s `AGENTS.md` (team/repo conventions)
 
 Agents **append** rows; they do not silently edit shared repos.
@@ -610,10 +611,10 @@ Agents **append** rows; they do not silently edit shared repos.
     <div class="col">
     <section class="tx-card">
       <p class="label">For executive conversations · 20-second card</p>
-      <p class="twenty">The skill is the detailed runbook — you only open it when it is time to write a lesson down. Think of it as the long checklist for one pipeline stage, not something that runs on every build. That keeps everyday chat cheap and still gives a repeatable write path when someone says wrap up.</p>
+      <p class="twenty">The skill is the detailed runbook: you only open it when it is time to write a lesson down. Think of it as the long checklist for one pipeline stage, not something that runs on every build. That keeps everyday chat cheap and still gives a repeatable write path when someone says wrap up.</p>
       <ul class="push">
         <li><strong>Proof:</strong> Without a runbook, wrap-up becomes guesswork and people invent “lessons” that were never corrected.</li>
-        <li><strong>Safety:</strong> The gate is hard: store only explicit corrections — no silent memory from noisy chat.</li>
+        <li><strong>Safety:</strong> The gate is hard: store only explicit corrections, no silent memory from noisy chat.</li>
         <li><strong>Ask:</strong> Install this skill once, then treat wrap-up as a normal close-out step after a correction.</li>
       </ul>
       <table class="dosay">
@@ -626,18 +627,20 @@ Agents **append** rows; they do not silently edit shared repos.
     </section>
     </div>
     <div class="col">
-    <p class="lead">Canonical body under Cursor. Claude discovers the same files through a symlink.</p>
+    <p class="lead">Canonical body in <code>~/.agents/skills/</code> (Gemini CLI reads it there). Cursor and Claude get links: re-run <code>install.sh</code>, or link by hand.</p>
     <div class="cmd-block grow" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>mkdir -p ~/.cursor/skills/session-memory
-# Place SKILL.md at: ~/.cursor/skills/session-memory/SKILL.md
-# (full body on the next slide — or copy from a teammate’s template)
+      <pre>mkdir -p ~/.agents/skills/session-memory
+# Place SKILL.md at: ~/.agents/skills/session-memory/SKILL.md
+# (full body on the next slide, or copy from a teammate’s template)
 
-mkdir -p ~/.claude/skills
-ln -sfn ~/.cursor/skills/session-memory ~/.claude/skills/session-memory
+# Links (re-running install.sh makes the same two)
+mkdir -p ~/.cursor/skills ~/.claude/skills
+ln -sfn ~/.agents/skills/session-memory ~/.cursor/skills/session-memory
+ln -sfn ~/.agents/skills/session-memory ~/.claude/skills/session-memory
 
-ls -la ~/.claude/skills/session-memory
-# expect: …/session-memory -> …/.cursor/skills/session-memory</pre>
+ls -la ~/.cursor/skills/session-memory ~/.claude/skills/session-memory
+# expect: …/session-memory -> …/.agents/skills/session-memory</pre>
     </div>
     <div class="grid-2">
       <div class="card">
@@ -667,9 +670,9 @@ ls -la ~/.claude/skills/session-memory
   <section class="slide fill" data-title="SKILL.md">
     <p class="eyebrow">Slide 06 · Skill body</p>
     <h2>Full <code>SKILL.md</code></h2>
-    <p>Write this file to <code>~/.cursor/skills/session-memory/SKILL.md</code>.</p>
+    <p>Write this file to <code>~/.agents/skills/session-memory/SKILL.md</code>.</p>
     <div class="cmd-block tall grow" data-copy>
-      <div class="bar"><span>~/.cursor/skills/session-memory/SKILL.md</span><button type="button" class="copy-btn">Copy</button></div>
+      <div class="bar"><span>~/.agents/skills/session-memory/SKILL.md</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>---
 name: session-memory
 description: &gt;-
@@ -680,7 +683,7 @@ description: &gt;-
   related work.
 ---
 
-# Session memory — personal cross-tool learnings
+# Session memory: personal cross-tool learnings
 
 Machine-local durable memory for **Cursor and Claude**. Canonical store:
 `~/.ai-memory/`. This is not Claude project auto-memory and not a git journal.
@@ -831,10 +834,10 @@ After wrap-up, report briefly:
     <div class="col">
     <section class="tx-card">
       <p class="label">For executive conversations · 20-second card</p>
-      <p class="twenty">The rule is the standing order that rides with every chat — load past lessons, mark a correction when it happens, and call the runbook at wrap-up. Same idea as a lint gate that always runs: small, always on, and it tells you when to open the longer checklist. You need both: the gate alone has no write procedure; the runbook alone never gets opened unless someone remembers.</p>
+      <p class="twenty">The rule is the standing order that rides with every chat: load past lessons, mark a correction when it happens, and call the runbook at wrap-up. Same idea as a lint gate that always runs: small, always on, and it tells you when to open the longer checklist. You need both: the gate alone has no write procedure; the runbook alone never gets opened unless someone remembers.</p>
       <ul class="push">
         <li><strong>Proof:</strong> Without an always-on standing order, Cursor and Claude forget last week’s “never do that again.”</li>
-        <li><strong>Safety:</strong> Blast radius stays personal — lessons live on the engineer’s machine until a human promotes a team convention.</li>
+        <li><strong>Safety:</strong> Blast radius stays personal: lessons live on the engineer’s machine until a human promotes a team convention.</li>
         <li><strong>Ask:</strong> Keep this rule always on, and re-run the rules sync after you add or remove personal rule files.</li>
       </ul>
       <table class="dosay">
@@ -847,9 +850,9 @@ After wrap-up, report briefly:
     </section>
     </div>
     <div class="col">
-    <p>Write this to <code>~/.cursor/rules/session-memory.mdc</code> (the kit's installer links it there). Cursor loads that folder only for projects under your home folder. For other projects, paste the rule body (below the second <code>---</code>) into Customize &gt; Rules &gt; User Rules, next to the personal rule from <code>install.sh --print-user-rule</code>.</p>
+    <p><code>install.sh</code> copies this rule to <code>~/.agents/rules/session-memory.mdc</code>, links it into <code>~/.cursor/rules/</code>, and the sync mirrors it to <code>~/.claude/rules/session-memory.md</code>. By hand: write it there and link it the same way. Cursor loads that folder only for projects under your home folder. For other projects, paste the rule body (below the second <code>---</code>) into Customize &gt; Rules &gt; User Rules, next to the personal rule from <code>install.sh --print-user-rule</code>.</p>
     <div class="cmd-block tall" data-copy>
-      <div class="bar"><span>~/.cursor/rules/session-memory.mdc</span><button type="button" class="copy-btn">Copy</button></div>
+      <div class="bar"><span>~/.agents/rules/session-memory.mdc</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>---
 description: Load and update personal cross-tool session memory (~/.ai-memory)
 alwaysApply: true
@@ -862,12 +865,13 @@ This rule is **local to this machine** (`~/.agents/rules/`, linked into
 `scripts/sync-personal-rules.sh`. It needs the `session-memory` skill and the
 stop hooks in `hooks/`; drop this rule if you do not use them.
 
-Create the store once: `mkdir -p ~/.ai-memory/lessons &amp;&amp; touch ~/.ai-memory/MEMORY.md`.
+Create the store once: `mkdir -p ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks`,
+then add `MEMORY.md` and `STAGED.md` (starter text: companion deck, step 1).
 Never share or commit `~/.ai-memory/`.
 
 ## Canonical store
 
-`~/.ai-memory/` — personal, machine-local. Not Claude project auto-memory and
+`~/.ai-memory/`: personal, machine-local. Not Claude project auto-memory and
 not git-tracked journals.
 
 | Path | Role |
@@ -894,12 +898,12 @@ When the user corrects you (or you discover a durable “never do X again”):
    environment or hook payload). If unknown, use `unknown`.
 2. Ensure `~/.ai-memory/.hooks/&lt;conversation_id&gt;/` exists.
 3. Write or touch `needs-wrapup` in that directory (content can be a one-line
-   reason). Do **not** invent a full lesson yet — wait for wrap-up.
+   reason). Do **not** invent a full lesson yet. Wait for wrap-up.
 
 ## Wrap-up triggers
 
-Run the **`session-memory`** skill (read `~/.cursor/skills/session-memory/SKILL.md`
-or the Claude symlink) when any of these happen:
+Run the **`session-memory`** skill (read `~/.agents/skills/session-memory/SKILL.md`,
+linked at `~/.cursor/skills/` and `~/.claude/skills/`) when any of these happen:
 
 - User says **done**, **wrap up**, **capture learnings**, or **update memory**
 - Stop-hook follow-up asks you to update session memory
@@ -941,12 +945,11 @@ or the Claude symlink) when any of these happen:
   <section class="slide" data-title="Run sync">
     <p class="eyebrow">Slide 08 · Step 4</p>
     <h2>Bridge Cursor rules into Claude</h2>
-    <p class="lead">Ran <code>install.sh</code>? It already synced. Otherwise, from the sync script's folder:</p>
+    <p class="lead"><code>install.sh</code> runs this for Claude Code, so a fresh install is already synced. Re-run it after you add or remove a rule file:</p>
     <div class="cmd-block" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>cd /path/to/repo-with-sync-script
-bash scripts/sync-personal-rules.sh
-bash scripts/sync-personal-rules.sh --check</pre>
+      <pre>bash ~/.agents/scripts/sync-personal-rules.sh
+bash ~/.agents/scripts/sync-personal-rules.sh --check</pre>
     </div>
     <div class="grid-2">
       <div class="card">
@@ -986,14 +989,14 @@ bash scripts/sync-personal-rules.sh --check</pre>
   <section class="slide fill" data-title="Full sync script">
     <p class="eyebrow">Slide 09 · Full script</p>
     <h2><code>scripts/sync-personal-rules.sh</code></h2>
-    <p class="lead">Complete script — scroll inside the box, then Copy.</p>
+    <p class="lead">Complete script, as installed at <code>~/.agents/scripts/</code>. Scroll inside the box.</p>
     <div class="cmd-block tall grow" data-copy>
       <div class="bar"><span>scripts/sync-personal-rules.sh (complete)</span><button type="button" class="copy-btn">Copy</button></div>
       <pre id="full-script">#!/usr/bin/env bash
-# OPTIONAL: mirror extra Cursor-only ~/.cursor/rules/*.mdc into Claude.
-# Workshop default is ~/.agents/instructions/shared.md + wire-personal-agents.sh.
+# Mirror ~/.cursor/rules/*.mdc into Claude. install.sh runs this for Claude Code;
+# re-run it after adding or removing a rule file (shared.md is wired separately).
 #
-# Canonical for this extra bridge: ~/.cursor/rules/*.mdc
+# Canonical for this bridge: ~/.cursor/rules/*.mdc
 # Claude:    ~/.claude/rules/&lt;stem&gt;.md  -&gt; symlink to each .mdc
 # Exclude:    ~/.cursor/rules/.claude-exclude (stems to skip)
 # Index:     ~/.claude/CLAUDE.md        (only if missing or managed by this script;
@@ -1142,7 +1145,7 @@ for mdc in &quot;$CURSOR_RULES&quot;/*.mdc; do
         ((updated++)) || true
       fi
     else
-      # Real file — never overwrite.
+      # Real file: never overwrite.
       drift_msgs+=(&quot;conflict (not a symlink, left alone): $link&quot;)
       ((conflicts++)) || true
     fi
@@ -1186,7 +1189,7 @@ repo that ships this script (or your local copy).
 
 Repo `AGENTS.md`, `.agents/skills/`, repo hooks, and repo rules win over
 personal prefs. On conflict, follow the repo. Personal files are how you like
-answers, commits, and PRs — not how to build a given tree.
+answers, commits, and PRs, not how to build a given tree.
 
 ## Mirrored personal rules
 
@@ -1278,7 +1281,7 @@ fi</pre>
     <div class="cmd-block" data-copy>
       <div class="bar"><span>~/.cursor/hooks/session-memory-stop.sh</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>#!/usr/bin/env bash
-# Cursor stop hook wrapper — session-memory wrap-up nudge (fail open).
+# Cursor stop hook wrapper: session-memory wrap-up nudge (fail open).
 set -euo pipefail
 exec python3 "$HOME/.cursor/hooks/session-memory-stop.py"</pre>
     </div>
@@ -1316,7 +1319,7 @@ chmod +x ~/.cursor/hooks/session-memory-stop.sh</pre>
       <pre>#!/usr/bin/env python3
 """Cursor stop hook: nudge session-memory wrap-up after corrections (capped).
 
-Fails open. Never invents or writes lessons — only optionally returns
+Fails open. Never invents or writes lessons, only optionally returns
 followup_message so the agent runs the session-memory skill.
 """
 
@@ -1338,7 +1341,7 @@ FOLLOWUP = (
     "updated yet. Run the session-memory skill now: read "
     "~/.cursor/skills/session-memory/SKILL.md, capture durable lessons into "
     "~/.ai-memory/, refresh MEMORY.md, and clear the needs-wrapup marker for "
-    "this conversation. Do not invent lessons — only store what the user "
+    "this conversation. Do not invent lessons. Only store what the user "
     "corrected or confirmed."
 )
 
@@ -1406,7 +1409,7 @@ def main() -&gt; int:
     except (TypeError, ValueError):
         loop_count = 0
     if loop_count &gt;= 1:
-        # Already in a follow-up loop from a prior nudge — stay quiet.
+        # Already in a follow-up loop from a prior nudge: stay quiet.
         print("{}")
         return 0
 
@@ -1442,7 +1445,7 @@ def main() -&gt; int:
 if __name__ == "__main__":
     try:
         raise SystemExit(main())
-    except Exception:  # noqa: BLE001 — hooks must fail open
+    except Exception:  # noqa: BLE001 (hooks must fail open)
         print("{}")
         raise SystemExit(0)</pre>
     </div>
@@ -1465,13 +1468,13 @@ if __name__ == "__main__":
 ls -la ~/.ai-memory
 ls -la ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks
 
-# Skill + Claude symlink
-ls -la ~/.cursor/skills/session-memory/SKILL.md
-ls -la ~/.claude/skills/session-memory
+# Skill + Cursor and Claude links
+ls -la ~/.agents/skills/session-memory/SKILL.md
+ls -la ~/.cursor/skills/session-memory ~/.claude/skills/session-memory
 
-# Rule + Claude symlink
-ls -la ~/.cursor/rules/session-memory.mdc
-ls -la ~/.claude/rules/session-memory.md
+# Rule + Cursor and Claude links
+ls -la ~/.agents/rules/session-memory.mdc
+ls -la ~/.cursor/rules/session-memory.mdc ~/.claude/rules/session-memory.md
 
 # Bridge (kit installs: ~/.agents/scripts/)
 bash ~/.agents/scripts/sync-personal-rules.sh --check
@@ -1511,7 +1514,7 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
     <div class="grid-2">
       <div class="card">
         <div class="tag">Minimum install</div>
-        <p><code>~/.ai-memory/</code> + skill + rule + <code>sync-personal-rules.sh</code></p>
+        <p><code>~/.ai-memory/</code> + skill, plus the rule and sync that <code>install.sh</code> sets up</p>
       </div>
       <div class="card">
         <div class="tag warn">Full install</div>
@@ -1575,9 +1578,19 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
       </div>
     </div>
     <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Off by default: add <code>--with-helpers</code> to the install command. It installs both for each tool in <code>--tools</code>, backs up any file of yours with the same name, and uninstall puts it back.</p>
+    <div class="split-top three">
     <div class="cmd-block" data-copy>
-      <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
+      <div class="bar"><span>shell · install</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>bash ~/src/personal-agent-kit/scripts/install.sh</pre>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · with helpers</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers</pre>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>shell · reprint the Cursor User Rule</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>bash ~/.agents/scripts/install.sh --print-user-rule</pre>
+    </div>
     </div>
     <table>
       <thead><tr><th>Tool</th><th>Use it</th></tr></thead>
@@ -1669,7 +1682,7 @@ I pick. Show a diff before editing any file. Never commit or push.</pre>
   <section class="slide title-slide" data-title="Done">
     <p class="eyebrow">Done</p>
     <h1>You are set up when both tools read the same <code>MEMORY.md</code></h1>
-    <p class="lead">Edit personal rules in Cursor. Re-run <code>sync-personal-rules.sh</code> after adding or removing rule files. Lessons stay on disk under <code>~/.ai-memory/</code>.</p>
+    <p class="lead">Edit personal rules in Cursor. <code>install.sh</code> ran <code>sync-personal-rules.sh</code> once; re-run it after adding or removing rule files. Lessons stay on disk under <code>~/.ai-memory/</code>.</p>
     <div class="meta-row">
       <span class="chip">Companion: personal-rules-bridge.md</span>
       <span class="chip">Script: scripts/sync-personal-rules.sh</span>

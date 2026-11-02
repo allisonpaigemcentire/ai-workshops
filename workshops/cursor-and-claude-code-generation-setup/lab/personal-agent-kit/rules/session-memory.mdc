@@ -10,12 +10,13 @@ This rule is **local to this machine** (`~/.agents/rules/`, linked into
 `scripts/sync-personal-rules.sh`. It needs the `session-memory` skill and the
 stop hooks in `hooks/`; drop this rule if you do not use them.
 
-Create the store once: `mkdir -p ~/.ai-memory/lessons && touch ~/.ai-memory/MEMORY.md`.
+Create the store once: `mkdir -p ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks`,
+then add `MEMORY.md` and `STAGED.md` (starter text: companion deck, step 1).
 Never share or commit `~/.ai-memory/`.
 
 ## Canonical store
 
-`~/.ai-memory/` — personal, machine-local. Not Claude project auto-memory and
+`~/.ai-memory/`: personal, machine-local. Not Claude project auto-memory and
 not git-tracked journals.
 
 | Path | Role |
@@ -42,12 +43,12 @@ When the user corrects you (or you discover a durable “never do X again”):
    environment or hook payload). If unknown, use `unknown`.
 2. Ensure `~/.ai-memory/.hooks/<conversation_id>/` exists.
 3. Write or touch `needs-wrapup` in that directory (content can be a one-line
-   reason). Do **not** invent a full lesson yet — wait for wrap-up.
+   reason). Do **not** invent a full lesson yet. Wait for wrap-up.
 
 ## Wrap-up triggers
 
-Run the **`session-memory`** skill (read `~/.cursor/skills/session-memory/SKILL.md`
-or the Claude symlink) when any of these happen:
+Run the **`session-memory`** skill (read `~/.agents/skills/session-memory/SKILL.md`,
+linked at `~/.cursor/skills/` and `~/.claude/skills/`) when any of these happen:
 
 - User says **done**, **wrap up**, **capture learnings**, or **update memory**
 - Stop-hook follow-up asks you to update session memory
