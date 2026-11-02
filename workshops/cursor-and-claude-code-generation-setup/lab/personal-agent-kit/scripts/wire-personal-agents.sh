@@ -6,6 +6,8 @@
 # Wrappers:
 #   Claude     ~/.claude/CLAUDE.md               (@ import; live after body edits)
 #   Cursor     ~/.cursor/rules/personal-instructions.mdc  (embed; re-run after edits)
+#              This file is the Cursor fallback. The main Cursor path is the
+#              User Rule text from: bash ~/.agents/scripts/install.sh --print-user-rule
 #   Gemini     ~/.gemini/GEMINI.md               (embed; re-run after edits)
 #
 # Usage:
@@ -20,6 +22,9 @@
 # Claude @-imports shared.md (live after body edits). Cursor and Gemini
 # embed a copy so those products load the text even if they do not expand
 # @-imports. Those two wrappers are stale until you re-run.
+#
+# --check exits 1 on drift. A <fill-in> left blank in shared.md is only a
+# warning: --check still exits 0.
 
 set -euo pipefail
 
@@ -49,7 +54,7 @@ for arg in "$@"; do
       exit 2
       ;;
     -h|--help)
-      sed -n '2,24p' "$0" | sed 's/^# \{0,1\}//'
+      sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'
       exit 0
       ;;
     *)
@@ -284,7 +289,47 @@ check_embed() {
   ok_msgs+=("$label ok — $file")
 }
 
+# Warn (never fail) about <fill-ins> still left in shared.md. Skips HTML
+# comments, fenced code and `code spans`, so a path such as
+# `~/.agents/skills/<name>/` is not counted. Needs python3; quiet without it.
+warn_fill_ins() {
+  command -v python3 >/dev/null 2>&1 || return 0
+  python3 - "$SHARED" <<'PYEOF2' || true
+import re, sys
+path = sys.argv[1]
+try:
+    text = open(path, encoding="utf-8").read()
+except OSError:
+    sys.exit(0)
+def blank(m):
+    return re.sub(r"[^\n]", " ", m.group(0))
+masked = re.sub(r"<!--.*?-->", blank, text, flags=re.S)
+masked = re.sub(r"^```.*?^```", blank, masked, flags=re.S | re.M)
+masked = re.sub(r"`[^`\n]*`", blank, masked)
+html = {"a", "b", "i", "u", "p", "br", "hr", "em", "strong", "code", "pre", "kbd",
+        "sub", "sup", "div", "span", "img", "details", "summary", "table", "tr", "td", "th"}
+hits = []
+for m in re.finditer(r"<([A-Za-z][^<>]{0,300}?)>", masked):
+    inner = m.group(1).strip()
+    if inner.lower().rstrip("/").split()[0] in html:
+        continue
+    line = text.count("\n", 0, m.start()) + 1
+    shown = " ".join(text[m.start():m.end()].split())
+    if len(shown) > 70:
+        shown = shown[:67] + "..."
+    hits.append((line, shown))
+if hits:
+    print("warning: %d fill-in(s) in %s are still blank (this is a warning only):" % (len(hits), path))
+    for line, shown in hits[:10]:
+        print("  line %d: %s" % (line, shown))
+    if len(hits) > 10:
+        print("  ... and %d more" % (len(hits) - 10))
+    print("  Replace each <...> with your own value or delete the line, then re-run.")
+PYEOF2
+}
+
 require_shared
+warn_fill_ins
 
 if [[ "$MODE" == "check" ]]; then
   if tool_wanted claude; then
@@ -349,3 +394,6 @@ if (( DRY )); then
 fi
 echo "Personal agents wire: ok (${#ok_msgs[@]} wrapper(s) → $SHARED)"
 echo "Edit $SHARED. Re-run this script after edits if you use Cursor or Gemini."
+if tool_wanted cursor; then
+  echo "Cursor User Rule: paste the text again after edits (bash ~/.agents/scripts/install.sh --print-user-rule)."
+fi

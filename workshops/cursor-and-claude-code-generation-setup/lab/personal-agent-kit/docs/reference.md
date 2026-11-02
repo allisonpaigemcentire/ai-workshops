@@ -22,8 +22,14 @@ you edit one file instead of three.
 | Tool | How it reads `~/.agents` |
 |------|--------------------------|
 | Claude Code | `~/.claude/CLAUDE.md` `@`-imports `shared.md` (live); rules symlinked into `~/.claude/rules/` |
-| Cursor | `~/.cursor/rules/personal-instructions.mdc` embeds a copy (re-run wire after edits); rules and hooks symlinked |
-| Gemini CLI | `~/.gemini/GEMINI.md` holds a marked region with a copy (re-run wire after edits); MCP servers in `~/.gemini/settings.json` |
+| Cursor | Main path: a User Rule you paste from `install.sh --print-user-rule` (Customize > Rules > User Rules; paste again after edits). Fallback: `~/.cursor/rules/personal-instructions.mdc` embeds a copy (re-run wire after edits), loaded only for projects under your home folder; rules and hooks symlinked |
+| Gemini CLI | `~/.gemini/GEMINI.md` holds a marked region with a copy (re-run wire after edits); MCP servers in `~/.gemini/settings.json`; personal skills read from `~/.agents/skills/` directly |
+
+Cursor User Rules are "global preferences defined in Customize → Rules that
+apply across all projects" ([Cursor rules docs](https://cursor.com/docs/context/rules)).
+Gemini CLI loads user skills from "`~/.gemini/skills/` or the
+`~/.agents/skills/` alias" ([Gemini CLI skills docs](https://geminicli.com/docs/cli/skills/)),
+so `~/.agents/skills/<name>/` works in Gemini without a link.
 
 ## Install
 
@@ -36,6 +42,11 @@ Check for drift any time:
 bash ~/.agents/scripts/wire-personal-agents.sh --check
 bash ~/.agents/scripts/sync-personal-rules.sh --check
 ```
+
+`wire-personal-agents.sh --check` exits 1 on drift. A `<...>` fill-in still
+blank in `shared.md` prints a warning with its line number and does not
+change the exit code. It cannot see Cursor's User Rules; paste the text again
+after each edit.
 
 Recommended next: turn on code intelligence so the agent navigates by symbol
 and sees its own type errors. See [`enable-lsp.md`](enable-lsp.md)
@@ -71,7 +82,8 @@ to build, test, branch, or lint a given repo; the repo owns that.
 | `scripts/uninstall.sh` | Undoes what the installer recorded |
 | `docs/enable-lsp.md` | Turn on LSP code intelligence in Claude Code and Cursor (Python, TS/JS, Swift, Kotlin) |
 | `docs/borrowed-practices.md` | Model tiers per tool, lean context, a self-audit prompt and permission lessons |
-| `examples/agents/*.md` | Optional read-only `code-reader` and `doc-reader` subagents that cite file and line; linked into `~/.claude/agents/` only with `install.sh --with-helpers` |
+| `examples/agents/*.md` | Optional read-only `code-reader` and `doc-reader` subagents that cite file and line (Claude Code format); linked into `~/.claude/agents/` only with `install.sh --with-helpers` |
+| `examples/agents/cursor/*.md`, `examples/agents/gemini/*.md` | The same two subagents in Cursor and Gemini CLI format; copied into `~/.cursor/agents/` and `~/.gemini/agents/` only with `--with-helpers` |
 
 Not included on purpose: personal skills, PR-authoring rules with reviewer
 lists, and anything team-wide. Team skills come from the team skills MCP

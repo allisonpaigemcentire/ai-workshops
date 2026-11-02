@@ -464,7 +464,7 @@
     <p class="eyebrow">Slide 03 · Before you start</p>
     <h2>Prerequisites</h2>
     <ol class="steps">
-      <li>Cursor Desktop with user rules and skills enabled<span>You will write under <code>~/.cursor/rules/</code> and <code>~/.cursor/skills/</code></span></li>
+      <li>Cursor Desktop<span>Main path: paste the text the installer prints into Customize &gt; Rules &gt; User Rules (every project). Fallback files go under <code>~/.cursor/rules/</code> and <code>~/.cursor/skills/</code></span></li>
       <li>Claude Code (for dual-tool use)<span>Loads <code>~/.claude/rules/</code> and <code>~/.claude/CLAUDE.md</code></span></li>
       <li>A checkout that contains <code>scripts/sync-personal-rules.sh</code><span>Or keep a local copy of the script anywhere on disk</span></li>
       <li>Python 3 on PATH<span>Only needed for the optional Cursor stop hook</span></li>
@@ -770,7 +770,7 @@ After wrap-up, report briefly:
         </tbody>
       </table>
     </section>
-    <p>Write this to <code>~/.cursor/rules/session-memory.mdc</code>.</p>
+    <p>Write this to <code>~/.cursor/rules/session-memory.mdc</code> (the kit's installer links it there). Cursor loads that folder only for projects under your home folder. For other projects, paste the rule body (below the second <code>---</code>) into Customize &gt; Rules &gt; User Rules, next to the personal rule from <code>install.sh --print-user-rule</code>.</p>
     <div class="cmd-block tall" data-copy>
       <div class="bar"><span>~/.cursor/rules/session-memory.mdc</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>---
@@ -1393,6 +1393,7 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
     <table>
       <thead><tr><th>UI check</th><th>Expect</th></tr></thead>
       <tbody>
+        <tr><td>Cursor Customize &gt; Rules &gt; User Rules</td><td>Your pasted personal rule is there (the main Cursor path)</td></tr>
         <tr><td>New Cursor chat</td><td>Always-on <code>session-memory</code> rule applies; agent can read <code>MEMORY.md</code></td></tr>
         <tr><td>Claude Code <code>/memory</code> or <code>/context</code></td><td>Personal rules + managed <code>CLAUDE.md</code> listed</td></tr>
         <tr><td>Say “update memory” after a correction</td><td>New or updated file under <code>lessons/</code>; bullet in <code>MEMORY.md</code></td></tr>
@@ -1454,10 +1455,11 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
         <p>Every turn resends the whole chat, so early file reads cost you until the session ends. Let the main chat plan, send long reads to a subagent that returns a short digest, and start a new chat or <code>/clear</code> at phase boundaries.</p>
       </div>
       <div class="card">
-        <div class="tag warn">UNVERIFIED</div>
-        <p>The tier mapping is judgment from a community kit, not vendor guidance. Model names change; check your tool's model list. Details: <code>docs/borrowed-practices.md</code></p>
+        <div class="tag warn">Cursor caveats</div>
+        <p>Legacy request-based plans without Max Mode run subagents on Composer, whatever <code>model:</code> says. Subagents cost extra: Cursor's docs say five in parallel use "roughly five times the tokens of a single agent", so use helpers for long reads only.</p>
       </div>
     </div>
+    <p><strong>UNVERIFIED:</strong> the tier mapping is judgment from a community kit, not vendor guidance; model names change. Details: <code>docs/borrowed-practices.md</code></p>
   </section>
 
 
@@ -1482,7 +1484,7 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
         <p>Answers one question from a long doc, spec or web page: a direct answer, cited detail, and what the doc does not cover.</p>
       </div>
     </div>
-    <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Off by default: add <code>--with-helpers</code> to the install command. It backs up any file of yours with the same name, and uninstall puts it back.</p>
+    <p>The reading happens once, in a throwaway context. Only the digest comes back, and the citations let you spot-check it. Off by default: add <code>--with-helpers</code> to the install command. It installs both for each tool in <code>--tools</code>, backs up any file of yours with the same name, and uninstall puts it back.</p>
     <div class="cmd-block" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers</pre>
@@ -1491,7 +1493,8 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
       <thead><tr><th>Tool</th><th>Use it</th></tr></thead>
       <tbody>
         <tr><td>Claude Code</td><td>Check with <code>/agents</code>, then: "Use the code-reader subagent on <code>src/cart/checkout.ts</code>"</td></tr>
-        <tr><td>Cursor</td><td>Reads <code>~/.claude/agents/</code> too. Call <code>/code-reader</code>, or copy to <code>~/.cursor/agents/</code> to set a Cursor model</td></tr>
+        <tr><td>Cursor</td><td>Copies in <code>~/.cursor/agents/</code> (<code>model: inherit</code>, <code>readonly: true</code>). Call <code>/code-reader</code></td></tr>
+        <tr><td>Gemini CLI</td><td>Copies in <code>~/.gemini/agents/</code>, read-only tools only. Check with <code>/agents</code>, call <code>@code-reader</code></td></tr>
       </tbody>
     </table>
   </section>

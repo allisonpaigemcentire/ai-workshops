@@ -21,7 +21,8 @@ runs it whenever Claude Code is one of the selected tools.
 |----------|----------------|
 | `~/.agents/instructions/shared.md` | Canonical personal prefs — **edit here** |
 | `~/.claude/CLAUDE.md` | Claude Code (`@` import of `shared.md`) |
-| `~/.cursor/rules/personal-instructions.mdc` | Cursor desktop Agent (wrapper) |
+| Cursor User Rules (Customize > Rules > User Rules) | Cursor desktop Agent, every project (main path: paste the text from `install.sh --print-user-rule`) |
+| `~/.cursor/rules/personal-instructions.mdc` | Cursor desktop Agent (fallback wrapper; projects under your home folder only) |
 | `~/.gemini/GEMINI.md` | Gemini CLI (managed region with an embedded copy; your other lines are kept) |
 
 Repo conventions (`AGENTS.md`, project `CLAUDE.md`) already work in both tools

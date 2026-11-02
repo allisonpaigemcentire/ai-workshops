@@ -7,8 +7,10 @@
 #
 # Removes only what the installer recorded in ~/.agents/.kit-installed:
 #   - the links it made (only if they still point where it pointed them)
-#   - the optional helper links (--with-helpers); a file of yours that a
-#     helper replaced is copied back from its backup
+#   - the optional helpers (--with-helpers): the links in ~/.claude/agents/
+#     and the copies in ~/.cursor/agents/ and ~/.gemini/agents/. A copy you
+#     changed since is left in place. A file of yours that a helper replaced
+#     is put back from its backup.
 #   - the managed region in ~/.claude/CLAUDE.md and ~/.gemini/GEMINI.md
 #     (your other lines stay; a file left empty is removed)
 #   - ~/.cursor/rules/personal-instructions.mdc (if it is the kit's wrapper)
@@ -16,6 +18,7 @@
 #   - Claude Code user MCP servers it added
 # Every file is backed up to ~/.agent-kit-backups/<time>/ before it changes.
 # It leaves ~/.agents/ itself (your shared.md and rules) and all backups.
+# It cannot see Cursor's User Rules: delete the pasted rule there yourself.
 set -euo pipefail
 
 AGENTS="${AGENTS_HOME:-$HOME/.agents}"
@@ -39,6 +42,12 @@ done
 [[ -f "$STATE" ]] || { echo "Nothing recorded in $STATE; nothing to undo."; exit 0; }
 
 say() { echo "  $*"; }
+sumof() { cksum <"$1" | awk '{ print $1 "-" $2 }'; }
+# restore <backup> <path>: put a backup back; a link comes back as a link.
+restore() {
+  mkdir -p "$(dirname "$2")"
+  if [[ -L "$1" ]]; then ln -s "$(readlink "$1")" "$2"; else cp -p "$1" "$2"; fi
+}
 backup_file() {
   local f="$1" rel
   [[ -f "$f" ]] || return 0
@@ -70,8 +79,8 @@ strip_region() {  # strip_region <file>
 }
 
 steps() {
-  local kind a b c done_helpers=$'\n'
-  while IFS=$'\t' read -r kind a b c _; do
+  local kind a b c d done_helpers=$'\n'
+  while IFS=$'\t' read -r kind a b c d _; do
     if [[ "$kind" == link && -L "$a" && "$(readlink "$a")" == "$b" ]]; then
       if (( DRY )); then say "would: remove link $a"; else rm "$a"; say "removed link $a"; fi
     elif [[ "$kind" == helper && -L "$a" && "$(readlink "$a")" == "$b" ]]; then
@@ -83,6 +92,28 @@ steps() {
       if [[ -L "$c" ]]; then ln -s "$(readlink "$c")" "$a"; say "removed link $a and restored your link from $c"
       elif [[ -n "$c" && -e "$c" ]]; then cp -p "$c" "$a"; say "removed link $a and restored yours from $c"
       else say "removed link $a (backup $c not found; nothing to restore)"; fi
+    elif [[ "$kind" == helper-copy ]]; then
+      # A helper copy (Cursor or Gemini format). Only the newest record counts.
+      case "$done_helpers" in *$'\n'"$a"$'\n'*) continue ;; esac
+      done_helpers="$done_helpers$a"$'\n'
+      local have=0
+      [[ "$c" != "-" ]] && { [[ -L "$c" ]] || [[ -e "$c" ]]; } && have=1
+      if [[ -f "$a" && ! -L "$a" && "$(sumof "$a")" == "$d" ]]; then
+        if (( DRY )); then
+          if (( have )); then say "would: remove the helper copy $a and restore yours from $c"; else say "would: remove the helper copy $a"; fi
+          continue
+        fi
+        rm "$a"
+        if (( have )); then restore "$c" "$a"; say "removed the helper copy $a and restored yours from $c"
+        else say "removed the helper copy $a"; fi
+      elif [[ ! -e "$a" && ! -L "$a" ]]; then
+        if (( have )); then
+          if (( DRY )); then say "would: restore $a from $c (the helper copy is already gone)"; else restore "$c" "$a"; say "restored $a from $c"; fi
+        fi
+      else
+        if (( have )); then say "left $a: it changed since the install. Your earlier file is in $c"
+        else say "left $a: it changed since the install"; fi
+      fi
     fi
   # Newest record first: if a helper replaced your file on more than one run,
   # the copy you had most recently is the one put back.
@@ -130,3 +161,4 @@ fi
 mv "$STATE" "$STATE.removed-$(date +%Y%m%d-%H%M%S)"
 echo
 echo "Done. Left in place: $AGENTS (delete it yourself if you want: rm -rf ~/.agents) and backups in ~/.agent-kit-backups/."
+echo "If you pasted the kit's text into Cursor's User Rules, delete it there (Customize > Rules > User Rules)."

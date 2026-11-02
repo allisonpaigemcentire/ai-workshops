@@ -53,3 +53,19 @@
   instead of a fixed line range.
 - Credits to the community kit no longer name a person.
 - Supported tools: Cursor, Claude Code and Gemini CLI only.
+- Cursor's main path is now a User Rule: the installer prints `shared.md`
+  between marker lines to paste into Customize > Rules > User Rules, and on
+  macOS copies it with `pbcopy` when present (`--no-clipboard` skips that).
+  `install.sh --print-user-rule` prints it again. `~/.cursor/rules/` stays
+  as the fallback.
+- `--with-helpers` now also copies the two helpers into `~/.cursor/agents/`
+  (`model: inherit`, `readonly: true`) and `~/.gemini/agents/` (Gemini
+  format, read-only tools), for the tools in `--tools`. Claude links now
+  need Claude Code in `--tools`. Copies are backed up and restored like the
+  links; uninstall leaves a copy you edited.
+- `wire-personal-agents.sh` (and `--check`) warns about `<...>` fill-ins
+  still blank in `shared.md`. It is a warning; the exit code is unchanged.
+- `instructions/shared.template.md` has an optional 3-line model tier
+  summary.
+- `docs/borrowed-practices.md`: Cursor caveats on legacy request-based plans
+  and on the extra tokens parallel subagents use; Gemini CLI helper notes.

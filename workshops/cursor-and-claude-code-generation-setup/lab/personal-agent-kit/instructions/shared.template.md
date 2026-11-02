@@ -100,6 +100,12 @@ me through any change I did not write so I can explain it myself.
 - New chat or `/clear` at phase boundaries.
 - Cheaper model for mechanical work.
 
+## Model tiers (optional; delete if you pick models yourself)
+
+- Deep (plans, review, hard reasoning): Claude `opus`, Gemini `pro`, Cursor your strongest model.
+- Workhorse (scoped code and docs, reading): Claude `sonnet`, Gemini `flash`, Cursor a mid-tier model.
+- Fast (search, mechanical scans): Claude `haiku`, Gemini `flash-lite`, Cursor a fast, low-cost model.
+
 ## Defaults
 
 - Commits and PRs only when I ask. Push only when I say push. Before any

@@ -41,11 +41,37 @@ bash ~/src/personal-agent-kit/scripts/install.sh --dry-run
 ```
 
 Other options: `--yes` (no prompt), `--tools=cursor,claude` (only some
-tools), `--no-mcp` (skip MCP servers), `--with-helpers` (also link the
-optional read-only `code-reader` and `doc-reader` subagents; off by default).
+tools), `--no-mcp` (skip MCP servers), `--with-helpers` (also install the
+optional read-only `code-reader` and `doc-reader` subagents for each selected
+tool; off by default), `--no-clipboard` (see below).
 
 Then fill in the `<placeholders>` in `~/.agents/instructions/shared.md` and
 run the same install command again. Start a new chat in each tool.
+`wire-personal-agents.sh --check` warns about any `<...>` you left blank; it
+is a warning, not a failure.
+
+### Cursor: paste one User Rule (main path)
+
+At the end, the installer prints your `shared.md` between two marker lines.
+In Cursor, open **Customize > Rules > User Rules** (older Cursor versions:
+**Cursor Settings > Rules > User Rules**), paste that text, and save. User
+Rules apply to every project you open, wherever it is on disk. On macOS the
+installer also copies the text to your clipboard with `pbcopy` (skip that with
+`--no-clipboard`).
+
+After you edit `shared.md`, print it again and paste it over the old rule:
+
+```bash
+bash ~/.agents/scripts/install.sh --print-user-rule
+```
+
+Fallback: the installer still writes `~/.cursor/rules/personal-instructions.mdc`
+and links the kit's rules into `~/.cursor/rules/`. Cursor finds that folder
+by walking up from the folder you open, so it loads only for projects inside
+your home folder (for example `~/src/...`; UNVERIFIED: Cursor's docs do not
+describe a user-level `~/.cursor/rules/`). If you use the User Rule and the
+fallback file, a project under your home folder gets the text twice; that
+costs context but does not conflict.
 
 Optional: copy `~/.agents/rules/repo-shorthand.template.mdc` to
 `~/.agents/rules/repo-shorthand.mdc`, fill it in, and run the install command
@@ -56,7 +82,8 @@ again to link it.
 | Where | Change |
 |-------|--------|
 | `~/.agents/` | New folder with the kit. Your `shared.md` and rules are never overwritten on a re-run. |
-| `~/.cursor/rules/`, `~/.cursor/hooks/` | Links to the kit's rules and hooks, plus `personal-instructions.mdc`. |
+| Cursor User Rules | Nothing: you paste the text the installer prints (see above). |
+| `~/.cursor/rules/`, `~/.cursor/hooks/` | Links to the kit's rules and hooks, plus the fallback `personal-instructions.mdc`. |
 | `~/.cursor/hooks.json` | Adds the session-memory stop hook and the optional cost guard. |
 | `~/.cursor/mcp.json` | Adds `atlassian` (OAuth, no token), plus `team-skills` if you set it up (see above). |
 | `~/.claude/CLAUDE.md` | Adds one marked section that imports `shared.md`. Your lines stay. |
@@ -65,7 +92,9 @@ again to link it.
 | Claude Code user MCP list | Adds the same servers with `claude mcp add`, if `claude` is installed. |
 | `~/.gemini/GEMINI.md` | Adds one marked section with a copy of `shared.md`. Your lines and Gemini's saved memories stay. |
 | `~/.gemini/settings.json` | Adds the same MCP servers. |
-| `~/.claude/agents/` | Only with `--with-helpers`: links `code-reader.md` and `doc-reader.md`. Cursor reads this folder too. A file of yours with the same name is backed up, then replaced. |
+| `~/.claude/agents/` | Only with `--with-helpers` and Claude Code selected: links `code-reader.md` and `doc-reader.md`. |
+| `~/.cursor/agents/` | Only with `--with-helpers` and Cursor selected: copies of both in Cursor's format (`model: inherit`, `readonly: true`). |
+| `~/.gemini/agents/` | Only with `--with-helpers` and Gemini selected: copies of both in Gemini CLI's format, limited to read-only tools. |
 
 How it stays safe:
 
@@ -81,13 +110,13 @@ How it stays safe:
 - **Never prints values from your config files.** It only names the keys it
   adds. It never asks for or stores a token.
 
-In Gemini CLI, trust your project folder (Gemini asks on first run), or
-Gemini keeps every MCP server off.
+For each helper path above, a file or link of yours with the same name is
+backed up first, then replaced; uninstall puts it back.
 
-Cursor finds `~/.cursor/rules/` by walking up from the folder you open, so
-these rules load only for projects inside your home folder (for example
-`~/src/...`). For a project elsewhere, paste the rule text into Cursor's
-Customize → Rules → User Rules instead.
+In Gemini CLI, trust your project folder (Gemini asks on first run), or
+Gemini keeps every MCP server off. Gemini CLI also reads personal skills from
+`~/.agents/skills/` itself, so the kit does not link them for Gemini
+([Gemini CLI skills docs](https://geminicli.com/docs/cli/skills/)).
 
 Session memory: the installer links the `session-memory` rule and stop hook,
 but not the `~/.ai-memory/` store or the `session-memory` skill. To use it,
@@ -103,7 +132,10 @@ bash ~/.agents/scripts/uninstall.sh
 
 This removes only what the installer recorded: its links, its marked
 sections, its wrapper and its config entries. If `--with-helpers` replaced a
-file of yours in `~/.claude/agents/`, uninstall puts it back. Files are backed up first. It
+file of yours in `~/.claude/agents/`, `~/.cursor/agents/` or
+`~/.gemini/agents/`, uninstall puts it back; a helper copy you edited is left
+in place. It cannot see Cursor's User Rules, so delete the pasted rule there
+yourself. Files are backed up first. It
 leaves `~/.agents/` and your backups, so delete those yourself if you want
 (`rm -rf ~/.agents ~/.agent-kit-backups`). To restore a file exactly as it
 was, copy it back from `~/.agent-kit-backups/<time>/`.

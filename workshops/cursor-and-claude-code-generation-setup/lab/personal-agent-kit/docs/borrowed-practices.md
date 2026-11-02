@@ -29,6 +29,10 @@ self-updating aliases do not.
   `model: inherit` uses the parent chat's model.
 - In a Cursor subagent, `model:` takes `inherit` (the default) or a model
   ID from your plan's model list.
+- On a legacy request-based Cursor plan without Max Mode, a subagent's
+  `model:` is ignored. Cursor's subagent docs: "On legacy request-based
+  plans without Max Mode, subagents run using Composer regardless of any
+  `model` configuration." See section 2 for the token cost.
 - Check your tool's model list every few months. A listed model may not be
   on your plan.
 
@@ -67,24 +71,55 @@ They are off by default. To install them, add `--with-helpers`:
 bash ~/src/personal-agent-kit/scripts/install.sh --with-helpers
 ```
 
-The installer copies them into `~/.agents/examples/agents/` and links
-`code-reader.md` and `doc-reader.md` into `~/.claude/agents/`. If you already
-have a file or link with either name there, it is backed up to
-`~/.agent-kit-backups/<time>/` first and then replaced by the link.
-`uninstall.sh` removes only the links it added and puts your file back.
-Add `--dry-run` to preview.
+The installer copies them into `~/.agents/examples/agents/`, then, for each
+tool in `--tools` (default: all three):
+
+| Tool | Where | Format |
+|------|-------|--------|
+| Claude Code | `~/.claude/agents/` (links) | `examples/agents/*.md`: `tools: Read, Grep, Glob` (plus `WebFetch, WebSearch` for doc-reader), `model: sonnet` |
+| Cursor | `~/.cursor/agents/` (copies) | `examples/agents/cursor/*.md`: `model: inherit`, `readonly: true` |
+| Gemini CLI | `~/.gemini/agents/` (copies) | `examples/agents/gemini/*.md`: `kind: local`, `model: inherit`, `tools:` limited to `read_file`, `read_many_files`, `list_directory`, `glob`, `grep_search` (plus `web_fetch`, `google_web_search` for doc-reader) |
+
+If you already have a file or link with either name there, it is backed up
+to `~/.agent-kit-backups/<time>/` first and then replaced. `uninstall.sh`
+removes only what it added and puts your file back; a kit copy you edited
+since is left in place. Later runs keep the kit's copies current. Add
+`--dry-run` to preview.
+
+Cursor and Gemini get copies, not links: Gemini CLI 0.66.0 skips a linked
+`.md` in `~/.gemini/agents/` (its loader lists only regular files; checked in
+the CLI's source), and a plain file is the safe choice for Cursor too.
 
 To use them:
 
 - **Claude Code:** they load for all projects from `~/.claude/agents/`.
   Check with `/agents`. Ask for one by name:
   "Use the code-reader subagent on `src/cart/checkout.ts`."
-- **Cursor:** Cursor also reads `~/.claude/agents/`, so the same links work.
-  Call one with `/code-reader` or by name. The files set `readonly: true`
-  for Cursor. To pick a Cursor model, copy the file into `~/.cursor/agents/`
-  and change `model: sonnet` to `inherit` or a Cursor model ID; that copy
-  wins over the one in `~/.claude/agents/`.
-- **Gemini CLI:** not covered by these examples.
+- **Cursor:** call one with `/code-reader` or by name. The copy in
+  `~/.cursor/agents/` wins over the one in `~/.claude/agents/` ("`.cursor/`
+  takes precedence over `.claude/` or `.codex/`",
+  [Cursor subagent docs](https://cursor.com/docs/subagents)). It uses the
+  chat's model (`inherit`); set a model ID there to pin one.
+- **Gemini CLI:** check with `/agents`; call one with `@code-reader` or by
+  name. Gemini has no read-only switch: the `tools` list is the limit,
+  because a subagent "only has access to the tools you explicitly grant it"
+  ([Gemini CLI subagent docs](https://geminicli.com/docs/core/subagents/)).
+  Subagents are on by default (`experimental.enableAgents`).
+
+Two caveats before you lean on them in Cursor:
+
+- **Legacy request-based plans.** Without Max Mode, Cursor runs subagents on
+  Composer whatever the file's `model:` says ("On legacy request-based plans
+  without Max Mode, subagents run using Composer regardless of any `model`
+  configuration").
+- **Extra tokens.** Each subagent starts its own context. Cursor's docs:
+  "Running five subagents in parallel uses roughly five times the tokens of
+  a single agent", and "For quick, simple tasks, the main agent is often
+  faster." So the helpers pay off for long reads only: a big file, a long
+  diff or a long doc. For a short file, read it in the main chat.
+
+Both quotes are from the [Cursor subagent docs](https://cursor.com/docs/subagents),
+read on 2026-11-02.
 
 To copy them by hand instead (for example into one repo's
 `.claude/agents/`), use `cp -n`, which never overwrites a file you already
@@ -95,8 +130,12 @@ mkdir -p .claude/agents
 cp -n ~/src/personal-agent-kit/examples/agents/*.md .claude/agents/
 ```
 
-UNVERIFIED: whether Cursor maps the `sonnet` alias to a model, and whether
-Claude Code ignores the Cursor-only `readonly` field without a warning.
+UNVERIFIED: whether Claude Code ignores the Cursor-only `readonly` field
+without a warning; how Cursor treats `model: sonnet` in the Claude copy when
+there is no Cursor copy (with `--tools` that skips Cursor); and whether
+Gemini's `web_fetch` and `google_web_search` ask for confirmation inside a
+subagent. The Gemini files were checked against the Gemini CLI 0.66.0 agent
+loader, not in a live Gemini session.
 
 ## 3. Ask the agent to audit your setup
 

@@ -9,9 +9,13 @@
 # Options:
 #   --tools=claude,cursor,gemini   only wire these tools (default: all three)
 #   --no-mcp                       do not add MCP servers
-#   --with-helpers                 also link the optional read-only subagents
-#                                  (examples/agents/code-reader.md, doc-reader.md)
-#                                  into ~/.claude/agents/ (Cursor reads it too)
+#   --with-helpers                 also install the optional read-only subagents
+#                                  code-reader and doc-reader for each tool in
+#                                  --tools (see step 5)
+#   --print-user-rule              print the text to paste into Cursor's User
+#                                  Rules, then exit (use it after editing
+#                                  shared.md)
+#   --no-clipboard                 on macOS, do not copy that text with pbcopy
 #   -h, --help
 #
 # Optional team skills MCP server (added only when both are set, needs uv):
@@ -24,16 +28,22 @@
 #      backed up).
 #   2. Links rules, hooks and the status line into ~/.cursor and ~/.claude.
 #   3. Writes the personal-prefs wrappers: ~/.claude/CLAUDE.md,
-#      ~/.cursor/rules/personal-instructions.mdc, ~/.gemini/GEMINI.md.
-#      Existing CLAUDE.md / GEMINI.md keep their lines; the kit adds one
-#      marked region.
+#      ~/.gemini/GEMINI.md and, as the Cursor fallback,
+#      ~/.cursor/rules/personal-instructions.mdc. Existing CLAUDE.md /
+#      GEMINI.md keep their lines; the kit adds one marked region.
 #   4. Merges hooks, the status line and MCP servers into ~/.cursor/hooks.json,
 #      ~/.cursor/mcp.json, ~/.claude/settings.json, ~/.gemini/settings.json,
 #      and (if the claude CLI is installed) Claude Code's user MCP list.
 #      Adds only what is missing; never replaces your values.
-#   5. Only with --with-helpers: links code-reader.md and doc-reader.md into
-#      ~/.claude/agents/. A file of yours with the same name is backed up,
-#      then replaced by the link; uninstall puts it back.
+#   5. Only with --with-helpers, for each tool in --tools:
+#      Claude Code: links code-reader.md and doc-reader.md into ~/.claude/agents/
+#      Cursor:      copies examples/agents/cursor/*.md into ~/.cursor/agents/
+#      Gemini CLI:  copies examples/agents/gemini/*.md into ~/.gemini/agents/
+#                   (copies, not links: Gemini skips linked agent files)
+#      A file or link of yours with the same name is backed up, then replaced;
+#      uninstall puts it back. Later runs keep the kit's copies current.
+#   Last, for Cursor: prints the text to paste into Customize > Rules >
+#   User Rules (the main Cursor path), and on macOS copies it with pbcopy.
 #
 # Every file is backed up to ~/.agent-kit-backups/<time>/ before it changes.
 # Re-running is safe: an unchanged setup produces no writes and no backups.
@@ -56,6 +66,8 @@ YES=0
 MCP=1
 HELPERS=0
 HELPER_NAMES="code-reader.md doc-reader.md"
+PRINT_RULE=0
+CLIP=1
 TOOLS="claude,cursor,gemini"
 for arg in "$@"; do
   case "$arg" in
@@ -64,6 +76,8 @@ for arg in "$@"; do
     --no-mcp) MCP=0 ;;
     --tools=*) TOOLS="${arg#--tools=}" ;;
     --with-helpers) HELPERS=1 ;;
+    --print-user-rule) PRINT_RULE=1 ;;
+    --no-clipboard) CLIP=0 ;;
     -h|--help) sed -n '2,/^set -euo pipefail$/p' "$0" | sed '$d' | sed 's/^# \{0,1\}//'; exit 0 ;;
     *) echo "Unknown argument: $arg (try --help)" >&2; exit 2 ;;
   esac
@@ -73,6 +87,44 @@ for t in ${TOOLS//,/ }; do
   case "$t" in claude|cursor|gemini) ;; *) echo "Unknown tool: $t (supported: claude,cursor,gemini)" >&2; exit 2 ;; esac
 done
 want() { [[ ",$TOOLS," == *",$1,"* ]]; }
+
+# The text for Cursor's User Rules: shared.md without the template's leading
+# comment block. Cursor does not read a file named in a User Rule on its own,
+# so the rule holds the full text.
+user_rule_text() {
+  local shared="$AGENTS/instructions/shared.md"
+  [[ -f "$shared" ]] || shared="$KIT/instructions/shared.template.md"
+  awk 'BEGIN { lead = 1 }
+    lead && /^[[:space:]]*$/ { next }
+    lead && /^[[:space:]]*<!--/ { inc = 1 }
+    inc { if (/-->/) inc = 0; next }
+    { lead = 0; print }' "$shared"
+}
+
+print_user_rule() {
+  local text
+  text="$(user_rule_text)"
+  echo "Cursor (main path): open Customize > Rules > User Rules (in older Cursor"
+  echo "versions: Cursor Settings > Rules > User Rules), paste everything between"
+  echo "the two marker lines below, and save. It applies to every project."
+  echo "----- BEGIN CURSOR USER RULE -----"
+  printf '%s\n' "$text"
+  echo "----- END CURSOR USER RULE -----"
+  if (( CLIP )) && [[ "$(uname -s 2>/dev/null)" == Darwin ]] && command -v pbcopy >/dev/null 2>&1; then
+    if printf '%s\n' "$text" | pbcopy 2>/dev/null; then
+      echo "Also copied to your clipboard (skip that with --no-clipboard)."
+    else
+      echo "Could not copy to the clipboard; copy the text above instead."
+    fi
+  fi
+  echo "After you edit shared.md, paste it again. To print it again:"
+  echo "  bash $AGENTS/scripts/install.sh --print-user-rule"
+}
+
+if (( PRINT_RULE )); then
+  print_user_rule
+  exit 0
+fi
 
 # ---------- prerequisites ----------
 if ! command -v python3 >/dev/null 2>&1 || ! python3 -c 'import sys; sys.exit(sys.version_info < (3, 8))' 2>/dev/null; then
@@ -190,6 +242,10 @@ steps() {
   (( LINK_CHANGES + CONFLICTS )) || say "ok (all links in place)"
 
   echo "3. Personal-prefs wrappers"
+  if want cursor && (( DRY )); then
+    say "would: print the text to paste into Cursor's User Rules (the main Cursor path)."
+    say "       ~/.cursor/rules/personal-instructions.mdc is kept as the fallback."
+  fi
   local wire="$KIT/scripts/wire-personal-agents.sh" shared="$AGENTS/instructions/shared.md"
   [[ -f "$shared" ]] || shared="$KIT/instructions/shared.template.md"   # preview on a fresh machine
   local wargs=(--adopt "--tools=$TOOLS")
@@ -231,17 +287,21 @@ steps() {
     fi
   fi
 
-  echo "5. Optional read-only helpers (~/.claude/agents/)"
-  if (( ! HELPERS )); then
-    say "skipped (add --with-helpers to link code-reader and doc-reader; Cursor reads ~/.claude/agents/ too)"
-  elif ! want claude && ! want cursor; then
-    say "skipped (helpers are for Claude Code and Cursor only)"
-  else
-    local h
-    HELPER_CHANGES=0
-    for h in $HELPER_NAMES; do helper "$h"; done
-    (( HELPER_CHANGES )) || say "ok (helpers in place)"
-  fi
+  echo "5. Optional read-only helpers (~/.claude/agents/, ~/.cursor/agents/, ~/.gemini/agents/)"
+  local h refresh=0
+  HELPER_CHANGES=0
+  # Without the flag, only refresh kit copies an earlier --with-helpers run
+  # put in place (never add new ones, never touch a file you changed).
+  (( HELPERS )) || refresh=1
+  for h in $HELPER_NAMES; do
+    if want claude && (( HELPERS )); then helper "$h"; fi
+    if want cursor; then helper_copy cursor "$h" "$HOME/.cursor/agents/$h" "$refresh"; fi
+    if want gemini; then helper_copy gemini "$h" "$HOME/.gemini/agents/$h" "$refresh"; fi
+  done
+  if (( HELPER_CHANGES )); then :
+  elif (( HELPERS )); then say "ok (helpers in place)"
+  elif [[ -f "$STATE" ]] && grep -q '^helper' "$STATE"; then say "ok (installed helpers are current)"
+  else say "skipped (add --with-helpers to install code-reader and doc-reader)"; fi
 }
 
 # helper <file name>: link one optional subagent into ~/.claude/agents/. A real
@@ -279,6 +339,72 @@ helper() {
   ln -s "$target" "$dest"
   say "linked $dest (yours is restored by uninstall)"
   record helper "$dest" "$target" "$bk"
+}
+
+sumof() { cksum <"$1" | awk '{ print $1 "-" $2 }'; }
+
+# Newest helper-copy record for a path: "<checksum><TAB><backup or ->".
+last_copy() {
+  [[ -f "$STATE" ]] || return 0
+  awk -F'\t' -v d="$1" '$1 == "helper-copy" && $2 == d { s = $5; b = $4 }
+    END { if (s != "") print s "\t" b }' "$STATE"
+}
+
+# helper_copy <tool> <file name> <dest> <refresh-only 0|1>: copy one optional
+# subagent in the tool's own format. The record keeps a checksum of the copy,
+# so a later run (and uninstall) can tell the kit's copy from a file you
+# changed or put there yourself. Links are backed up as links (see helper).
+helper_copy() {
+  local tool="$1" name="$2" dest="$3" refresh="$4" bk last lastsum prevbk
+  local src="$AGENTS/examples/agents/$tool/$name" ksrc="$KIT/examples/agents/$tool/$name"
+  if [[ ! -f "$ksrc" ]]; then
+    (( refresh )) && return 0
+    say "not found in this kit: examples/agents/$tool/$name (run the installer from the unzipped kit)"
+    CONFLICTS=$((CONFLICTS + 1))
+    return 0
+  fi
+  if [[ -f "$dest" && ! -L "$dest" ]] && cmp -s "$ksrc" "$dest"; then return 0; fi
+  if [[ -d "$dest" && ! -L "$dest" ]]; then
+    (( refresh )) && return 0
+    say "conflict (folder, left alone): $dest"
+    CONFLICTS=$((CONFLICTS + 1))
+    return 0
+  fi
+  last="$(last_copy "$dest")"
+  lastsum="${last%%$'\t'*}"; prevbk="${last#*$'\t'}"
+  if [[ ! -e "$dest" && ! -L "$dest" ]]; then
+    (( refresh )) && return 0
+    HELPER_CHANGES=$((HELPER_CHANGES + 1))
+    if (( DRY )); then say "would copy $dest (from $ksrc)"; return 0; fi
+    mkdir -p "$(dirname "$dest")"
+    cp "$ksrc" "$dest"
+    say "copied $dest"
+    record helper-copy "$dest" "$src" - "$(sumof "$dest")"
+    return 0
+  fi
+  if [[ -n "$lastsum" && -f "$dest" && ! -L "$dest" && "$(sumof "$dest")" == "$lastsum" ]]; then
+    # The kit's own copy from an earlier run, unchanged by you: update it.
+    HELPER_CHANGES=$((HELPER_CHANGES + 1))
+    if (( DRY )); then say "would: update $dest (the kit's copy changed)"; return 0; fi
+    backup_file "$dest"
+    cp "$ksrc" "$dest"
+    say "updated $dest"
+    record helper-copy "$dest" "$src" "$prevbk" "$(sumof "$dest")"
+    return 0
+  fi
+  (( refresh )) && return 0   # yours: left alone without --with-helpers
+  HELPER_CHANGES=$((HELPER_CHANGES + 1))
+  if (( DRY )); then say "would: back up your $dest, then replace it with the kit's copy"; return 0; fi
+  bk="$KIT_BACKUP_DIR/${dest#"$HOME"/}"
+  mkdir -p "$(dirname "$bk")"
+  chmod 700 "$KIT_BACKUP_DIR"
+  rm -f "$bk"
+  if [[ -L "$dest" ]]; then ln -s "$(readlink "$dest")" "$bk"; else cp -p "$dest" "$bk"; fi
+  say "backed up $dest -> $bk"
+  rm -f "$dest"
+  cp "$ksrc" "$dest"
+  say "copied $dest (yours is restored by uninstall)"
+  record helper-copy "$dest" "$src" "$bk" "$(sumof "$dest")"
 }
 
 # claude_mcp <name> <args for 'claude mcp add' after --scope user>
@@ -345,11 +471,16 @@ if (( CONFLICTS )); then
 else
   echo "Done."
 fi
+if want cursor; then
+  echo
+  print_user_rule
+fi
 cat <<MSG
 
 Next:
   1. Fill in the <placeholders> in $AGENTS/instructions/shared.md, then re-run
      this installer (or: bash $AGENTS/scripts/wire-personal-agents.sh).
+     For Cursor, paste the User Rule text again after each edit.
   2. Start a new chat in Cursor, Claude Code and Gemini CLI.
   3. MCP: Atlassian signs in with OAuth on first use. Token servers: see
      mcp.example.json; secrets go in env vars or the Keychain, never in files.
