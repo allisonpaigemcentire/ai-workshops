@@ -1483,8 +1483,13 @@ bash ~/.agents/scripts/sync-personal-rules.sh --check
 
 # Optional stop hook
 ls -la ~/.cursor/hooks/session-memory-stop.py ~/.cursor/hooks/session-memory-stop.sh
-python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
+python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py
+
+# Claude stop hook (install.sh adds it)
+ls ~/.claude/hooks/session-memory-stop.*
+grep session-memory-stop ~/.claude/settings.json</pre>
     </div>
+    <div>
     <table>
       <thead><tr><th>UI check</th><th>Expect</th></tr></thead>
       <tbody>
@@ -1494,6 +1499,8 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
         <tr><td>Say “update memory” after a correction</td><td>New or updated file under <code>lessons/</code>; bullet in <code>MEMORY.md</code></td></tr>
       </tbody>
     </table>
+    <p>Claude Code: <code>install.sh</code> also adds the Claude stop hook. It links it into <code>~/.claude/hooks/</code> and adds a <code>Stop</code> entry in <code>~/.claude/settings.json</code>.</p>
+    </div>
     </div>
   </section>
 
@@ -1611,8 +1618,146 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
 
 
   <!-- 16 -->
+  <section class="slide fill" data-title="Expert subagents">
+    <p class="eyebrow">Slide 16 · Subagents</p>
+    <h2>Subject matter expert subagents</h2>
+    <p>One narrow domain per expert. Point it at the docs or skill that hold the facts instead of pasting them in, so there is one place to update.</p>
+    <div class="split2">
+      <div class="col">
+        <div class="cmd-block grow" data-copy>
+          <div class="bar"><span>~/.claude/agents/api-contract-expert.md</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>---
+name: api-contract-expert
+description: API contract expert. Use when a change touches request or
+  response shapes, status codes or versioning. Read-only.
+tools: Read, Grep, Glob
+model: inherit
+---
+
+You check changes against the API contract.
+Source of truth: docs/api/openapi.yaml and docs/api/CHANGELOG.md.
+Read them first. Do not copy them into this file.
+
+Return at most 10 bullets: what breaks the contract, path:line,
+and the smallest fix. If nothing does, say "no contract impact".</pre>
+        </div>
+      </div>
+      <div class="col">
+        <table>
+          <thead><tr><th>Tool</th><th>Personal</th><th>Project</th></tr></thead>
+          <tbody>
+            <tr><td>Claude Code</td><td><code>~/.claude/agents/</code></td><td><code>.claude/agents/</code></td></tr>
+            <tr><td>Cursor</td><td><code>~/.cursor/agents/</code></td><td><code>.cursor/agents/</code></td></tr>
+            <tr><td>Gemini CLI</td><td><code>~/.gemini/agents/</code></td><td><code>.gemini/agents/</code></td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead><tr><th>Field</th><th>What to put there</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>Lowercase with hyphens. Cursor falls back to the file name</td></tr>
+            <tr><td><code>description</code></td><td>When to use it. The main agent reads this to decide when to delegate</td></tr>
+            <tr><td>Read-only</td><td>Claude Code: <code>tools: Read, Grep, Glob</code>. Gemini CLI: a <code>tools</code> list such as <code>read_file</code>, <code>grep_search</code>. Cursor: <code>readonly: true</code></td></tr>
+            <tr><td><code>model</code></td><td><code>inherit</code> uses the main chat's model, or name one</td></tr>
+          </tbody>
+        </table>
+        <p class="hint">Keep one copy per tool, as the kit's helpers do. Cursor also reads <code>.claude/agents/</code> folders; a same-name file in <code>.cursor/</code> wins.</p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 17 -->
+  <section class="slide" data-title="Delegating">
+    <p class="eyebrow">Slide 17 · Subagents</p>
+    <h2>Delegating to them</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Name it</div>
+        <h3>Or let the description route</h3>
+        <p>Claude Code: name it in the prompt or <code>@</code>-mention it. Cursor: <code>/api-contract-expert</code>. Gemini CLI: start with <code>@api-contract-expert</code>.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Clean start</div>
+        <h3>Write a brief</h3>
+        <p>A subagent does not see your chat. Give it the goal, the paths to read, the limits, and the shape of the answer you want back.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Lean chat</div>
+        <h3>Summaries, not dumps</h3>
+        <p>Only the final message comes back, so ask for bullets with <code>path:line</code>. In Cursor and Claude Code, independent experts can run in parallel.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Check it</div>
+        <h3>Review before acting</h3>
+        <p>Spot-check the cited lines before you edit, commit or reply on the strength of a subagent's answer.</p>
+      </div>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>prompt · brief template</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>Use the api-contract-expert subagent.
+Goal: does this branch change the public API contract?
+Context: docs/api/openapi.yaml, src/api/routes/
+Constraints: read-only; skip generated files.
+Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 18 -->
+  <section class="slide" data-title="Keeping experts current">
+    <p class="eyebrow">Slide 18 · Subagents</p>
+    <h2>Keeping them current</h2>
+    <p class="lead">Treat agent files like code: review changes, and check project agents into the repo so the team improves the same copy.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="tag">Routing</div>
+        <h3>Fix the description</h3>
+        <p>When an expert fires on the wrong task or never fires, rewrite its description: the domain, when to use it, an example. Then test with a few prompts.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Pointers</div>
+        <h3>Refresh the paths</h3>
+        <p>When docs or folders move, update the paths in the body. Claude Code reloads edited agent files within seconds, no restart needed.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Prune</div>
+        <h3>Small set, not a fleet</h3>
+        <p>Every description is a routing choice, so more experts means more wrong picks. Start with two or three and delete the ones you never call.</p>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag info">Audit</div>
+        <h3>Re-run the slide 20 prompt</h3>
+        <p>Its list already includes <code>~/.claude/agents/</code> and <code>~/.cursor/agents/</code>. Ask it to rank which experts overlap or have gone stale.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Silent skips</div>
+        <h3>Check the frontmatter</h3>
+        <p>Claude Code skips a file with no <code>name</code>, or with a <code>name</code> but no <code>description</code>, with no message in the chat, so a typo looks like an expert that never fires.</p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 19 -->
   <section class="slide" data-title="Permission lessons">
-    <p class="eyebrow">Slide 16 · Borrowed practice</p>
+    <p class="eyebrow">Slide 19 · Borrowed practice</p>
     <h2>Guardrails only count if you test them</h2>
     <p class="lead">Text rules advise. Allow lists, deny lists and hooks enforce, so check that they match what you think.</p>
     <div class="grid-2">
@@ -1645,9 +1790,9 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
 
 
 
-  <!-- 17 -->
+  <!-- 20 -->
   <section class="slide" data-title="Self-audit prompt">
-    <p class="eyebrow">Slide 17 · Borrowed practice</p>
+    <p class="eyebrow">Slide 20 · Borrowed practice</p>
     <h2>Ask the agent to audit your setup</h2>
     <p>Paste into Claude Code, Cursor or Gemini CLI from the kit folder. It reads, ranks and waits for you to pick.</p>
     <div class="cmd-block tall" data-copy>
@@ -1680,7 +1825,7 @@ I pick. Show a diff before editing any file. Never commit or push.</pre>
 
 
 
-  <!-- 18 -->
+  <!-- 21 -->
   <section class="slide title-slide" data-title="Done">
     <p class="eyebrow">Done</p>
     <h1>You are set up when both tools read the same <code>MEMORY.md</code></h1>
