@@ -9,9 +9,9 @@
 #            never once wire-personal-agents.sh manages it)
 #
 # Usage:
-#   bash scripts/sync-personal-rules.sh          # create/update links
-#   bash scripts/sync-personal-rules.sh --check  # report drift; exit 1 if out of sync
-#   bash scripts/sync-personal-rules.sh --help
+#   bash ~/.agents/scripts/sync-personal-rules.sh          # create/update links
+#   bash ~/.agents/scripts/sync-personal-rules.sh --check  # report drift; exit 1 if out of sync
+#   bash ~/.agents/scripts/sync-personal-rules.sh --help
 
 set -euo pipefail
 

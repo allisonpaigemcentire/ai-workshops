@@ -21,7 +21,7 @@ SAFE_ID = re.compile(r"^[A-Za-z0-9_-][A-Za-z0-9._-]{0,127}$")
 FOLLOWUP = (
     "A correction was marked earlier in this chat and session memory was not "
     "updated yet. Run the session-memory skill now: read "
-    "~/.cursor/skills/session-memory/SKILL.md, capture durable lessons into "
+    "~/.agents/skills/session-memory/SKILL.md, capture durable lessons into "
     "~/.ai-memory/, refresh MEMORY.md, and clear the needs-wrapup marker for "
     "this conversation. Do not invent lessons. Only store what the user "
     "corrected or confirmed."

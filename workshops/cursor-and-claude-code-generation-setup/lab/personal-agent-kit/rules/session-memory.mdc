@@ -7,11 +7,11 @@ alwaysApply: true
 
 This rule is **local to this machine** (`~/.agents/rules/`, linked into
 `~/.cursor/rules/`) and applies across all repos. Claude mirrors it via
-`scripts/sync-personal-rules.sh`. It needs the `session-memory` skill and the
-stop hooks in `hooks/`; drop this rule if you do not use them.
+`~/.agents/scripts/sync-personal-rules.sh`. It needs the `session-memory` skill and the
+stop hooks in `~/.cursor/hooks/` and `~/.claude/hooks/`; drop this rule if you do not use them.
 
 Create the store once: `mkdir -p ~/.ai-memory/lessons ~/.ai-memory/sessions ~/.ai-memory/.hooks`,
-then add `MEMORY.md` and `STAGED.md` (starter text: companion deck, step 1).
+then add `MEMORY.md` and `STAGED.md` (starter text: `companion/personal-session-memory-setup.html`, step 1).
 Never share or commit `~/.ai-memory/`.
 
 ## Canonical store
@@ -67,7 +67,7 @@ linked at `~/.cursor/skills/` and `~/.claude/skills/`) when any of these happen:
 | Kind | Destination |
 |------|-------------|
 | Personal “never do X again” | `~/.ai-memory/lessons/` + `MEMORY.md` |
-| Personal workflow habit | Propose `~/.cursor/rules/*.mdc` + remind to run `sync-personal-rules.sh` |
+| Personal workflow habit | Propose `~/.cursor/rules/*.mdc` + remind to run `~/.agents/scripts/sync-personal-rules.sh` |
 | Repo / team convention | Ask before editing that repo’s `AGENTS.md`; stage in `STAGED.md` if unsure |
 
 ## Do not
