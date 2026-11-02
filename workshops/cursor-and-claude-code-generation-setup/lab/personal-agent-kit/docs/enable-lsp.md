@@ -1,7 +1,5 @@
 # Enable LSP (code intelligence) for agents
 
-> Adapted from a community kit of local agent optimizations.
-
 Gives the agent symbol-aware navigation and immediate type-error feedback
 instead of text search.
 

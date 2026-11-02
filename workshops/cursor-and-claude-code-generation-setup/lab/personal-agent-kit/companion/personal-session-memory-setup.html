@@ -487,8 +487,146 @@
 
 
   <!-- 2 -->
+  <section class="slide fill" data-title="Expert subagents">
+    <p class="eyebrow">Slide 02 · Subagents</p>
+    <h2>Subject matter expert subagents</h2>
+    <p>One narrow domain per expert. Point it at the docs or skill that hold the facts instead of pasting them in, so there is one place to update.</p>
+    <div class="split2">
+      <div class="col">
+        <div class="cmd-block grow" data-copy>
+          <div class="bar"><span>~/.claude/agents/api-contract-expert.md</span><button type="button" class="copy-btn">Copy</button></div>
+          <pre>---
+name: api-contract-expert
+description: API contract expert. Use when a change touches request or
+  response shapes, status codes or versioning. Read-only.
+tools: Read, Grep, Glob
+model: inherit
+---
+
+You check changes against the API contract.
+Source of truth: docs/api/openapi.yaml and docs/api/CHANGELOG.md.
+Read them first. Do not copy them into this file.
+
+Return at most 10 bullets: what breaks the contract, path:line,
+and the smallest fix. If nothing does, say "no contract impact".</pre>
+        </div>
+      </div>
+      <div class="col">
+        <table>
+          <thead><tr><th>Tool</th><th>Personal</th><th>Project</th></tr></thead>
+          <tbody>
+            <tr><td>Claude Code</td><td><code>~/.claude/agents/</code></td><td><code>.claude/agents/</code></td></tr>
+            <tr><td>Cursor</td><td><code>~/.cursor/agents/</code></td><td><code>.cursor/agents/</code></td></tr>
+            <tr><td>Gemini CLI</td><td><code>~/.gemini/agents/</code></td><td><code>.gemini/agents/</code></td></tr>
+          </tbody>
+        </table>
+        <table>
+          <thead><tr><th>Field</th><th>What to put there</th></tr></thead>
+          <tbody>
+            <tr><td><code>name</code></td><td>Lowercase with hyphens. Cursor falls back to the file name</td></tr>
+            <tr><td><code>description</code></td><td>When to use it. The main agent reads this to decide when to delegate</td></tr>
+            <tr><td>Read-only</td><td>Claude Code: <code>tools: Read, Grep, Glob</code>. Gemini CLI: a <code>tools</code> list such as <code>read_file</code>, <code>grep_search</code>. Cursor: <code>readonly: true</code></td></tr>
+            <tr><td><code>model</code></td><td><code>inherit</code> uses the main chat's model, or name one</td></tr>
+          </tbody>
+        </table>
+        <p class="hint">Keep one copy per tool, as the kit's read-only helpers on slide 18 do. Cursor also reads <code>.claude/agents/</code> folders; a same-name file in <code>.cursor/</code> wins.</p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 3 -->
+  <section class="slide" data-title="Delegating">
+    <p class="eyebrow">Slide 03 · Subagents</p>
+    <h2>Delegating to them</h2>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag">Name it</div>
+        <h3>Or let the description route</h3>
+        <p>Claude Code: name it in the prompt or <code>@</code>-mention it. Cursor: <code>/api-contract-expert</code>. Gemini CLI: start with <code>@api-contract-expert</code>.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Clean start</div>
+        <h3>Write a brief</h3>
+        <p>A subagent does not see your chat. Give it the goal, the paths to read, the limits, and the shape of the answer you want back.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Lean chat</div>
+        <h3>Summaries, not dumps</h3>
+        <p>Only the final message comes back, so ask for bullets with <code>path:line</code>. In Cursor and Claude Code, independent experts can run in parallel.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Check it</div>
+        <h3>Review before acting</h3>
+        <p>Spot-check the cited lines before you edit, commit or reply on the strength of a subagent's answer.</p>
+      </div>
+    </div>
+    <div class="cmd-block" data-copy>
+      <div class="bar"><span>prompt · brief template</span><button type="button" class="copy-btn">Copy</button></div>
+      <pre>Use the api-contract-expert subagent.
+Goal: does this branch change the public API contract?
+Context: docs/api/openapi.yaml, src/api/routes/
+Constraints: read-only; skip generated files.
+Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 4 -->
+  <section class="slide" data-title="Keeping experts current">
+    <p class="eyebrow">Slide 04 · Subagents</p>
+    <h2>Keeping them current</h2>
+    <p class="lead">Treat agent files like code: review changes, and check project agents into the repo so the team improves the same copy.</p>
+    <div class="grid-3">
+      <div class="card">
+        <div class="tag">Routing</div>
+        <h3>Fix the description</h3>
+        <p>When an expert fires on the wrong task or never fires, rewrite its description: the domain, when to use it, an example. Then test with a few prompts.</p>
+      </div>
+      <div class="card">
+        <div class="tag">Pointers</div>
+        <h3>Refresh the paths</h3>
+        <p>When docs or folders move, update the paths in the body. Claude Code reloads edited agent files within seconds, no restart needed.</p>
+      </div>
+      <div class="card">
+        <div class="tag warn">Prune</div>
+        <h3>Small set, not a fleet</h3>
+        <p>Every description is a routing choice, so more experts means more wrong picks. Start with two or three and delete the ones you never call.</p>
+      </div>
+    </div>
+    <div class="grid-2">
+      <div class="card">
+        <div class="tag info">Audit</div>
+        <h3>Re-run the slide 19 prompt</h3>
+        <p>The audit prompt later in this deck lists <code>~/.claude/agents/</code>, <code>~/.cursor/agents/</code> and <code>~/.gemini/agents/</code>. Ask it which experts overlap or have gone stale.</p>
+      </div>
+      <div class="card">
+        <div class="tag info">Silent skips</div>
+        <h3>Check the frontmatter</h3>
+        <p>Claude Code skips a file with no <code>name</code>, or with a <code>name</code> but no <code>description</code>, with no message in the chat, so a typo looks like an expert that never fires.</p>
+      </div>
+    </div>
+  </section>
+
+
+
+
+
+
+
+  <!-- 5 -->
   <section class="slide" data-title="Architecture">
-    <p class="eyebrow">Slide 02 · Overview</p>
+    <p class="eyebrow">Slide 05 · Overview</p>
     <h2>What you are installing</h2>
     <div class="grid-3">
       <div class="card">
@@ -525,9 +663,9 @@
 
 
 
-  <!-- 3 -->
+  <!-- 6 -->
   <section class="slide" data-title="Prerequisites">
-    <p class="eyebrow">Slide 03 · Before you start</p>
+    <p class="eyebrow">Slide 06 · Before you start</p>
     <h2>Prerequisites</h2>
     <ol class="steps">
       <li>Cursor Desktop<span>Main path: paste the text the installer prints into Customize &gt; Rules &gt; User Rules (every project). Fallback files go under <code>~/.cursor/rules/</code> and <code>~/.cursor/skills/</code></span></li>
@@ -544,9 +682,9 @@
 
 
 
-  <!-- 4 -->
+  <!-- 7 -->
   <section class="slide fill" data-title="Create store">
-    <p class="eyebrow">Slide 04 · Step 1</p>
+    <p class="eyebrow">Slide 07 · Step 1</p>
     <h2>Create the memory store</h2>
     <div class="split4">
     <div class="cmd-block" data-copy>
@@ -604,9 +742,9 @@ Agents **append** rows; they do not silently edit shared repos.
 
 
 
-  <!-- 5 -->
+  <!-- 8 -->
   <section class="slide fill" data-title="Install skill">
-    <p class="eyebrow">Slide 05 · Step 2</p>
+    <p class="eyebrow">Slide 08 · Step 2</p>
     <h2>Install the session-memory skill</h2>
     <div class="split2">
     <div class="col">
@@ -673,9 +811,9 @@ ln -sfn ~/.agents/skills/session-memory ~/.claude/skills/session-memory</pre>
 
 
 
-  <!-- 6 -->
+  <!-- 9 -->
   <section class="slide fill" data-title="SKILL.md">
-    <p class="eyebrow">Slide 06 · Skill body</p>
+    <p class="eyebrow">Slide 09 · Skill body</p>
     <h2>Full <code>SKILL.md</code></h2>
     <p>Do this by hand: the installer does not write <code>SKILL.md</code>. Save it to <code>~/.agents/skills/session-memory/SKILL.md</code>, then re-run <code>install.sh</code> to link it.</p>
     <div class="cmd-block tall grow" data-copy>
@@ -838,9 +976,9 @@ After wrap-up, report briefly:
 
 
 
-  <!-- 7 -->
+  <!-- 10 -->
   <section class="slide fit" data-title="Install rule">
-    <p class="eyebrow">Slide 07 · Step 3</p>
+    <p class="eyebrow">Slide 10 · Step 3</p>
     <h2>Install the always-on Cursor rule</h2>
     <div class="split">
     <div class="col">
@@ -953,9 +1091,9 @@ linked at `~/.cursor/skills/` and `~/.claude/skills/`) when any of these happen:
 
 
 
-  <!-- 8 -->
+  <!-- 11 -->
   <section class="slide" data-title="Run sync">
-    <p class="eyebrow">Slide 08 · Step 4</p>
+    <p class="eyebrow">Slide 11 · Step 4</p>
     <h2>Bridge Cursor rules into Claude</h2>
     <p class="lead"><code>install.sh</code> runs this for Claude Code, so a fresh install is already synced. Re-run it after you add or remove a rule file:</p>
     <div class="cmd-block" data-copy>
@@ -997,9 +1135,9 @@ bash ~/.agents/scripts/sync-personal-rules.sh --check</pre>
 
 
 
-  <!-- 9 -->
+  <!-- 12 -->
   <section class="slide fill" data-title="Full sync script">
-    <p class="eyebrow">Slide 09 · Full script</p>
+    <p class="eyebrow">Slide 12 · Full script</p>
     <h2><code>~/.agents/scripts/sync-personal-rules.sh</code></h2>
     <p class="lead">Complete script, as <code>install.sh</code> copies it. Scroll inside the box.</p>
     <div class="cmd-block tall grow" data-copy>
@@ -1284,9 +1422,9 @@ fi</pre>
 
 
 
-  <!-- 10 -->
+  <!-- 13 -->
   <section class="slide" data-title="Stop hook">
-    <p class="eyebrow">Slide 10 · Step 5 (optional)</p>
+    <p class="eyebrow">Slide 13 · Step 5 (optional)</p>
     <h2>Cursor stop nudge</h2>
     <p class="lead">Optional: wrap-up still works if you say <code>wrap up</code> / <code>update memory</code>. Ran <code>install.sh</code>? Skip this: it already registered <code>bash ~/.cursor/hooks/session-memory-stop.sh</code>, and a second entry means two stop hooks.</p>
     <div class="split-top">
@@ -1322,9 +1460,9 @@ chmod +x ~/.cursor/hooks/session-memory-stop.sh</pre>
 
 
 
-  <!-- 11 -->
+  <!-- 14 -->
   <section class="slide fill" data-title="Stop hook Python">
-    <p class="eyebrow">Slide 11 · Stop hook Python</p>
+    <p class="eyebrow">Slide 14 · Stop hook Python</p>
     <h2>Full <code>session-memory-stop.py</code></h2>
     <div class="cmd-block tall grow" data-copy>
       <div class="bar"><span>~/.cursor/hooks/session-memory-stop.py</span><button type="button" class="copy-btn">Copy</button></div>
@@ -1461,7 +1599,7 @@ if __name__ == "__main__":
         print("{}")
         raise SystemExit(0)</pre>
     </div>
-  <p class="hint">The follow-up names <code>~/.cursor/skills/session-memory/SKILL.md</code>: the Cursor link to <code>~/.agents/skills/session-memory</code> from slide 5, kept for compatibility.</p>
+  <p class="hint">The follow-up names <code>~/.cursor/skills/session-memory/SKILL.md</code>: the Cursor link to <code>~/.agents/skills/session-memory</code> from slide 8, kept for compatibility.</p>
   </section>
 
 
@@ -1470,9 +1608,9 @@ if __name__ == "__main__":
 
 
 
-  <!-- 12 -->
+  <!-- 15 -->
   <section class="slide" data-title="Verify">
-    <p class="eyebrow">Slide 12 · Verify</p>
+    <p class="eyebrow">Slide 15 · Verify</p>
     <h2>Confirm the install</h2>
     <div class="split-top">
     <div class="cmd-block" data-copy>
@@ -1521,9 +1659,9 @@ grep session-memory-stop ~/.claude/settings.json</pre>
 
 
 
-  <!-- 13 -->
+  <!-- 16 -->
   <section class="slide" data-title="Day to day">
-    <p class="eyebrow">Slide 13 · Usage</p>
+    <p class="eyebrow">Slide 16 · Usage</p>
     <h2>Day-to-day habit</h2>
     <ol class="steps">
       <li>Correct the agent when it does the wrong thing<span>Agent should mark <code>.hooks/&lt;id&gt;/needs-wrapup</code></span></li>
@@ -1550,9 +1688,9 @@ grep session-memory-stop ~/.claude/settings.json</pre>
 
 
 
-  <!-- 14 -->
+  <!-- 17 -->
   <section class="slide" data-title="Model tiers">
-    <p class="eyebrow">Slide 14 · Borrowed practice</p>
+    <p class="eyebrow">Slide 17 · Borrowed practice</p>
     <h2>Match the model to the work</h2>
     <p class="lead">Pin tiers, not versions. Pick the cheapest tier that clears the bar, and escalate per task, not for the whole session.</p>
     <table>
@@ -1581,9 +1719,9 @@ grep session-memory-stop ~/.claude/settings.json</pre>
 
 
 
-  <!-- 15 -->
+  <!-- 18 -->
   <section class="slide" data-title="Read-only helpers">
-    <p class="eyebrow">Slide 15 · Borrowed practice</p>
+    <p class="eyebrow">Slide 18 · Borrowed practice</p>
     <h2>Read-only helpers that cite file and line</h2>
     <div class="grid-2">
       <div class="card">
@@ -1628,182 +1766,9 @@ grep session-memory-stop ~/.claude/settings.json</pre>
 
 
 
-  <!-- 16 -->
-  <section class="slide fill" data-title="Expert subagents">
-    <p class="eyebrow">Slide 16 · Subagents</p>
-    <h2>Subject matter expert subagents</h2>
-    <p>One narrow domain per expert. Point it at the docs or skill that hold the facts instead of pasting them in, so there is one place to update.</p>
-    <div class="split2">
-      <div class="col">
-        <div class="cmd-block grow" data-copy>
-          <div class="bar"><span>~/.claude/agents/api-contract-expert.md</span><button type="button" class="copy-btn">Copy</button></div>
-          <pre>---
-name: api-contract-expert
-description: API contract expert. Use when a change touches request or
-  response shapes, status codes or versioning. Read-only.
-tools: Read, Grep, Glob
-model: inherit
----
-
-You check changes against the API contract.
-Source of truth: docs/api/openapi.yaml and docs/api/CHANGELOG.md.
-Read them first. Do not copy them into this file.
-
-Return at most 10 bullets: what breaks the contract, path:line,
-and the smallest fix. If nothing does, say "no contract impact".</pre>
-        </div>
-      </div>
-      <div class="col">
-        <table>
-          <thead><tr><th>Tool</th><th>Personal</th><th>Project</th></tr></thead>
-          <tbody>
-            <tr><td>Claude Code</td><td><code>~/.claude/agents/</code></td><td><code>.claude/agents/</code></td></tr>
-            <tr><td>Cursor</td><td><code>~/.cursor/agents/</code></td><td><code>.cursor/agents/</code></td></tr>
-            <tr><td>Gemini CLI</td><td><code>~/.gemini/agents/</code></td><td><code>.gemini/agents/</code></td></tr>
-          </tbody>
-        </table>
-        <table>
-          <thead><tr><th>Field</th><th>What to put there</th></tr></thead>
-          <tbody>
-            <tr><td><code>name</code></td><td>Lowercase with hyphens. Cursor falls back to the file name</td></tr>
-            <tr><td><code>description</code></td><td>When to use it. The main agent reads this to decide when to delegate</td></tr>
-            <tr><td>Read-only</td><td>Claude Code: <code>tools: Read, Grep, Glob</code>. Gemini CLI: a <code>tools</code> list such as <code>read_file</code>, <code>grep_search</code>. Cursor: <code>readonly: true</code></td></tr>
-            <tr><td><code>model</code></td><td><code>inherit</code> uses the main chat's model, or name one</td></tr>
-          </tbody>
-        </table>
-        <p class="hint">Keep one copy per tool, as the kit's helpers do. Cursor also reads <code>.claude/agents/</code> folders; a same-name file in <code>.cursor/</code> wins.</p>
-      </div>
-    </div>
-  </section>
-
-
-
-
-
-
-
-  <!-- 17 -->
-  <section class="slide" data-title="Delegating">
-    <p class="eyebrow">Slide 17 · Subagents</p>
-    <h2>Delegating to them</h2>
-    <div class="grid-2">
-      <div class="card">
-        <div class="tag">Name it</div>
-        <h3>Or let the description route</h3>
-        <p>Claude Code: name it in the prompt or <code>@</code>-mention it. Cursor: <code>/api-contract-expert</code>. Gemini CLI: start with <code>@api-contract-expert</code>.</p>
-      </div>
-      <div class="card">
-        <div class="tag info">Clean start</div>
-        <h3>Write a brief</h3>
-        <p>A subagent does not see your chat. Give it the goal, the paths to read, the limits, and the shape of the answer you want back.</p>
-      </div>
-      <div class="card">
-        <div class="tag info">Lean chat</div>
-        <h3>Summaries, not dumps</h3>
-        <p>Only the final message comes back, so ask for bullets with <code>path:line</code>. In Cursor and Claude Code, independent experts can run in parallel.</p>
-      </div>
-      <div class="card">
-        <div class="tag warn">Check it</div>
-        <h3>Review before acting</h3>
-        <p>Spot-check the cited lines before you edit, commit or reply on the strength of a subagent's answer.</p>
-      </div>
-    </div>
-    <div class="cmd-block" data-copy>
-      <div class="bar"><span>prompt · brief template</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>Use the api-contract-expert subagent.
-Goal: does this branch change the public API contract?
-Context: docs/api/openapi.yaml, src/api/routes/
-Constraints: read-only; skip generated files.
-Return: at most 10 bullets with path:line, then a one-line verdict.</pre>
-    </div>
-  </section>
-
-
-
-
-
-
-
-  <!-- 18 -->
-  <section class="slide" data-title="Keeping experts current">
-    <p class="eyebrow">Slide 18 · Subagents</p>
-    <h2>Keeping them current</h2>
-    <p class="lead">Treat agent files like code: review changes, and check project agents into the repo so the team improves the same copy.</p>
-    <div class="grid-3">
-      <div class="card">
-        <div class="tag">Routing</div>
-        <h3>Fix the description</h3>
-        <p>When an expert fires on the wrong task or never fires, rewrite its description: the domain, when to use it, an example. Then test with a few prompts.</p>
-      </div>
-      <div class="card">
-        <div class="tag">Pointers</div>
-        <h3>Refresh the paths</h3>
-        <p>When docs or folders move, update the paths in the body. Claude Code reloads edited agent files within seconds, no restart needed.</p>
-      </div>
-      <div class="card">
-        <div class="tag warn">Prune</div>
-        <h3>Small set, not a fleet</h3>
-        <p>Every description is a routing choice, so more experts means more wrong picks. Start with two or three and delete the ones you never call.</p>
-      </div>
-    </div>
-    <div class="grid-2">
-      <div class="card">
-        <div class="tag info">Audit</div>
-        <h3>Re-run the slide 20 prompt</h3>
-        <p>Its list includes <code>~/.claude/agents/</code>, <code>~/.cursor/agents/</code> and <code>~/.gemini/agents/</code>. Ask it which experts overlap or have gone stale.</p>
-      </div>
-      <div class="card">
-        <div class="tag info">Silent skips</div>
-        <h3>Check the frontmatter</h3>
-        <p>Claude Code skips a file with no <code>name</code>, or with a <code>name</code> but no <code>description</code>, with no message in the chat, so a typo looks like an expert that never fires.</p>
-      </div>
-    </div>
-  </section>
-
-
-
-
-
-
-
   <!-- 19 -->
-  <section class="slide" data-title="Permission lessons">
-    <p class="eyebrow">Slide 19 · Borrowed practice</p>
-    <h2>Guardrails only count if you test them</h2>
-    <p class="lead">Text rules advise. Allow lists, deny lists and hooks enforce, so check that they match what you think.</p>
-    <div class="grid-2">
-      <div class="card">
-        <div class="tag warn">Keep off the allow-list</div>
-        <h3><code>git push</code> and <code>gh pr create</code></h3>
-        <p>"Stop before push" in a prompt is not a guardrail when settings allow the push. Any agent that can run shell commands could push without asking.</p>
-      </div>
-      <div class="card">
-        <div class="tag warn">Prefix rules leak</div>
-        <h3><code>git -C &lt;path&gt;</code></h3>
-        <p><code>Bash(git diff *)</code> does not match <code>git -C ../repo diff</code>. Add <code>git -C *</code> patterns for reads you allow.</p>
-      </div>
-      <div class="card">
-        <div class="tag info">Known-bad input</div>
-        <h3>Test every guard</h3>
-        <p>After adding a rule or hook, try one thing it should stop. Example: ask the agent to run <code>git -C . push --dry-run</code> and confirm you get a prompt or a refusal.</p>
-      </div>
-      <div class="card">
-        <div class="tag info">Whole value</div>
-        <h3>Match anywhere</h3>
-        <p>A guard for names starting with <code>release/</code> never fires on <code>user/release/x</code>. Match "contains <code>release</code>" instead.</p>
-      </div>
-    </div>
-  </section>
-
-
-
-
-
-
-
-  <!-- 20 -->
   <section class="slide" data-title="Self-audit prompt">
-    <p class="eyebrow">Slide 20 · Borrowed practice</p>
+    <p class="eyebrow">Slide 19 · Borrowed practice</p>
     <h2>Ask the agent to audit your setup</h2>
     <p>Paste into Claude Code, Cursor or Gemini CLI from the kit folder. It reads, ranks and waits for you to pick.</p>
     <div class="cmd-block tall" data-copy>
@@ -1827,7 +1792,7 @@ Give me a ranked shortlist of at most 7 changes, highest impact first. For
 each: what to change, why it helps me, and which file. Change nothing until
 I pick. Show a diff before editing any file. Never commit or push.</pre>
     </div>
-    <p class="hint">Adapted from a community kit of local agent optimizations. Re-run it after you change your setup.</p>
+    <p class="hint">Re-run it after you change your setup.</p>
   </section>
 
 
@@ -1837,7 +1802,7 @@ I pick. Show a diff before editing any file. Never commit or push.</pre>
 
 
 
-  <!-- 21 -->
+  <!-- 20 -->
   <section class="slide title-slide" data-title="Done">
     <p class="eyebrow">Done</p>
     <h1>You are set up when both tools read the same <code>MEMORY.md</code></h1>

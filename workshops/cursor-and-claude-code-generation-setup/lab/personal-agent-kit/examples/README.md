@@ -23,5 +23,3 @@ differs. If you edit one, edit the others to match.
 
 How to use them in Claude Code, Cursor and Gemini CLI, and why they help:
 [`../docs/borrowed-practices.md`](../docs/borrowed-practices.md#2-read-only-helpers-that-cite-file-and-line).
-
-Adapted from a community kit of local agent optimizations.

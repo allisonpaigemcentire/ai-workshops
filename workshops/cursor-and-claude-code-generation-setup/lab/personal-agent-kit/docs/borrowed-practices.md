@@ -1,7 +1,7 @@
 # Borrowed practices: model tiers, read-only helpers, guardrails
 
-Four ideas adapted from a community kit of local agent optimizations. None
-of them needs the installer. Take the ones that fit how you work.
+Four ideas for your local agent setup. None of them needs the installer.
+Take the ones that fit how you work.
 
 1. [Match the model to the work](#1-match-the-model-to-the-work)
 2. [Read-only helpers that cite file and line](#2-read-only-helpers-that-cite-file-and-line)
