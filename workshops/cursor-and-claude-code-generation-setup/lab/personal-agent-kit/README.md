@@ -111,8 +111,12 @@ How it stays safe:
   adds. It never asks for or stores a token.
 
 For each helper path above, a file or link of yours with the same name is
-backed up first, then replaced; uninstall puts it back. A helper copy you
-edit later is yours: re-runs and uninstall leave it alone.
+backed up first, then replaced; uninstall puts it back. A Cursor or Gemini
+helper copy you edit later is yours: re-runs and uninstall leave it alone.
+The Claude Code helpers are links into `~/.agents/examples/agents/`, and
+every run refreshes those files (your edit is backed up to
+`~/.agent-kit-backups/<time>/` first). To keep your own Claude version, save
+it under a new file name and `name:`, for example `my-code-reader.md`.
 
 In Gemini CLI, trust your project folder (Gemini asks on first run), or
 Gemini keeps every MCP server off. Gemini CLI also reads personal skills from

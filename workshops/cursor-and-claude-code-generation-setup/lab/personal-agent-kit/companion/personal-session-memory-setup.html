@@ -437,7 +437,7 @@
     <h1>Personal session memory for Cursor and Claude</h1>
     <p class="lead">Machine-local durable learnings in <code>~/.ai-memory/</code>, loaded by both tools. Personal Cursor rules mirrored into Claude with one sync script.</p>
     <div class="meta-row">
-      <span class="chip">Jul 2026</span>
+      <span class="chip">Nov 2026</span>
       <span class="chip">Cursor + Claude Code</span>
       <span class="chip">Personal only — not git</span>
       <span class="chip">← → or click to navigate</span>
@@ -894,7 +894,7 @@ or the Claude symlink) when any of these happen:
   <section class="slide" data-title="Run sync">
     <p class="eyebrow">Slide 08 · Step 4</p>
     <h2>Bridge Cursor rules into Claude</h2>
-    <p class="lead">From the repo (or directory) that contains the sync script:</p>
+    <p class="lead">Ran <code>install.sh</code>? It already synced. Otherwise, from the sync script's folder:</p>
     <div class="cmd-block" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>cd /path/to/repo-with-sync-script
@@ -922,7 +922,7 @@ bash scripts/sync-personal-rules.sh --check</pre>
     </div>
     <div class="cmd-block" data-copy>
       <div class="bar"><span>optional alias</span><button type="button" class="copy-btn">Copy</button></div>
-      <pre>alias sync-personal-rules='bash ~/path/to/repo-with-sync-script/scripts/sync-personal-rules.sh'</pre>
+      <pre>alias sync-personal-rules='bash ~/.agents/scripts/sync-personal-rules.sh'</pre>
     </div>
     <p class="hint">Full script on the next slide.</p>
   </section>
@@ -1226,7 +1226,8 @@ fi</pre>
   <section class="slide" data-title="Stop hook">
     <p class="eyebrow">Slide 10 · Step 5 (optional)</p>
     <h2>Cursor stop nudge</h2>
-    <p class="lead">Skip this for minimum setup. Wrap-up still works if you say <code>wrap up</code> / <code>update memory</code>.</p>
+    <p class="lead">Optional: wrap-up still works if you say <code>wrap up</code> / <code>update memory</code>. Ran <code>install.sh</code>? Skip this: it already registered <code>bash ~/.cursor/hooks/session-memory-stop.sh</code>, and a second entry means two stop hooks.</p>
+    <div class="split-top">
     <div class="cmd-block" data-copy>
       <div class="bar"><span>~/.cursor/hooks/session-memory-stop.sh</span><button type="button" class="copy-btn">Copy</button></div>
       <pre>#!/usr/bin/env bash
@@ -1239,6 +1240,7 @@ exec python3 "$HOME/.cursor/hooks/session-memory-stop.py"</pre>
       <pre>mkdir -p ~/.cursor/hooks
 # write session-memory-stop.sh and session-memory-stop.py (next slide)
 chmod +x ~/.cursor/hooks/session-memory-stop.sh</pre>
+    </div>
     </div>
     <p>Register in <code>~/.cursor/hooks.json</code> under <code>hooks.stop</code>:</p>
     <div class="cmd-block" data-copy>
@@ -1420,8 +1422,8 @@ ls -la ~/.claude/skills/session-memory
 ls -la ~/.cursor/rules/session-memory.mdc
 ls -la ~/.claude/rules/session-memory.md
 
-# Bridge
-bash /path/to/repo-with-sync-script/scripts/sync-personal-rules.sh --check
+# Bridge (kit installs: ~/.agents/scripts/)
+bash ~/.agents/scripts/sync-personal-rules.sh --check
 
 # Optional stop hook
 ls -la ~/.cursor/hooks/session-memory-stop.py ~/.cursor/hooks/session-memory-stop.sh

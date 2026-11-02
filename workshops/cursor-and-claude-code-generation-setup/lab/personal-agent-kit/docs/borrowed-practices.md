@@ -37,8 +37,9 @@ self-updating aliases do not.
   on your plan.
 
 UNVERIFIED: the tier mapping is judgment from the community kit, not
-vendor guidance. The Cursor column is generic on purpose, and the Gemini
-aliases come from that kit, not from Gemini's own docs.
+vendor guidance. The Cursor column is generic on purpose. The Gemini
+aliases `pro`, `flash` and `flash-lite` are listed under "Model aliases" in
+the [Gemini CLI reference](https://geminicli.com/docs/cli/cli-reference/).
 
 ### Keep context lean
 
@@ -84,8 +85,11 @@ If you already have a file or link with either name there, it is backed up
 to `~/.agent-kit-backups/<time>/` first and then replaced. `uninstall.sh`
 removes only what it added and puts your file back; a kit copy you edited
 since is left in place. Later runs keep the kit's copies current and leave
-a copy you edited alone, even with `--with-helpers`. Add
-`--dry-run` to preview.
+a Cursor or Gemini copy you edited alone, even with `--with-helpers`. The
+Claude Code helpers are links into `~/.agents/examples/agents/`, which every
+run refreshes (your edit is backed up first), so save your own Claude
+version under a new name such as `my-code-reader.md`. Add `--dry-run` to
+preview.
 
 Cursor and Gemini get copies, not links: Gemini CLI 0.66.0 skips a linked
 `.md` in `~/.gemini/agents/` (its loader lists only regular files; checked in

@@ -42,7 +42,9 @@
 #                   (copies, not links: Gemini skips linked agent files)
 #      A file or link of yours with the same name is backed up, then replaced;
 #      uninstall puts it back. Later runs keep the kit's copies current
-#      and leave alone a copy you changed.
+#      and leave alone a Cursor or Gemini copy you changed. The Claude links
+#      point into ~/.agents/examples/agents/, which step 1 refreshes (old
+#      copy backed up): keep your own Claude version under a new name.
 #   Last, for Cursor: prints the text to paste into Customize > Rules >
 #   User Rules (the main Cursor path), and on macOS copies it with pbcopy.
 #
@@ -301,7 +303,8 @@ steps() {
   done
   if (( HELPER_CHANGES )); then :
   elif (( HELPERS )); then say "ok (helpers in place)"
-  elif [[ -f "$STATE" ]] && grep -q '^helper' "$STATE"; then say "ok (installed helpers are current)"
+  elif [[ -f "$STATE" ]] && awk -F'\t' '$1 ~ /^helper/ || ($1 == "link" && index($2, "/.claude/agents/")) { f = 1 } END { exit !f }' "$STATE"; then
+    say "ok (installed helpers are current)"
   else say "skipped (add --with-helpers to install code-reader and doc-reader)"; fi
 }
 

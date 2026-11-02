@@ -1,6 +1,6 @@
 # Changelog
 
-## v2 (2026-10-30)
+## v2 (2026-10-30, updated 2026-11-02)
 
 - One command: `scripts/install.sh` now previews, asks once, installs, and
   merges the Cursor hooks, Claude settings and MCP config that used to be
@@ -41,9 +41,9 @@
   self-audit prompt and permission lessons. Optional example subagents in
   `examples/agents/` (`code-reader`, `doc-reader`).
 - New `install.sh --with-helpers` (off by default) links the two example
-  subagents into `~/.claude/agents/`, which Cursor also reads. A file of
-  yours with the same name is backed up first; `uninstall.sh` removes only
-  the links it added and restores your file.
+  subagents into `~/.claude/agents/` (Cursor and Gemini copies: see below).
+  A file of yours with the same name is backed up first; `uninstall.sh`
+  removes only what it added and restores your file.
 - Fixed: `--with-helpers` backs up a link of yours as a link, so uninstall
   puts back the link itself (macOS `cp` copied the file it pointed to and
   stopped the install on a broken link). If a helper replaced your file on
