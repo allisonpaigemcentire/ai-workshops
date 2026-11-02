@@ -389,6 +389,36 @@
     border-bottom: 1px solid rgba(91, 159, 212, 0.25);
   }
   .tx-card .dosay th { color: var(--info); }
+
+  /* Fit-to-screen layout: a card on the left, a code block on the right that
+     takes the remaining height and scrolls inside itself. */
+  .slide.fit { display: flex; flex-direction: column; }
+  .fit .split {
+    flex: 1;
+    min-height: 0;
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1.1fr);
+    gap: 1rem;
+  }
+  .fit .split > .col { min-height: 0; display: flex; flex-direction: column; }
+  .fit .split > .col > p { margin: 0 0 0.6rem; font-size: 0.92rem; }
+  .fit .split .tx-card { margin: 0; overflow: auto; }
+  .fit .split .tx-card .twenty { font-size: 0.92rem; margin-bottom: 0.5rem; }
+  .fit .split .cmd-block { flex: 1; min-height: 0; margin: 0; display: flex; flex-direction: column; }
+  .fit .split .cmd-block pre { flex: 1; min-height: 0; max-height: none; white-space: pre-wrap; }
+  .split-top {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
+    gap: 1rem;
+    align-items: start;
+  }
+  .split-top .cmd-block { margin-top: 0; }
+  .split-top .cmd-block pre { white-space: pre-wrap; max-height: none; }
+  @media (max-width: 900px) {
+    .slide.fit { display: block; }
+    .fit .split, .split-top { display: block; }
+    .fit .split .cmd-block pre { max-height: min(72vh, 780px); }
+  }
 </style>
 </head>
 <body>
@@ -751,9 +781,11 @@ After wrap-up, report briefly:
 
 
   <!-- 7 -->
-  <section class="slide" data-title="Install rule">
+  <section class="slide fit" data-title="Install rule">
     <p class="eyebrow">Slide 07 · Step 3</p>
     <h2>Install the always-on Cursor rule</h2>
+    <div class="split">
+    <div class="col">
     <section class="tx-card">
       <p class="label">For executive conversations · 20-second card</p>
       <p class="twenty">The rule is the standing order that rides with every chat — load past lessons, mark a correction when it happens, and call the runbook at wrap-up. Same idea as a lint gate that always runs: small, always on, and it tells you when to open the longer checklist. You need both: the gate alone has no write procedure; the runbook alone never gets opened unless someone remembers.</p>
@@ -770,6 +802,8 @@ After wrap-up, report briefly:
         </tbody>
       </table>
     </section>
+    </div>
+    <div class="col">
     <p>Write this to <code>~/.cursor/rules/session-memory.mdc</code> (the kit's installer links it there). Cursor loads that folder only for projects under your home folder. For other projects, paste the rule body (below the second <code>---</code>) into Customize &gt; Rules &gt; User Rules, next to the personal rule from <code>install.sh --print-user-rule</code>.</p>
     <div class="cmd-block tall" data-copy>
       <div class="bar"><span>~/.cursor/rules/session-memory.mdc</span><button type="button" class="copy-btn">Copy</button></div>
@@ -845,6 +879,8 @@ or the Claude symlink) when any of these happen:
 - Treat Claude `~/.claude/projects/*/memory/` as the shared store
 - Auto-commit learnings into shared repos without explicit user instruction
 - Grow `MEMORY.md` past its size budget</pre>
+    </div>
+    </div>
     </div>
   </section>
 
@@ -1369,6 +1405,7 @@ if __name__ == "__main__":
   <section class="slide" data-title="Verify">
     <p class="eyebrow">Slide 12 · Verify</p>
     <h2>Confirm the install</h2>
+    <div class="split-top">
     <div class="cmd-block" data-copy>
       <div class="bar"><span>shell</span><button type="button" class="copy-btn">Copy</button></div>
       <pre># Store
@@ -1399,6 +1436,7 @@ python3 -m py_compile ~/.cursor/hooks/session-memory-stop.py</pre>
         <tr><td>Say “update memory” after a correction</td><td>New or updated file under <code>lessons/</code>; bullet in <code>MEMORY.md</code></td></tr>
       </tbody>
     </table>
+    </div>
   </section>
 
 
