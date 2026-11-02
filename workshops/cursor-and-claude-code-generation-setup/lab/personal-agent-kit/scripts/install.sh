@@ -144,8 +144,22 @@ command -v jq >/dev/null 2>&1 || echo "note: jq not found; the Claude status lin
 # Jira and Confluence go through Atlassian's CLI (acli), not an MCP server.
 # Check only: never install it, sign in, or store a token here.
 HAVE_ACLI=0
-command -v acli >/dev/null 2>&1 && HAVE_ACLI=1
+ACLI_OFF_PATH=""
+if command -v acli >/dev/null 2>&1; then
+  HAVE_ACLI=1
+else
+  # Installed by Homebrew but the brew folder is not on PATH yet.
+  for d in /opt/homebrew/bin /usr/local/bin; do
+    if [[ -x "$d/acli" ]]; then ACLI_OFF_PATH="$d"; break; fi
+  done
+fi
 acli_install_hint() {
+  if [[ -n "$ACLI_OFF_PATH" ]]; then
+    echo "  acli is installed at $ACLI_OFF_PATH/acli, but that folder is not on your PATH."
+    echo "  Add Homebrew to your shell, then open a new terminal:"
+    echo "    echo 'eval \"\$($ACLI_OFF_PATH/brew shellenv)\"' >> ~/.zprofile"
+    return 0
+  fi
   echo "  macOS (Homebrew): brew tap atlassian/homebrew-acli && brew install acli"
   echo "  Other systems:    https://developer.atlassian.com/cloud/acli/guides/install-acli/"
 }
@@ -155,7 +169,11 @@ if [[ -f "$AGENTS/instructions/shared.md" ]] && ! grep -q 'acli jira auth login'
   echo "  the two Jira lines under '## Tooling' in $KIT/instructions/shared.template.md"
 fi
 if (( ! HAVE_ACLI )); then
-  echo "note: acli (Atlassian CLI) not found. Agents use it for Jira; install it any time:"
+  if [[ -n "$ACLI_OFF_PATH" ]]; then
+    echo "note: acli (Atlassian CLI) is not on your PATH. Agents use it for Jira:"
+  else
+    echo "note: acli (Atlassian CLI) not found. Agents use it for Jira; install it any time:"
+  fi
   acli_install_hint
 fi
 
@@ -565,7 +583,7 @@ Next:
      The kit never stores a token.
 MSG
 if (( ! HAVE_ACLI )); then
-  echo "     acli is not installed yet:"
+  if [[ -n "$ACLI_OFF_PATH" ]]; then echo "     acli is not on your PATH yet:"; else echo "     acli is not installed yet:"; fi
   acli_install_hint | sed 's/^/   /'
 fi
 cat <<MSG
