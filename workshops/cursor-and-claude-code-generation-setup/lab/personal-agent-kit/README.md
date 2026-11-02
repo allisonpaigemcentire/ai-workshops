@@ -111,7 +111,8 @@ How it stays safe:
   adds. It never asks for or stores a token.
 
 For each helper path above, a file or link of yours with the same name is
-backed up first, then replaced; uninstall puts it back.
+backed up first, then replaced; uninstall puts it back. A helper copy you
+edit later is yours: re-runs and uninstall leave it alone.
 
 In Gemini CLI, trust your project folder (Gemini asks on first run), or
 Gemini keeps every MCP server off. Gemini CLI also reads personal skills from

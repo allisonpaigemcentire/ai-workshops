@@ -62,10 +62,15 @@
   (`model: inherit`, `readonly: true`) and `~/.gemini/agents/` (Gemini
   format, read-only tools), for the tools in `--tools`. Claude links now
   need Claude Code in `--tools`. Copies are backed up and restored like the
-  links; uninstall leaves a copy you edited.
+  links; re-runs and uninstall leave a copy you edited.
 - `wire-personal-agents.sh` (and `--check`) warns about `<...>` fill-ins
   still blank in `shared.md`. It is a warning; the exit code is unchanged.
 - `instructions/shared.template.md` has an optional 3-line model tier
   summary.
 - `docs/borrowed-practices.md`: Cursor caveats on legacy request-based plans
   and on the extra tokens parallel subagents use; Gemini CLI helper notes.
+- Review fixes: a helper copy you edited is no longer replaced when you
+  re-run with `--with-helpers`; uninstall still puts back your original file
+  after you deleted a helper copy and re-ran; the fill-in warning skips
+  autolinks, emails, generic types such as `List<String>`, indented or `~~~`
+  code fences and more HTML tags.

@@ -83,7 +83,8 @@ tool in `--tools` (default: all three):
 If you already have a file or link with either name there, it is backed up
 to `~/.agent-kit-backups/<time>/` first and then replaced. `uninstall.sh`
 removes only what it added and puts your file back; a kit copy you edited
-since is left in place. Later runs keep the kit's copies current. Add
+since is left in place. Later runs keep the kit's copies current and leave
+a copy you edited alone, even with `--with-helpers`. Add
 `--dry-run` to preview.
 
 Cursor and Gemini get copies, not links: Gemini CLI 0.66.0 skips a linked

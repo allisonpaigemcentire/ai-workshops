@@ -41,7 +41,8 @@
 #      Gemini CLI:  copies examples/agents/gemini/*.md into ~/.gemini/agents/
 #                   (copies, not links: Gemini skips linked agent files)
 #      A file or link of yours with the same name is backed up, then replaced;
-#      uninstall puts it back. Later runs keep the kit's copies current.
+#      uninstall puts it back. Later runs keep the kit's copies current
+#      and leave alone a copy you changed.
 #   Last, for Cursor: prints the text to paste into Customize > Rules >
 #   User Rules (the main Cursor path), and on macOS copies it with pbcopy.
 #
@@ -372,6 +373,10 @@ helper_copy() {
   fi
   last="$(last_copy "$dest")"
   lastsum="${last%%$'\t'*}"; prevbk="${last#*$'\t'}"
+  # A backup of your file from an earlier run stays on the record, so
+  # uninstall still puts it back. "-" means none (an empty field would shift
+  # the tab-separated columns).
+  [[ -n "$prevbk" ]] || prevbk="-"
   if [[ ! -e "$dest" && ! -L "$dest" ]]; then
     (( refresh )) && return 0
     HELPER_CHANGES=$((HELPER_CHANGES + 1))
@@ -379,17 +384,30 @@ helper_copy() {
     mkdir -p "$(dirname "$dest")"
     cp "$ksrc" "$dest"
     say "copied $dest"
-    record helper-copy "$dest" "$src" - "$(sumof "$dest")"
+    record helper-copy "$dest" "$src" "$prevbk" "$(sumof "$dest")"
     return 0
   fi
   if [[ -n "$lastsum" && -f "$dest" && ! -L "$dest" && "$(sumof "$dest")" == "$lastsum" ]]; then
     # The kit's own copy from an earlier run, unchanged by you: update it.
     HELPER_CHANGES=$((HELPER_CHANGES + 1))
     if (( DRY )); then say "would: update $dest (the kit's copy changed)"; return 0; fi
-    backup_file "$dest"
+    if [[ "$prevbk" == "$KIT_BACKUP_DIR/${dest#"$HOME"/}" ]]; then
+      # Same backup folder as the run that saved your file (two runs in one
+      # second): keep your file's backup, save the kit's old copy beside it.
+      cp -p "$dest" "$prevbk.kit-copy"
+      say "backed up $dest -> $prevbk.kit-copy"
+    else
+      backup_file "$dest"
+    fi
     cp "$ksrc" "$dest"
     say "updated $dest"
     record helper-copy "$dest" "$src" "$prevbk" "$(sumof "$dest")"
+    return 0
+  fi
+  if [[ -n "$lastsum" ]]; then
+    # The kit put a copy here and you changed or replaced it since: yours now,
+    # left alone even with --with-helpers (uninstall leaves it too).
+    say "left $dest: you changed the kit's copy (to get the kit's copy back, delete it and re-run with --with-helpers)"
     return 0
   fi
   (( refresh )) && return 0   # yours: left alone without --with-helpers

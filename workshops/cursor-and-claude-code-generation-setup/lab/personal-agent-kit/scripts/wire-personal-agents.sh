@@ -291,7 +291,9 @@ check_embed() {
 
 # Warn (never fail) about <fill-ins> still left in shared.md. Skips HTML
 # comments, fenced code and `code spans`, so a path such as
-# `~/.agents/skills/<name>/` is not counted. Needs python3; quiet without it.
+# `~/.agents/skills/<name>/` is not counted, and skips values that are not
+# fill-ins: <https://...> links, <you@host> emails, HTML tags and generic
+# types such as List<String>. Needs python3; quiet without it.
 warn_fill_ins() {
   command -v python3 >/dev/null 2>&1 || return 0
   python3 - "$SHARED" <<'PYEOF2' || true
@@ -304,15 +306,21 @@ except OSError:
 def blank(m):
     return re.sub(r"[^\n]", " ", m.group(0))
 masked = re.sub(r"<!--.*?-->", blank, text, flags=re.S)
-masked = re.sub(r"^```.*?^```", blank, masked, flags=re.S | re.M)
+masked = re.sub(r"^[ \t]*(`{3,}|~{3,}).*?^[ \t]*\1", blank, masked, flags=re.S | re.M)
 masked = re.sub(r"`[^`\n]*`", blank, masked)
-html = {"a", "b", "i", "u", "p", "br", "hr", "em", "strong", "code", "pre", "kbd",
-        "sub", "sup", "div", "span", "img", "details", "summary", "table", "tr", "td", "th"}
+html = {"a", "b", "i", "u", "s", "p", "br", "hr", "em", "strong", "code", "pre", "kbd",
+        "sub", "sup", "div", "span", "img", "details", "summary", "table", "thead",
+        "tbody", "tr", "td", "th", "ul", "ol", "li", "dl", "dt", "dd", "h1", "h2", "h3",
+        "h4", "h5", "h6", "blockquote", "mark", "small", "del", "ins", "abbr", "center",
+        "font", "section", "picture", "source", "video", "audio"}
+link = re.compile(r"^(?:[A-Za-z][A-Za-z0-9+.-]*:\S+|[^\s@<>]+@[^\s@<>]+)$")
 hits = []
 for m in re.finditer(r"<([A-Za-z][^<>]{0,300}?)>", masked):
     inner = m.group(1).strip()
-    if inner.lower().rstrip("/").split()[0] in html:
+    if inner.lower().split()[0].rstrip("/") in html or link.match(inner):
         continue
+    if m.start() > 0 and (masked[m.start() - 1].isalnum() or masked[m.start() - 1] == "_"):
+        continue  # a generic type such as List<String>, not a fill-in
     line = text.count("\n", 0, m.start()) + 1
     shown = " ".join(text[m.start():m.end()].split())
     if len(shown) > 70:
